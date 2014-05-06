@@ -1,0 +1,20 @@
+<ion-view title="Search">
+  <ion-content class="has-header">
+    <form class="bar bar-header item-input-inset" ng-submit="$parent.search(searchTerm)">
+      <label class="item-input-wrapper">
+        <i class="icon ion-ios7-search placeholder-icon"></i>
+        <input type="search" placeholder="Search" ng-model="$parent.searchTerm">
+      </label>
+      <button type="button" class="button button-clear" ng-click="clearResults()">
+        Cancel
+      </button>
+    </form>
+    <ion-list>
+      <!-- TODO: switch out with a collection-repeat. Do after Beta 4 -->
+      <ion-item ng-click="openPost(post.url)" class="item" ng-repeat="post in posts">
+        <h2>{{post.title}}<h2>
+        <p>{{post.points}} points &nbsp; {{post.created_at | timeAgo}}</p>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

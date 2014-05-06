@@ -1,0 +1,11 @@
+<ion-view title="Front Page">
+  <ion-content class="has-header padding">
+    <ion-list>
+      <!-- TODO: switch out with a collection-repeat. Do after Beta 4 -->
+      <ion-item ng-href="{{post.url}}" target="_blank" class="item" ng-repeat="post in posts">
+        <h2>{{post.title}}<h2>
+        <p>{{post.points}} points &nbsp; {{post.created_at | timeAgo}}</p>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>
