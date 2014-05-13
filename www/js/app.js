@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
+angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.services'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -16,7 +16,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
   });
 })
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
+
+  // Listen to all successful requests, so we can cache some queries
+  $httpProvider.interceptors.push('cacheInterceptor');
 
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
@@ -78,10 +81,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
           controller: 'AccountCtrl'
         }
       }
-    })
+    });
 
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/tab/front-page');
 
 })
-
+.factory('cacheInterceptor', function($q, RequestCache) {
+  // keep this light, it runs before any request is returned, avoid async here
+  return {
+    // catch successful requests and send them to the RequestCache service
+    'response': function(response) {
+      RequestCache.entry(response);
+      return response || $q.when(response);
+    }
+  }
+});

@@ -1,4 +1,4 @@
-angular.module('starter.services', [])
+angular.module('frontpage.services', [])
 
 /**
  * A service that calls out to Drifty's Hacker News API
@@ -7,11 +7,10 @@ angular.module('starter.services', [])
 .factory('HNAPI', function($rootScope, $http, $q) {
   var apiURL = 'http://127.0.0.1:8080/';
   // load saved data if available
-  var posts = typeof localStorage.posts === 'undefined'? {}:localStorage.posts;
 
   function validateResponse(result){
-    if(typeof result.data != 'array' && typeof result.data != 'object' )return false;
-    return true;
+    return !(typeof result.data != 'array' && typeof result.data != 'object');
+
   }
 
   return {
@@ -20,8 +19,7 @@ angular.module('starter.services', [])
       var q = $q.defer();
       $http.get(apiURL+'frontpage/'+page)
         .then(function(result){
-          if(!validateResponse(result))return q.reject(new Error('Invalid Response'));
-          q.resolve(result.data);
+          return !validateResponse(result)? q.reject(new Error('Invalid Response')):q.resolve(result.data);
         },function(err){
           console.log('Search Failed');
           q.reject(err);
@@ -32,8 +30,7 @@ angular.module('starter.services', [])
       var q = $q.defer();
       $http.get(apiURL+'new/'+page)
         .then(function(result){
-          if(!validateResponse(result))return q.reject(new Error('Invalid Response'));
-          q.resolve(result.data);
+          return !validateResponse(result)? q.reject(new Error('Invalid Response')):q.resolve(result.data);
         },function(err){
           console.log('Search Failed');
           q.reject(err);
@@ -45,13 +42,35 @@ angular.module('starter.services', [])
       var q = $q.defer();
       $http.get(apiURL+'search?&q='+searchTerm)
            .then(function(result){
-             if(!validateResponse(result))return q.reject(new Error('Invalid Response'));
-             q.resolve(result.data);
+            return !validateResponse(result)? q.reject(new Error('Invalid Response')):q.resolve(result.data);
            },function(err){
              console.log('Search Failed');
              q.reject(err);
           });
       return q.promise;
+    }
+  }
+})
+
+/**
+ * A service that caches some API responses
+ */
+
+.factory('RequestCache', function() {
+  var requestsToCache = ['frontpage/0','new/0'];
+  var cache = typeof localStorage.cache == 'undefined'?{}:JSON.parse(localStorage.cache);
+  return{
+    entry: function(request){
+      for(var i = 0;i<requestsToCache.length;i++){
+        if(request.config.url.indexOf(requestsToCache[i]) != -1){
+          cache[requestsToCache[i]] = request.data;
+          localStorage.cache = JSON.stringify(cache);
+        }
+      }
+
+    },
+    get:function(url){
+      return typeof cache[url] === 'undefined' ? false:cache[url];
     }
   }
 })

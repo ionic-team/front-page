@@ -1,6 +1,7 @@
-angular.module('starter.controllers', [])
+angular.module('frontpage.controllers', [])
 
-.controller('FrontPageCtrl', function($scope, HNAPI) {
+.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache) {
+  $scope.posts = RequestCache.get('frontpage/0');
   HNAPI.frontpage(0).then(function(posts){
     $scope.posts = posts;
   });
@@ -9,7 +10,8 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('NewestCtrl', function($scope, HNAPI) {
+.controller('NewestCtrl', function($scope, HNAPI, RequestCache) {
+  $scope.posts = RequestCache.get('frontpage/0');
   HNAPI.newest(0).then(function(posts){
     $scope.posts = posts;
   });
@@ -22,19 +24,16 @@ angular.module('starter.controllers', [])
   $scope.friend = Friends.get($stateParams.friendId);
 })
 
-.controller('SearchCtrl', function($scope, HNAPI, $ionicListDelegate) {
+.controller('SearchCtrl', function($scope, HNAPI) {
   $scope.searchTerm = '';
   $scope.posts = [];
   $scope.search = function(searchTerm){
     HNAPI.search(searchTerm).then(function(searchResults){
       $scope.posts = searchResults;
     });
-  }
+  };
   $scope.open = function(url){
     window.open(url,'_system');
   }
-})
-
-.controller('AccountCtrl', function($scope) {
 })
 ;
