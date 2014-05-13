@@ -1,14 +1,10 @@
-<ion-view title="Search">
-  <ion-header>
-    <form class="bar bar-header item-input-inset" ng-submit="search(searchTerm)">
-      <label class="item-input-wrapper">
-        <i class="icon ion-ios7-search placeholder-icon"></i>
-        <input type="search" placeholder="Search" ng-model="searchTerm">
-      </label>
-    </form>
-  </ion-header>
+<ion-view title="Newest">
+  <ion-nav-bar class="bar-stable nav-title-slide-ios7">
+    <ion-nav-back-button class="button-icon icon ion-chevron-left">
+      Back
+    </ion-nav-back-button>
+  </ion-nav-bar>
   <ion-content class="has-header">
-
     <ion-list>
       <ion-item ng-click="open(post.url)"
                 class="item"

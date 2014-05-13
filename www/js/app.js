@@ -38,17 +38,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       views: {
         'tab-front-page': {
           templateUrl: 'templates/tab-front-page.html',
-          controller: 'PostsCtrl'
+          controller: 'FrontPageCtrl'
         }
       }
     })
 
-    .state('tab.new', {
-      url: '/new',
+    .state('tab.newest', {
+      url: '/newest',
       views: {
-        'tab-new': {
-          templateUrl: 'templates/tab-new.html',
-          controller: 'NewCtrl'
+        'tab-newest': {
+          templateUrl: 'templates/tab-newest.html',
+          controller: 'NewestCtrl'
         }
       }
     })
@@ -83,5 +83,5 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/tab/front-page');
 
-});
+})
 

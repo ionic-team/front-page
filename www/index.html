@@ -24,14 +24,8 @@
     <script src="js/services.js"></script>
   </head>
   <body ng-app="starter" animation="slide-left-right-ios7">
-    <!-- 
-      The nav bar that will be updated as we navigate between views.
-    -->
-    <ion-nav-bar class="bar-stable nav-title-slide-ios7">
-      <ion-nav-back-button class="button-icon icon ion-chevron-left">
-        Back
-      </ion-nav-back-button>
-    </ion-nav-bar>
+    <!-- Moved the nav bar in to template files because we need more granular control of its markup -->
+
     <!-- 
       The views will be rendered in the <ion-nav-view> directive below
       Templates are in the /templates folder (but you could also

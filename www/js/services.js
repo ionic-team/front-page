@@ -9,13 +9,9 @@ angular.module('starter.services', [])
   // load saved data if available
   var posts = typeof localStorage.posts === 'undefined'? {}:localStorage.posts;
 
-  function update(){
-    function validateResponse(result){
-      console.log(result);
-      if(typeof result.data != 'array' || typeof result.data != 'object' )return false;
-
-      return true;
-    }
+  function validateResponse(result){
+    if(typeof result.data != 'array' && typeof result.data != 'object' )return false;
+    return true;
   }
 
   return {
@@ -23,6 +19,18 @@ angular.module('starter.services', [])
     frontpage: function(page) {
       var q = $q.defer();
       $http.get(apiURL+'frontpage/'+page)
+        .then(function(result){
+          if(!validateResponse(result))return q.reject(new Error('Invalid Response'));
+          q.resolve(result.data);
+        },function(err){
+          console.log('Search Failed');
+          q.reject(err);
+        });
+      return q.promise;
+    },
+    newest: function(page) {
+      var q = $q.defer();
+      $http.get(apiURL+'new/'+page)
         .then(function(result){
           if(!validateResponse(result))return q.reject(new Error('Invalid Response'));
           q.resolve(result.data);
