@@ -16,5 +16,10 @@
         <p>{{post.points}} points &nbsp; {{post.submitted_on}} &nbsp; by {{post.submitted_by}}</p>
       </ion-item>
     </ion-list>
+    <ion-infinite-scroll
+        icon="ion-loading-c"
+        on-infinite="loadMoreData()">
+    </ion-infinite-scroll>
+
   </ion-content>
 </ion-view>
