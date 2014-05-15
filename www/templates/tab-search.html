@@ -1,23 +1,33 @@
 <ion-view title="Search">
   <ion-header>
-    <form class="bar bar-header item-input-inset" ng-submit="search(searchTerm)">
-      <label class="item-input-wrapper">
-        <i class="icon ion-ios7-search placeholder-icon"></i>
-        <input type="search" placeholder="Search" ng-model="searchTerm">
+    <form class="bar bar-header bar-energized item-input-inset" ng-submit="search(searchTerm)">
+      <label class="item-input-wrapper energized-bg">
+        <i class="icon ion-ios7-search-strong placeholder-icon" ng-class="focused"></i>
+        <input type="search"
+               id="searchInput"
+               placeholder="Search"
+               ng-model="searchTerm"
+               ng-focus="focused = 'text-left'"
+               ng-blur="focused = searchTerm.length?'text-left':'text-center'"
+               ng-class="focused">
       </label>
+      <i class="icon ion-ios7-close dark"
+          ng-show="searchTerm.length"
+          ng-click="clear()"></i>
     </form>
   </ion-header>
   <ion-content class="has-header has-footer">
 
     <ion-list>
       <ion-item ng-click="open(post.url)"
-                class="item"
+                class="item item-icon-right"
                 collection-repeat="post in posts"
                 collection-item-width="'100%'"
                 collection-item-height="70"
                 style="width:100%">
         <h2>{{post.title}}</h2>
         <p>{{post.points}} points &nbsp; {{post.submitted_on}} &nbsp; by {{post.submitted_by}}</p>
+        <i class="icon ion-chatbubble light"></i>
       </ion-item>
     </ion-list>
   </ion-content>

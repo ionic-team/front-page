@@ -14,6 +14,15 @@ $assertive:                       #ef4e3a !default;
 $royal:                           #8a6de9 !default;
 $dark:                            #444 !default;
 */
+// setting $energized to be HN orange
+$energized:                       #ff6600;
+
+// note that we can't use vars that haven't been declared yet, so we're using the $light hex code directly
+$tabs-light-bg:                  rgba(#fff,.97);
+$tabs-light-border:              none;
+$bar-energized-bg:               rgba($energized,.97);
+$bar-energized-border:           $energized;
+
 
 // The path for our ionicons font files, relative to the built CSS in www/css
 $ionicons-font-path: "../lib/ionic/fonts" !default;
@@ -21,3 +30,61 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 // Include all of Ionic
 @import "www/lib/ionic/scss/ionic";
 
+// overrides can go here
+// set the footer and headers to be padding instead of borders so there's something visible behind the transparency
+.semi-transparent .has-tabs{
+  bottom: 0 ;
+  padding-bottom: 49px;
+}
+.semi-transparent .has-header{
+  top: 0;
+  padding-top: 44px;
+}
+//search bar styling
+.item-input-wrapper.energized-bg{
+  background: darken($energized, 3%);
+}
+.energized-bg input::-webkit-input-placeholder,
+.energized-bg textarea::-webkit-input-placeholder {
+  color:rgba(126, 50, 0, .7);
+}
+.item-input-wrapper.energized-bg input[type="search"] {
+  -moz-appearance:    textfield;
+  -webkit-appearance: textfield;
+  appearance: textfield;
+  color:white;
+  padding-left: 0px;
+}
+.item-input-wrapper.energized-bg i{
+  position:relative;
+  font-size:18px;
+  color:rgba(126, 50, 0, .5);
+}
+// because sass can't calc, we make it a mixin
+@mixin calc($property, $expression) {
+  #{$property}: -webkit-calc(#{$expression});
+  #{$property}: calc(#{$expression});
+}
+i.text-center{
+  @include calc(left, "47% - 20px");
+}
+.ion-chatbubble.light{
+  -webkit-text-stroke: 1px #bebcbb;
+}
+.ion-chatbubble.light span{
+  font-family: $font-family-sans-serif;
+}
+.ion-ios7-close.dark{
+  font-size: 18px;
+  color:rgba(126, 50, 0, .5);
+  position: absolute;
+  right: 10px;
+  top: 2px;
+  height: 35px;
+  padding-top: 10px;
+  width: 30px;
+  padding-left: 10px;
+}
+.ion-ios7-close.dark:active{
+  color:rgba(126, 50, 0, 1);
+}

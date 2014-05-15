@@ -15,7 +15,6 @@ angular.module('frontpage.controllers', [])
     HNAPI.frontpage(currentPage).then(function(posts){
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
-      console.log($scope.posts);
     });
   }
 })
@@ -35,7 +34,6 @@ angular.module('frontpage.controllers', [])
     HNAPI.newest(currentPage).then(function(posts){
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
-      console.log($scope.posts);
     });
   }
 })
@@ -44,16 +42,27 @@ angular.module('frontpage.controllers', [])
   $scope.friend = Friends.get($stateParams.friendId);
 })
 
-.controller('SearchCtrl', function($scope, HNAPI) {
+.controller('SearchCtrl', function($scope, HNAPI, $ionicLoading) {
+  $scope.focused= 'text-center'
   $scope.searchTerm = '';
   $scope.posts = [];
   $scope.search = function(searchTerm){
+    $ionicLoading.show({
+      template: 'Searching...'
+    });
     HNAPI.search(searchTerm).then(function(searchResults){
       $scope.posts = searchResults;
+      $ionicLoading.hide();
     });
   };
   $scope.open = function(url){
     window.open(url,'_system');
+  }
+  $scope.clear = function(){
+    $scope.posts = [];
+    $scope.searchTerm = '';
+    $scope.focused = 'text-center';
+    document.getElementById('searchInput').blur();
   }
 })
 ;

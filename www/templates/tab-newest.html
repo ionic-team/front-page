@@ -1,5 +1,5 @@
 <ion-view title="Newest">
-  <ion-nav-bar class="bar-stable nav-title-slide-ios7">
+  <ion-nav-bar class="bar-energized nav-title-slide-ios7">
     <ion-nav-back-button class="button-icon icon ion-chevron-left">
       Back
     </ion-nav-back-button>
@@ -7,13 +7,14 @@
   <ion-content class="has-header">
     <ion-list>
       <ion-item ng-click="open(post.url)"
-                class="item"
+                class="item item-icon-right"
                 collection-repeat="post in posts"
                 collection-item-width="'100%'"
                 collection-item-height="70"
                 style="width:100%">
         <h2>{{post.title}}</h2>
         <p>{{post.points}} points &nbsp; {{post.submitted_on}} &nbsp; by {{post.submitted_by}}</p>
+        <i class="icon ion-chatbubble light"></i>
       </ion-item>
     </ion-list>
     <ion-infinite-scroll
