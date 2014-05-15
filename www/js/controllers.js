@@ -38,8 +38,14 @@ angular.module('frontpage.controllers', [])
   }
 })
 
-.controller('PostDetailCtrl', function($scope, $stateParams, Friends) {
-  $scope.friend = Friends.get($stateParams.friendId);
+.controller('CommentsCtrl', function($scope, HNAPI, $stateParams, $ionicLoading) {
+  $ionicLoading.show({
+    template: 'Loading...'
+  });
+  HNAPI.comments($stateParams.storyID).then(function(comments){
+    $scope.comments = comments;
+    $ionicLoading.hide();
+  });
 })
 
 .controller('SearchCtrl', function($scope, HNAPI, $ionicLoading) {

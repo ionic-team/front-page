@@ -55,15 +55,6 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
         }
       }
     })
-    .state('tab.post', {
-      url: '/posts/:postId',
-      views: {
-        'tab-post': {
-          templateUrl: 'templates/post-detail.html',
-          controller: 'PostDetailCtrl'
-        }
-      }
-    })
     .state('tab.search', {
         url: '/search',
         views: {
@@ -73,12 +64,12 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
             }
         }
     })
-    .state('tab.account', {
-      url: '/account',
+    .state('tab.comments', {
+      url: '/comments/:storyID',
       views: {
-        'tab-account': {
-          templateUrl: 'templates/tab-account.html',
-          controller: 'AccountCtrl'
+        'tab-front-page': {
+          templateUrl: 'templates/tab-comments.html',
+          controller: 'CommentsCtrl'
         }
       }
     });

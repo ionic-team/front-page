@@ -16,12 +16,16 @@ $dark:                            #444 !default;
 */
 // setting $energized to be HN orange
 $energized:                       #ff6600;
+$stable:                          #aaa;
+$light:                           #fff;
 
 // note that we can't use vars that haven't been declared yet, so we're using the $light hex code directly
-$tabs-light-bg:                  rgba(#fff,.97);
-$tabs-light-border:              none;
+$tabs-light-bg:                  rgba($light,.97);
+$tabs-light-border:              $light;
 $bar-energized-bg:               rgba($energized,.97);
 $bar-energized-border:           $energized;
+
+$search-input:             rgb(126, 50, 0);
 
 
 // The path for our ionicons font files, relative to the built CSS in www/css
@@ -58,25 +62,20 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 .item-input-wrapper.energized-bg i{
   position:relative;
   font-size:18px;
-  color:rgba(126, 50, 0, .5);
+  color:rgba($search-input, .5);
+  text-decoration: none;
 }
 // because sass can't calc, we make it a mixin
 @mixin calc($property, $expression) {
-  #{$property}: -webkit-calc(#{$expression});
-  #{$property}: calc(#{$expression});
+  #{$property}: -webkit-calc(#{$expression}) !important;
+  #{$property}: calc(#{$expression}) !important;
 }
 i.text-center{
   @include calc(left, "47% - 20px");
 }
-.ion-chatbubble.light{
-  -webkit-text-stroke: 1px #bebcbb;
-}
-.ion-chatbubble.light span{
-  font-family: $font-family-sans-serif;
-}
 .ion-ios7-close.dark{
   font-size: 18px;
-  color:rgba(126, 50, 0, .5);
+  color:rgba($search-input, .5);
   position: absolute;
   right: 10px;
   top: 2px;
@@ -86,5 +85,69 @@ i.text-center{
   padding-left: 10px;
 }
 .ion-ios7-close.dark:active{
-  color:rgba(126, 50, 0, 1);
+  color:rgba($search-input, 1);
+
+}
+
+.item{
+  margin: -1px 15px;
+  padding: 15px 0 15px 0;
+  border-right: none;
+  border-left: none;
+  @include calc(width, "100% - 30px");
+  text-overflow: initial;
+  white-space: normal;
+  border-top: none;
+  border-bottom-width: 2px;
+}
+.item.item-icon-right{
+  padding: 0 50px 0 0;
+}
+.item h2{
+  font-weight: 400;
+  font-size:95%;
+  text-overflow: initial;
+  white-space: normal;
+}
+.item p{
+  color:$stable;
+  font-size:73%;
+  margin-bottom: 0;
+}
+.item.comment p{
+  text-overflow: initial;
+  white-space: normal;
+  color:#585350;
+  font-weight: normal;
+  margin-bottom: 1em;
+}
+.item.comment p.author{
+  color:#111111;
+  font-weight: bold;
+}
+.item.comment p.timestamp{
+  float: right;
+  color: $stable;
+}
+.ion-chatbubble.light{
+  -webkit-text-stroke: 1px $stable;
+  position:absolute;
+  font-size: 45px;
+  width: 50px;
+  right: 0;
+  height: 86px;
+  padding-left:10px;
+  text-decoration: none;
+}
+.ion-chatbubble.light span{
+  font-family: $font-family-sans-serif;
+  color:$stable;
+  -webkit-text-stroke: 0px transparent;
+  font-size: 29%;
+  position: absolute;
+  top: 36px;
+  right: 7px;
+  width: 30px;
+  text-align: center;
+
 }

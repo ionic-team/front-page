@@ -2512,7 +2512,7 @@ a.subdued {
       color: #444; }
   .bar.bar-stable {
     border-color: #b2b2b2;
-    background-color: #f8f8f8;
+    background-color: #aaaaaa;
     background-image: linear-gradient(0deg, #b2b2b2, #b2b2b2 50%, transparent 50%);
     color: #444; }
     .bar.bar-stable .title {
@@ -2649,7 +2649,7 @@ a.subdued {
 
 .bar-stable .button {
   border-color: #b2b2b2;
-  background-color: #f8f8f8;
+  background-color: #aaaaaa;
   color: #444; }
   .bar-stable .button:hover {
     color: #444;
@@ -2864,7 +2864,7 @@ a.subdued {
   -moz-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
   border-color: #b2b2b2;
-  background-color: #f8f8f8;
+  background-color: #aaa;
   background-image: linear-gradient(0deg, #b2b2b2, #b2b2b2 50%, transparent 50%);
   color: #444;
   position: absolute;
@@ -2878,7 +2878,7 @@ a.subdued {
   line-height: 49px; }
   .tabs .tab-item .badge {
     background-color: #444;
-    color: #f8f8f8; }
+    color: #aaa; }
   @media (min--moz-device-pixel-ratio: 1.5), (-webkit-min-device-pixel-ratio: 1.5), (min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
     .tabs {
       padding-top: 2px;
@@ -2890,9 +2890,9 @@ a.subdued {
 
 /* Allow parent element of tabs to define color, or just the tab itself */
 .tabs-light > .tabs, .tabs.tabs-light {
-  border-color: none;
+  border-color: #fff;
   background-color: rgba(255, 255, 255, 0.97);
-  background-image: linear-gradient(0deg, none, none 50%, transparent 50%);
+  background-image: linear-gradient(0deg, #fff, #fff 50%, transparent 50%);
   color: #444; }
   .tabs-light > .tabs .tab-item .badge, .tabs.tabs-light .tab-item .badge {
     background-color: #444;
@@ -2900,12 +2900,12 @@ a.subdued {
 
 .tabs-stable > .tabs, .tabs.tabs-stable {
   border-color: #b2b2b2;
-  background-color: #f8f8f8;
+  background-color: #aaa;
   background-image: linear-gradient(0deg, #b2b2b2, #b2b2b2 50%, transparent 50%);
   color: #444; }
   .tabs-stable > .tabs .tab-item .badge, .tabs.tabs-stable .tab-item .badge {
     background-color: #444;
-    color: #f8f8f8; }
+    color: #aaa; }
 
 .tabs-positive > .tabs, .tabs.tabs-positive {
   border-color: #145fd7;
@@ -3052,7 +3052,7 @@ a.subdued {
   .tab-item.tab-item-active.tab-item-light {
     color: #fff; }
   .tab-item.tab-item-active.tab-item-stable {
-    color: #f8f8f8; }
+    color: #aaa; }
   .tab-item.tab-item-active.tab-item-positive {
     color: #4a87ee; }
   .tab-item.tab-item-active.tab-item-calm {
@@ -3336,7 +3336,7 @@ a.subdued {
     color: #444; }
   .item.item-stable {
     border-color: #b2b2b2;
-    background-color: #f8f8f8;
+    background-color: #aaa;
     color: #444; }
   .item.item-positive {
     border-color: #145fd7;
@@ -3905,7 +3905,7 @@ a.item-content {
   background-color: #fff;
   color: #444; }
 .tabs .tab-item .badge.badge-stable, .badge.badge-stable {
-  background-color: #f8f8f8;
+  background-color: #aaa;
   color: #444; }
 .tabs .tab-item .badge.badge-positive, .badge.badge-positive {
   background-color: #4a87ee;
@@ -4036,7 +4036,7 @@ legend {
   font-size: 21px;
   line-height: 2.85714; }
   legend small {
-    color: #f8f8f8;
+    color: #aaa;
     font-size: 1.07143; }
 
 label, input, button, select, textarea {
@@ -4240,7 +4240,7 @@ input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
   color: #aaaaaa; }
 
 input[disabled], select[disabled], textarea[disabled], input[readonly]:not(.cloned-text-input), textarea[readonly]:not(.cloned-text-input), select[readonly] {
-  background-color: #f8f8f8;
+  background-color: #aaa;
   cursor: not-allowed; }
 
 input[type="radio"][disabled], input[type="checkbox"][disabled], input[type="radio"][readonly], input[type="checkbox"][readonly] {
@@ -4706,7 +4706,7 @@ progress {
  */
 .button {
   border-color: #b2b2b2;
-  background-color: #f8f8f8;
+  background-color: #aaa;
   color: #444;
   position: relative;
   display: inline-block;
@@ -4785,7 +4785,7 @@ progress {
         color: #fff; }
   .button.button-stable {
     border-color: #b2b2b2;
-    background-color: #f8f8f8;
+    background-color: #aaa;
     color: #444; }
     .button.button-stable:hover {
       color: #444;
@@ -6297,10 +6297,10 @@ a.button {
   border-color: #ddd; }
 
 .stable, a.stable {
-  color: #f8f8f8; }
+  color: #aaa; }
 
 .stable-bg {
-  background-color: #f8f8f8; }
+  background-color: #aaa; }
 
 .stable-border {
   border-color: #b2b2b2; }
@@ -6424,17 +6424,12 @@ a.button {
 .item-input-wrapper.energized-bg i {
   position: relative;
   font-size: 18px;
-  color: rgba(126, 50, 0, 0.5); }
+  color: rgba(126, 50, 0, 0.5);
+  text-decoration: none; }
 
 i.text-center {
-  left: -webkit-calc(47% - 20px);
-  left: calc(47% - 20px); }
-
-.ion-chatbubble.light {
-  -webkit-text-stroke: 1px #bebcbb; }
-
-.ion-chatbubble.light span {
-  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; }
+  left: -webkit-calc(47% - 20px) !important;
+  left: calc(47% - 20px) !important; }
 
 .ion-ios7-close.dark {
   font-size: 18px;
@@ -6449,3 +6444,65 @@ i.text-center {
 
 .ion-ios7-close.dark:active {
   color: #7e3200; }
+
+.item {
+  margin: -1px 15px;
+  padding: 15px 0 15px 0;
+  border-right: none;
+  border-left: none;
+  width: -webkit-calc(100% - 30px) !important;
+  width: calc(100% - 30px) !important;
+  text-overflow: initial;
+  white-space: normal;
+  border-top: none;
+  border-bottom-width: 2px; }
+
+.item.item-icon-right {
+  padding: 0 50px 0 0; }
+
+.item h2 {
+  font-weight: 400;
+  font-size: 95%;
+  text-overflow: initial;
+  white-space: normal; }
+
+.item p {
+  color: #aaa;
+  font-size: 73%;
+  margin-bottom: 0; }
+
+.item.comment p {
+  text-overflow: initial;
+  white-space: normal;
+  color: #585350;
+  font-weight: normal;
+  margin-bottom: 1em; }
+
+.item.comment p.author {
+  color: #111111;
+  font-weight: bold; }
+
+.item.comment p.timestamp {
+  float: right;
+  color: #aaa; }
+
+.ion-chatbubble.light {
+  -webkit-text-stroke: 1px #aaa;
+  position: absolute;
+  font-size: 45px;
+  width: 50px;
+  right: 0;
+  height: 86px;
+  padding-left: 10px;
+  text-decoration: none; }
+
+.ion-chatbubble.light span {
+  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  color: #aaa;
+  -webkit-text-stroke: 0px transparent;
+  font-size: 29%;
+  position: absolute;
+  top: 36px;
+  right: 7px;
+  width: 30px;
+  text-align: center; }

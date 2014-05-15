@@ -1,20 +1,28 @@
 <ion-view title="Newest">
   <ion-nav-bar class="bar-energized nav-title-slide-ios7">
-    <ion-nav-back-button class="button-icon icon ion-chevron-left">
-      Back
-    </ion-nav-back-button>
+    <ion-nav-back-button class="button-icon icon ion-ios7-arrow-back"></ion-nav-back-button>
   </ion-nav-bar>
   <ion-content class="has-header">
     <ion-list>
-      <ion-item ng-click="open(post.url)"
-                class="item item-icon-right"
+      <ion-item class="item item-icon-right"
                 collection-repeat="post in posts"
                 collection-item-width="'100%'"
-                collection-item-height="70"
-                style="width:100%">
-        <h2>{{post.title}}</h2>
-        <p>{{post.points}} points &nbsp; {{post.submitted_on}} &nbsp; by {{post.submitted_by}}</p>
-        <i class="icon ion-chatbubble light"></i>
+                collection-item-height="88"
+                ng-show="post.title.length"
+                style="-webkit-calc(100% - 30px);">
+        <div style="display: table-row; height:89px;" ng-click="open(post.url)">
+          <div style="display:table-cell;vertical-align: middle;">
+            <h2>{{post.title}}</h2>
+            <p>
+              <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
+              <span ng-if="post.submitted_on.length && post.submitted_on != 'undefined'">{{post.submitted_on}} &nbsp;</span>
+              <span ng-if="post.submitted_by.length && post.submitted_by != 'undefined'">by {{post.submitted_by}}</span>
+            </p>
+          </div>
+        </div>
+        <a class="icon ion-chatbubble light" ng-href="/#/tab/comments/{{post.id}}">
+          <span ng-if="post.points > 0">{{post.points}}</span>
+        </a>
       </ion-item>
     </ion-list>
     <ion-infinite-scroll

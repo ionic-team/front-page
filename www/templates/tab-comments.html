@@ -1,0 +1,18 @@
+<ion-view title="Comments">
+  <ion-nav-bar class="bar-energized nav-title-slide-ios7">
+    <ion-nav-back-button class="button-icon icon ion-ios7-arrow-back"></ion-nav-back-button>
+  </ion-nav-bar>
+  <ion-content class="has-header">
+    <ion-list>
+      <!-- not using collection repeat since we have a rather finite amount of results and variable height items -->
+      <ion-item class="item comment"
+                ng-repeat="comment in comments"
+                ng-show="comment.text.length"
+                ng-style="{'padding-left':comment.indent*15+'px'}">
+        <p class="timestamp">{{comment.timestamp}}</p>
+        <p class="author">{{comment.author}}</p>
+        <p class="text">{{comment.text}}</p>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

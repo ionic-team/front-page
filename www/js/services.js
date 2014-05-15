@@ -37,6 +37,17 @@ angular.module('frontpage.services', [])
         });
       return q.promise;
     },
+    comments: function(postID) {
+      var q = $q.defer();
+      $http.get(apiURL+'comments/'+postID)
+        .then(function(result){
+          return !validateResponse(result)? q.reject(new Error('Invalid Response')):q.resolve(result.data);
+        },function(err){
+          console.log('Search Failed');
+          q.reject(err);
+        });
+      return q.promise;
+    },
     search: function(searchTerm) {
       // call
       var q = $q.defer();
