@@ -13,6 +13,9 @@
         <p class="author">{{comment.author}}</p>
         <p class="text">{{comment.text}}</p>
       </ion-item>
+      <ion-item class="padding text-center" ng-if="comments.length < 1">
+        <h3>No Comments Yet</h3>
+      </ion-item>
     </ion-list>
   </ion-content>
 </ion-view>

@@ -6455,7 +6455,7 @@ i.text-center {
   text-overflow: initial;
   white-space: normal;
   border-top: none;
-  border-bottom-width: 2px; }
+  border-bottom-width: 1px; }
 
 .item.item-icon-right {
   padding: 0 50px 0 0; }
@@ -6506,3 +6506,20 @@ i.text-center {
   right: 7px;
   width: 30px;
   text-align: center; }
+
+.platform-ios7 h1 {
+  padding-top: 20px; }
+
+.platform-ios7 ion-nav-bar {
+  height: 64px;
+  padding-top: 25px; }
+
+.platform-ios7 ion-nav-bar h1 {
+  padding-top: 20px; }
+
+.platform-ios7 ion-header form {
+  padding-top: 28px;
+  height: 64px; }
+
+.platform-ios7 .semi-transparent .has-header {
+  padding-top: 64px; }

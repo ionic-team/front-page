@@ -34,7 +34,7 @@
             </p>
           </div>
         </div>
-        <a class="icon ion-chatbubble light" ng-href="/#/tab/comments/{{post.id}}">
+        <a class="icon ion-chatbubble light" ng-click="loadComments(post.id)">
           <span ng-if="post.points > 0">{{post.points}}</span>
         </a>
       </ion-item>

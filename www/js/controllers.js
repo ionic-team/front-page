@@ -1,6 +1,6 @@
 angular.module('frontpage.controllers', [])
 
-.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache) {
+.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state) {
   $scope.posts = RequestCache.get('frontpage/0');
   var currentPage = 0;
   HNAPI.frontpage(0).then(function(posts){
@@ -17,9 +17,12 @@ angular.module('frontpage.controllers', [])
       $scope.$broadcast('scroll.infiniteScrollComplete');
     });
   }
+  $scope.loadComments = function(storyID){
+    $state.go('tab.front-page-comments',{storyID:storyID});
+  }
 })
 
-.controller('NewestCtrl', function($scope, HNAPI, RequestCache) {
+.controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state) {
   $scope.posts = RequestCache.get('frontpage/0');
   var currentPage = 0;
   HNAPI.newest(0).then(function(posts){
@@ -36,6 +39,9 @@ angular.module('frontpage.controllers', [])
       $scope.$broadcast('scroll.infiniteScrollComplete');
     });
   }
+  $scope.loadComments = function(storyID){
+    $state.go('tab.newest-comments',{storyID:storyID});
+  }
 })
 
 .controller('CommentsCtrl', function($scope, HNAPI, $stateParams, $ionicLoading) {
@@ -48,7 +54,7 @@ angular.module('frontpage.controllers', [])
   });
 })
 
-.controller('SearchCtrl', function($scope, HNAPI, $ionicLoading) {
+.controller('SearchCtrl', function($scope, HNAPI, $ionicLoading, $state) {
   $scope.focused= 'text-center'
   $scope.searchTerm = '';
   $scope.posts = [];
@@ -69,6 +75,9 @@ angular.module('frontpage.controllers', [])
     $scope.searchTerm = '';
     $scope.focused = 'text-center';
     document.getElementById('searchInput').blur();
+  }
+  $scope.loadComments = function(storyID){
+    $state.go('tab.search-comments',{storyID:storyID});
   }
 })
 ;

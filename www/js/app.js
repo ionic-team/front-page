@@ -64,10 +64,28 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
             }
         }
     })
-    .state('tab.comments', {
-      url: '/comments/:storyID',
+    .state('tab.front-page-comments', {
+      url: '/front-page/comments/:storyID',
       views: {
         'tab-front-page': {
+          templateUrl: 'templates/tab-comments.html',
+          controller: 'CommentsCtrl'
+        }
+      }
+    })
+    .state('tab.newest-comments', {
+      url: '/newest/comments/:storyID',
+      views: {
+        'tab-newest': {
+          templateUrl: 'templates/tab-comments.html',
+          controller: 'CommentsCtrl'
+        }
+      }
+    })
+    .state('tab.search-comments', {
+      url: '/search/comments/:storyID',
+      views: {
+        'tab-search': {
           templateUrl: 'templates/tab-comments.html',
           controller: 'CommentsCtrl'
         }
