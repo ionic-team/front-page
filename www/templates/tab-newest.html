@@ -4,10 +4,11 @@
   </ion-nav-bar>
   <ion-content class="has-header">
     <ion-list>
-      <ion-item class="item item-icon-right"
+      <ion-item class="post-list"
                 collection-repeat="post in posts"
                 collection-item-width="'100%'"
                 collection-item-height="88"
+                ng-class="post.points > 0?'item-icon-right':''"
                 ng-show="post.title.length"
                 fp-share
                 style="-webkit-calc(100% - 30px);">
@@ -21,8 +22,10 @@
             </p>
           </div>
         </div>
-        <a class="icon ion-chatbubble light" ng-click="loadComments(post.id)">
-          <span ng-if="post.points > 0">{{post.points}}</span>
+        <a ng-if="post.points > -1 && post.points != 'undefined'"
+           class="icon ion-chatbubble light"
+           ng-click="loadComments(post.id)">
+          <span>{{post.points}}</span>
         </a>
       </ion-item>
     </ion-list>

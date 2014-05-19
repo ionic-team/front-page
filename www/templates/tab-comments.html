@@ -8,9 +8,11 @@
       <ion-item class="item comment"
                 ng-repeat="comment in comments"
                 ng-show="comment.text.length"
+                ng-class="comment.hide?'hidden':''"
+                ng-click="comment.hide = !comment.hide"
                 ng-style="{'padding-left':comment.indent*15+'px'}">
         <p class="timestamp">{{comment.timestamp}}</p>
-        <p class="author">{{comment.author}}</p>
+        <p class="author">{{comment.author}} <i class="icon ion-arrow-down-b"></i></p>
         <p class="text">{{comment.text}}</p>
       </ion-item>
       <ion-item class="padding text-center" ng-if="comments.length < 1">

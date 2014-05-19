@@ -3370,8 +3370,8 @@ a.subdued {
     cursor: pointer; }
 
 .item.active, .item.activated, .item-complex.active .item-content, .item-complex.activated .item-content {
-  border-color: #ccc;
-  background-color: #D9D9D9; }
+  border-color: rgba(255, 255, 255, 0);
+  background-color: rgba(217, 217, 217, 0.25); }
   .item.active.item-light, .item.activated.item-light, .item-complex.active .item-content.item-light, .item-complex.activated .item-content.item-light {
     border-color: #ccc;
     background-color: #fafafa; }
@@ -6403,6 +6403,9 @@ a.button {
 .item-input-wrapper.energized-bg {
   background: #f05c00; }
 
+.item.activated + .item {
+  border-top-color: rgba(255, 255, 255, 0); }
+
 .energized-bg input::-webkit-input-placeholder, .energized-bg textarea::-webkit-input-placeholder {
   color: rgba(126, 50, 0, 0.7); }
 
@@ -6411,17 +6414,18 @@ a.button {
   -webkit-appearance: textfield;
   appearance: textfield;
   color: white;
-  padding-left: 0px; }
+  padding-left: 0px;
+  font-weight: 300; }
 
 .item-input-wrapper.energized-bg i {
   position: relative;
-  font-size: 18px;
+  font-size: 16px;
   color: rgba(126, 50, 0, 0.5);
   text-decoration: none; }
 
 i.text-center {
-  left: -webkit-calc(47% - 20px) !important;
-  left: calc(47% - 20px) !important; }
+  left: -webkit-calc(46% - 20px) !important;
+  left: calc(46% - 20px) !important; }
 
 .ion-ios7-close.dark {
   font-size: 18px;
@@ -6445,24 +6449,30 @@ i.text-center {
   width: -webkit-calc(100% - 30px) !important;
   width: calc(100% - 30px) !important;
   text-overflow: initial;
-  white-space: normal; }
+  white-space: normal;
+  border-bottom: none; }
 
 .item:first-of-type {
   border: none; }
 
+.item.post-list {
+  padding: 0 0 0 0; }
+
 .item.item-icon-right {
-  padding: 0 50px 0 0; }
+  padding-right: 50px; }
 
 .item h2 {
-  font-weight: 400;
+  font-weight: 300;
   font-size: 95%;
   text-overflow: initial;
-  white-space: normal; }
+  white-space: normal;
+  margin-bottom: 8px; }
 
 .item p {
   color: #aaa;
   font-size: 73%;
-  margin-bottom: 0; }
+  margin-bottom: 0;
+  font-weight: 300; }
 
 .item.comment p {
   text-overflow: initial;
@@ -6479,10 +6489,33 @@ i.text-center {
   float: right;
   color: #aaa; }
 
+.item.comment p.text {
+  max-height: 800px;
+  overflow: hidden; }
+
+.item.comment p, .item.comment i {
+  -webkit-transition: all 0.2s ease;
+  /* For Safari 3.1 to 6.0 */
+  transition: all 0.2s ease; }
+
+.item.hidden p {
+  margin: 0; }
+
+.item.hidden p.text {
+  opacity: 0;
+  margin-bottom: 0;
+  max-height: 0px; }
+
+.item.hidden p.author, .item.hidden i {
+  color: #aaa; }
+
+.item.hidden i {
+  -webkit-transform: rotate(-90deg); }
+
 .ion-chatbubble.light {
   -webkit-text-stroke: 1px #aaa;
   position: absolute;
-  font-size: 45px;
+  font-size: 48px;
   width: 50px;
   right: 0;
   height: 86px;
@@ -6495,7 +6528,7 @@ i.text-center {
   -webkit-text-stroke: 0px transparent;
   font-size: 29%;
   position: absolute;
-  top: 36px;
+  top: 35px;
   right: 7px;
   width: 30px;
   text-align: center; }
@@ -6506,3 +6539,7 @@ ion-tabs {
 .scroll-content {
   overflow: visible;
   position: fixed; }
+
+.bar .button.ion-ios7-arrow-back {
+  font-size: 16px;
+  padding: 0 16px 0 0; }

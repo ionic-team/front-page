@@ -24,7 +24,7 @@ angular.module('frontpage.controllers', [])
 })
 
 .controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state) {
-  $scope.posts = RequestCache.get('frontpage/0');
+  $scope.posts = RequestCache.get('newest/0');
   var currentPage = 0;
   HNAPI.newest(0).then(function(posts){
     $scope.posts = posts;
@@ -66,6 +66,9 @@ angular.module('frontpage.controllers', [])
     document.getElementById('searchInput').blur();
     HNAPI.search(searchTerm).then(function(searchResults){
       $scope.posts = searchResults;
+      $ionicLoading.hide();
+    },function(){
+      $scope.posts = [];
       $ionicLoading.hide();
     });
   };
