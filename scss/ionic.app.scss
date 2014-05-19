@@ -36,14 +36,14 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 
 // overrides can go here
 // set the footer and headers to be padding instead of borders so there's something visible behind the transparency
-.semi-transparent .has-tabs{
-  bottom: 0 ;
-  padding-bottom: 49px;
-}
-.semi-transparent .has-header{
-  top: 0;
-  padding-top: 44px;
-}
+//.semi-transparent .has-tabs{
+//  bottom: 0 ;
+//  padding-bottom: 49px;
+//}
+//.semi-transparent .has-header{
+//  top: 0;
+//  padding-top: 44px;
+//}
 //search bar styling
 .item-input-wrapper.energized-bg{
   background: darken($energized, 3%);
@@ -97,8 +97,9 @@ i.text-center{
   @include calc(width, "100% - 30px");
   text-overflow: initial;
   white-space: normal;
-  border-top: none;
-  border-bottom-width: 1px;
+}
+.item:first-of-type{
+  border:none;
 }
 .item.item-icon-right{
   padding: 0 50px 0 0;
@@ -150,20 +151,10 @@ i.text-center{
   width: 30px;
   text-align: center;
 }
-.platform-ios7 h1{
-  padding-top:20px;
+ion-tabs{
+  overflow-x: hidden;
 }
-.platform-ios7 ion-nav-bar{
-  height:64px;
-  padding-top: 25px;
-}
-.platform-ios7 ion-nav-bar h1{
-  padding-top: 20px;
-}
-.platform-ios7 ion-header form{
-  padding-top: 28px;
-  height: 64px;
-}
-.platform-ios7 .semi-transparent .has-header{
-  padding-top: 64px;
+.scroll-content{
+  overflow: visible;
+  position: fixed;
 }

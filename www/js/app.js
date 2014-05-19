@@ -7,13 +7,19 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.services'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, $collectionRepeatManager) {
   $ionicPlatform.ready(function() {
+    // for ios7 style header bars
     if(window.StatusBar) {
       // org.apache.cordova.statusbar required
-      StatusBar.styleDefault();
+      StatusBar.styleLightContent();
     }
   });
+  var resize = $collectionRepeatManager.prototype.resize;
+  //$collectionRepeatManager.prototype.resize = function() {
+  //  resize.call(this);
+  //  this.viewportSize += 113;
+  //}
 })
 
 .config(function($stateProvider, $urlRouterProvider, $httpProvider) {
@@ -104,5 +110,17 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
       RequestCache.entry(response);
       return response || $q.when(response);
     }
+  }
+})
+// tiny custom directive to bind to hold events
+.directive('fpShare', function($ionicGesture) {
+  return {
+    restrict :  'A',
+    link : function(scope, elem, attrs) {
+      $ionicGesture.on('hold', function(){
+        window.plugins.socialsharing.share(scope.$parent.post.title+' - Via FrontPage the Ionic Framework Hacker News App', null, null, scope.$parent.post.url)
+      }, elem);
+    }
+
   }
 });

@@ -7,7 +7,8 @@ angular.module('frontpage.controllers', [])
     $scope.posts = posts;
   });
   $scope.open = function(url){
-    window.open(url,'_system');
+    console.log("window.open("+url+", '_blank', 'location=yes');");
+    window.open(url, '_blank', 'location=yes');
   }
   $scope.loadMoreData = function(){
     currentPage++;
@@ -29,7 +30,7 @@ angular.module('frontpage.controllers', [])
     $scope.posts = posts;
   });
   $scope.open = function(url){
-    window.open(url,'_system');
+    window.open(url, '_blank', 'location=yes');
   }
   $scope.loadMoreData = function(){
     currentPage++;
@@ -62,13 +63,14 @@ angular.module('frontpage.controllers', [])
     $ionicLoading.show({
       template: 'Searching...'
     });
+    document.getElementById('searchInput').blur();
     HNAPI.search(searchTerm).then(function(searchResults){
       $scope.posts = searchResults;
       $ionicLoading.hide();
     });
   };
   $scope.open = function(url){
-    window.open(url,'_system');
+    window.open(url, '_blank', 'location=yes');
   }
   $scope.clear = function(){
     $scope.posts = [];

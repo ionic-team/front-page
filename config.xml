@@ -13,6 +13,7 @@
     <preference name="webviewbounce" value="false" />
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
+    <preference name="StatusBarBackgroundColor" value="#FFFFFF" />
 
     <!-- Don't store local date in an iCloud backup. Turn this to "cloud" to enable storage 
          to be sent to iCloud. Note: enabling this could result in Apple rejecting your app.
@@ -21,5 +22,6 @@
 
     <feature name="StatusBar">
       <param name="ios-package" value="CDVStatusBar" onload="true" />
+
     </feature>
 </widget>

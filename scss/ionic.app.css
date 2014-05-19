@@ -12,8 +12,8 @@ Syntax error: File to import not found or unreadable: www/lib/ionic/scss/ionic.
 36: 
 37: // overrides can go here
 38: // set the footer and headers to be padding instead of borders so there's something visible behind the transparency
-39: .semi-transparent .has-tabs{
-40:   bottom: 0 ;
+39: //.semi-transparent .has-tabs{
+40: //  bottom: 0 ;
 
 Backtrace:
 ionic.app.scss:35
@@ -54,4 +54,4 @@ ionic.app.scss:35
 body:before {
   white-space: pre;
   font-family: monospace;
-  content: "Syntax error: File to import not found or unreadable: www/lib/ionic/scss/ionic.\A               Load path: /Users/perry/Development/FrontPage/scss\A         on line 35 of ionic.app.scss\A \A 30: \A 31: // The path for our ionicons font files, relative to the built CSS in www/css\A 32: $ionicons-font-path: \"../lib/ionic/fonts\" !default;\A 33: \A 34: // Include all of Ionic\A 35: @import \"www/lib/ionic/scss/ionic\";\A 36: \A 37: // overrides can go here\A 38: // set the footer and headers to be padding instead of borders so there's something visible behind the transparency\A 39: .semi-transparent .has-tabs{\A 40:   bottom: 0 ;"; }
+  content: "Syntax error: File to import not found or unreadable: www/lib/ionic/scss/ionic.\A               Load path: /Users/perry/Development/FrontPage/scss\A         on line 35 of ionic.app.scss\A \A 30: \A 31: // The path for our ionicons font files, relative to the built CSS in www/css\A 32: $ionicons-font-path: \"../lib/ionic/fonts\" !default;\A 33: \A 34: // Include all of Ionic\A 35: @import \"www/lib/ionic/scss/ionic\";\A 36: \A 37: // overrides can go here\A 38: // set the footer and headers to be padding instead of borders so there's something visible behind the transparency\A 39: //.semi-transparent .has-tabs{\A 40: //  bottom: 0 ;"; }
