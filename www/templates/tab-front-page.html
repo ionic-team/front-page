@@ -3,6 +3,10 @@
     <ion-nav-back-button class="button-icon icon ion-ios7-arrow-back"></ion-nav-back-button>
   </ion-nav-bar>
   <ion-content class="has-header">
+    <ion-refresher on-refresh="refresh()"
+                   pulling-text="Pull to refresh..."
+                   refreshing-icon="ion-loading-c">
+    </ion-refresher>
     <ion-list>
       <ion-item class="post-list"
                 collection-repeat="post in posts"
@@ -17,20 +21,18 @@
             <h2>{{post.title}}</h2>
             <p>
               <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
-              <span ng-if="post.submitted_on.length && post.submitted_on != 'undefined'">{{post.submitted_on}} &nbsp;</span>
-              <span ng-if="post.submitted_by.length && post.submitted_by != 'undefined'"> {{post.submitted_by}}</span>
+              <span ng-if="post.submitted_on.length">{{post.submitted_on}} &nbsp;</span>
+              <span ng-if="post.submitted_by.length"> {{post.submitted_by}}</span>
             </p>
           </div>
         </div>
-        <a ng-if="post.points > -1 && post.points != 'undefined'"
-           class="icon ion-chatbubble light"
-           ng-click="loadComments(post.id)">
-          <span>{{post.points}}</span>
+        <a ng-if="post.comments != null" class="icon ion-chatbubble light" ng-click="loadComments(post.id)">
+          <span>{{post.comments}}</span>
         </a>
       </ion-item>
     </ion-list>
     <ion-infinite-scroll
-        icon="ion-loading-c"
+        icon=""
         on-infinite="loadMoreData()">
     </ion-infinite-scroll>
 

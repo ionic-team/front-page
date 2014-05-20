@@ -1,13 +1,20 @@
 angular.module('frontpage.controllers', [])
 
-.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state) {
+.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state, $timeout) {
   $scope.posts = RequestCache.get('frontpage/0');
   var currentPage = 0;
   HNAPI.frontpage(0).then(function(posts){
     $scope.posts = posts;
   });
+  $scope.refresh = function(){
+    HNAPI.frontpage(0).then(function(posts){
+      $timeout(function(){
+        $scope.posts = posts;
+        $scope.$broadcast('scroll.refreshComplete');
+      },1000);
+    });
+  }
   $scope.open = function(url){
-    console.log("window.open("+url+", '_blank', 'location=yes');");
     window.open(url, '_blank', 'location=yes');
   }
   $scope.loadMoreData = function(){
@@ -23,12 +30,21 @@ angular.module('frontpage.controllers', [])
   }
 })
 
-.controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state) {
+.controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state, $timeout) {
   $scope.posts = RequestCache.get('newest/0');
   var currentPage = 0;
   HNAPI.newest(0).then(function(posts){
     $scope.posts = posts;
   });
+  $scope.refresh = function(){
+    HNAPI.newest(0).then(function(posts){
+      $timeout(function(){
+        $scope.posts = posts;
+        $scope.$broadcast('scroll.refreshComplete');
+      },1000);
+    });
+  }
+  $scope.refresh();
   $scope.open = function(url){
     window.open(url, '_blank', 'location=yes');
   }
@@ -55,7 +71,7 @@ angular.module('frontpage.controllers', [])
   });
 })
 
-.controller('SearchCtrl', function($scope, HNAPI, $ionicLoading, $state) {
+.controller('SearchCtrl', function($scope, HNAPI, $ionicLoading, $state, $timeout) {
   $scope.focused= 'text-center'
   $scope.searchTerm = '';
   $scope.posts = [];

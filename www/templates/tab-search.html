@@ -1,7 +1,7 @@
 <ion-view title="Search">
   <ion-header>
     <form class="bar bar-header bar-energized item-input-inset" ng-submit="search(searchTerm)">
-      <label class="item-input-wrapper energized-bg">
+      <div class="item-input-wrapper energized-bg">
         <i class="icon ion-ios7-search placeholder-icon" ng-class="focused"></i>
         <input type="search"
                id="searchInput"
@@ -10,10 +10,8 @@
                ng-focus="focused = 'text-left'"
                ng-blur="focused = searchTerm.length?'text-left':'text-center'"
                ng-class="focused">
-      </label>
-      <i class="icon ion-ios7-close dark"
-          ng-show="searchTerm.length"
-          ng-click="clear()"></i>
+      </div>
+      <i class="icon ion-ios7-close dark" ng-show="searchTerm.length" ng-click="clear()"></i>
     </form>
   </ion-header>
   <ion-content class="has-header has-footer">
@@ -31,15 +29,13 @@
             <h2>{{post.title}}</h2>
             <p>
               <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
-              <span ng-if="post.submitted_on.length && post.submitted_on != 'undefined'">{{post.submitted_on}} &nbsp;</span>
-              <span ng-if="post.submitted_by.length && post.submitted_by != 'undefined'">by {{post.submitted_by}}</span>
+              <span ng-if="post.submitted_on.length">{{post.submitted_on}} &nbsp;</span>
+              <span ng-if="post.submitted_by.length"> {{post.submitted_by}}</span>
             </p>
           </div>
         </div>
-        <a ng-if="post.points > -1 && post.points != 'undefined'"
-           class="icon ion-chatbubble light"
-           ng-click="loadComments(post.id)">
-          <span>{{post.points}}</span>
+        <a ng-if="post.comments != null" class="icon ion-chatbubble light" ng-click="loadComments(post.id)">
+          <span>{{post.comments}}</span>
         </a>
       </ion-item>
     </ion-list>

@@ -41,6 +41,7 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 //search bar styling
 .item-input-wrapper.energized-bg{
   background: darken($energized, 3%);
+  padding-right: 40px;
 }
 .item.activated+.item{
   border-top-color:rgba($light,.0)
@@ -72,15 +73,14 @@ i.text-center{
   @include calc(left, "46% - 20px");
 }
 .ion-ios7-close.dark{
-  font-size: 18px;
+  font-size: 20px;
   color:rgba($search-input, .5);
   position: absolute;
-  right: 10px;
+  right: 5px;
   top: 2px;
-  height: 35px;
-  padding-top: 10px;
-  width: 30px;
-  padding-left: 10px;
+  height: 40px;
+  padding: 10px;
+  width: 40px;
 }
 .ion-ios7-close.dark:active{
   color:rgba($search-input, 1);
@@ -189,4 +189,7 @@ ion-tabs{
 .bar .button.ion-ios7-arrow-back{
   font-size: 16px;
   padding: 0 16px 0 0;
+}
+ion-infinite-scroll .scroll-infinite-content{
+  font-size: 16px;
 }

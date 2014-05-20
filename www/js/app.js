@@ -14,12 +14,11 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
       // org.apache.cordova.statusbar required
       StatusBar.styleLightContent();
     }
+    // hide the prev/next buttons on the keyboard input
+    if(window.cordova.plugins && window.cordova.plugins.Keyboard){
+      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+    }
   });
-  var resize = $collectionRepeatManager.prototype.resize;
-  //$collectionRepeatManager.prototype.resize = function() {
-  //  resize.call(this);
-  //  this.viewportSize += 113;
-  //}
 })
 
 .config(function($stateProvider, $urlRouterProvider, $httpProvider) {

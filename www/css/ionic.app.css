@@ -6401,7 +6401,8 @@ a.button {
   transition: none !important; }
 
 .item-input-wrapper.energized-bg {
-  background: #f05c00; }
+  background: #f05c00;
+  padding-right: 40px; }
 
 .item.activated + .item {
   border-top-color: rgba(255, 255, 255, 0); }
@@ -6428,15 +6429,14 @@ i.text-center {
   left: calc(46% - 20px) !important; }
 
 .ion-ios7-close.dark {
-  font-size: 18px;
+  font-size: 20px;
   color: rgba(126, 50, 0, 0.5);
   position: absolute;
-  right: 10px;
+  right: 5px;
   top: 2px;
-  height: 35px;
-  padding-top: 10px;
-  width: 30px;
-  padding-left: 10px; }
+  height: 40px;
+  padding: 10px;
+  width: 40px; }
 
 .ion-ios7-close.dark:active {
   color: #7e3200; }
@@ -6543,3 +6543,6 @@ ion-tabs {
 .bar .button.ion-ios7-arrow-back {
   font-size: 16px;
   padding: 0 16px 0 0; }
+
+ion-infinite-scroll .scroll-infinite-content {
+  font-size: 16px; }
