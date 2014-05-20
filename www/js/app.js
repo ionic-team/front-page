@@ -18,6 +18,9 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
     if(window.cordova.plugins && window.cordova.plugins.Keyboard){
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
     }
+    if(navigator.splashscreen){
+      navigator.splashscreen.hide();
+    }
   });
 })
 
@@ -40,7 +43,6 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
     })
 
     // Each tab has its own nav history stack:
-
     .state('tab.front-page', {
       url: '/front-page',
       views: {

@@ -6450,7 +6450,8 @@ i.text-center {
   width: calc(100% - 30px) !important;
   text-overflow: initial;
   white-space: normal;
-  border-bottom: none; }
+  border-bottom: none;
+  display: table; }
 
 .item:first-of-type {
   border: none; }

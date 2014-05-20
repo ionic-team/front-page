@@ -15,7 +15,7 @@ angular.module('frontpage.controllers', [])
     });
   }
   $scope.open = function(url){
-    window.open(url, '_blank', 'location=yes');
+    window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
   }
   $scope.loadMoreData = function(){
     currentPage++;
@@ -46,7 +46,7 @@ angular.module('frontpage.controllers', [])
   }
   $scope.refresh();
   $scope.open = function(url){
-    window.open(url, '_blank', 'location=yes');
+    window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
   }
   $scope.loadMoreData = function(){
     currentPage++;
@@ -89,7 +89,7 @@ angular.module('frontpage.controllers', [])
     });
   };
   $scope.open = function(url){
-    window.open(url, '_blank', 'location=yes');
+    window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
   }
   $scope.clear = function(){
     $scope.posts = [];

@@ -14,6 +14,7 @@
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="StatusBarBackgroundColor" value="#FFFFFF" />
+    <preference name="AutoHideSplashScreen" value="false" />
 
     <!-- Don't store local date in an iCloud backup. Turn this to "cloud" to enable storage 
          to be sent to iCloud. Note: enabling this could result in Apple rejecting your app.
