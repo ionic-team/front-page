@@ -15,6 +15,7 @@ angular.module('frontpage.controllers', [])
     });
   }
   $scope.open = function(url){
+    // cordova tends to keep these in memory after they're gone so we'll help it forget
     var iab = window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
     iab.addEventListener('exit', function(e) {
       iab.removeEventListener('exit', argument.callee);
@@ -51,6 +52,7 @@ angular.module('frontpage.controllers', [])
   }
   $scope.refresh();
   $scope.open = function(url){
+    // cordova tends to keep these in memory after they're gone so we'll help it forget
     var iab = window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
     iab.addEventListener('exit', function(e) {
       iab.removeEventListener('exit', argument.callee);
@@ -81,10 +83,17 @@ angular.module('frontpage.controllers', [])
   });
 })
 
-.controller('SearchCtrl', function($scope, HNAPI, $ionicLoading, $state, $timeout) {
+.controller('SearchCtrl', function($scope, HNAPI, $ionicLoading, $state) {
   $scope.focused= 'text-center'
   $scope.searchTerm = '';
   $scope.posts = [];
+  console.log(localStorage.searchCache);
+  if(typeof localStorage.searchCache != 'undefined'){
+    var sc = JSON.parse(localStorage.searchCache);
+    $scope.searchTerm = sc.term;
+    $scope.posts = sc.results;
+    $scope.focused = 'left-center';
+  }
   $scope.search = function(searchTerm){
     $ionicLoading.show({
       template: 'Searching...'
@@ -92,6 +101,7 @@ angular.module('frontpage.controllers', [])
     document.getElementById('searchInput').blur();
     HNAPI.search(searchTerm).then(function(searchResults){
       $scope.posts = searchResults;
+      localStorage.searchCache = JSON.stringify({term:searchTerm,results:searchResults});
       $ionicLoading.hide();
     },function(){
       $scope.posts = [];
@@ -99,6 +109,7 @@ angular.module('frontpage.controllers', [])
     });
   };
   $scope.open = function(url){
+    // cordova tends to keep these in memory after they're gone so we'll help it forget
     var iab = window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
     iab.addEventListener('exit', function(e) {
       iab.removeEventListener('exit', argument.callee);
@@ -111,6 +122,7 @@ angular.module('frontpage.controllers', [])
     $scope.searchTerm = '';
     $scope.focused = 'text-center';
     document.getElementById('searchInput').blur();
+    delete localStorage.searchCache;
   }
   $scope.loadComments = function(storyID){
     $state.go('tab.search-comments',{storyID:storyID});
