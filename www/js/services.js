@@ -5,7 +5,7 @@ angular.module('frontpage.services', [])
  */
 
 .factory('HNAPI', function($rootScope, $http, $q) {
-  var apiURL = 'http://10.0.1.13:8080/';
+  var apiURL = 'http://10.0.1.11:8080/';
   // load saved data if available
 
   function validateResponse(result){

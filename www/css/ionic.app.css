@@ -6547,3 +6547,6 @@ ion-tabs {
 
 ion-infinite-scroll .scroll-infinite-content {
   font-size: 16px; }
+
+.backdrop {
+  min-height: 1024px; }

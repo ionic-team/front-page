@@ -15,7 +15,12 @@ angular.module('frontpage.controllers', [])
     });
   }
   $scope.open = function(url){
-    window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
+    var iab = window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
+    iab.addEventListener('exit', function(e) {
+      iab.removeEventListener('exit', argument.callee);
+      iab.close();
+      iab = null;
+    });
   }
   $scope.loadMoreData = function(){
     currentPage++;
@@ -46,7 +51,12 @@ angular.module('frontpage.controllers', [])
   }
   $scope.refresh();
   $scope.open = function(url){
-    window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
+    var iab = window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
+    iab.addEventListener('exit', function(e) {
+      iab.removeEventListener('exit', argument.callee);
+      iab.close();
+      iab = null;
+    });
   }
   $scope.loadMoreData = function(){
     currentPage++;
@@ -89,7 +99,12 @@ angular.module('frontpage.controllers', [])
     });
   };
   $scope.open = function(url){
-    window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
+    var iab = window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
+    iab.addEventListener('exit', function(e) {
+      iab.removeEventListener('exit', argument.callee);
+      iab.close();
+      iab = null;
+    });
   }
   $scope.clear = function(){
     $scope.posts = [];

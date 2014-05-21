@@ -15,7 +15,7 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
       StatusBar.styleLightContent();
     }
     // hide the prev/next buttons on the keyboard input
-    if(window.cordova.plugins && window.cordova.plugins.Keyboard){
+    if(window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard){
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
     }
     if(navigator.splashscreen){

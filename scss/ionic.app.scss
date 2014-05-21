@@ -194,3 +194,7 @@ ion-tabs{
 ion-infinite-scroll .scroll-infinite-content{
   font-size: 16px;
 }
+// loading fix for ipad
+.backdrop{
+  min-height: 1024px;
+}
