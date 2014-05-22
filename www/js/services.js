@@ -5,14 +5,18 @@ angular.module('frontpage.services', [])
  */
 
 .factory('HNAPI', function($rootScope, $http, $q) {
-  var apiURL = 'http://10.0.1.11:8080/';
-  // load saved data if available
+  // define the API in just one place so it's easy to update
+  var apiURL = 'http://hn.ionicsdk.com/';
 
   function validateResponse(result){
     return !(typeof result.data != 'array' && typeof result.data != 'object');
-
   }
 
+  // Each return method is nearly identical, but it's good to keep them separate so they can be easily customized.
+  // They start by initiating and returning a promise, allowing for the then() method controller's use.
+  // They also start their respective AJAX request to the API server.
+  // We validate the response to make sure it's valid data and then we resolve the promise, passing the data to
+  // the controller's then() method
   return {
     // get all recent posts
     frontpage: function(page) {
@@ -68,9 +72,12 @@ angular.module('frontpage.services', [])
  */
 
 .factory('RequestCache', function() {
+  // what pages should we cache?
   var requestsToCache = ['frontpage/0','new/0'];
+  // create the cache if it doesn't exist yet
   var cache = typeof localStorage.cache == 'undefined'?{}:JSON.parse(localStorage.cache);
   return{
+    // enter a request's reponse in to the cache
     entry: function(request){
       for(var i = 0;i<requestsToCache.length;i++){
         if(request.config.url.indexOf(requestsToCache[i]) != -1){
@@ -78,8 +85,8 @@ angular.module('frontpage.services', [])
           localStorage.cache = JSON.stringify(cache);
         }
       }
-
     },
+    // request a cache item's data based on the reuqested URL
     get:function(url){
       return typeof cache[url] === 'undefined' ? false:cache[url];
     }

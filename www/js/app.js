@@ -18,6 +18,8 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
     if(window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard){
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
     }
+    // hide the splash screen only after everything's ready (avoid flicker)
+    // requires keyboard plugin and confix.xml entry telling the splash screen to stay until explicitly told
     if(navigator.splashscreen){
       navigator.splashscreen.hide();
     }
@@ -36,6 +38,7 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
   $stateProvider
 
     // setup an abstract state for the tabs directive
+    // the tab state isn't an actual page we navigate to, but a necessary state for ionic tabs
     .state('tab', {
       url: "/tab",
       abstract: true,
@@ -43,6 +46,9 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
     })
 
     // Each tab has its own nav history stack:
+    // Font page and Newest are nearly identical and could probably share a template and possibly even a controller
+    // It's reasonable to expect they'll diverge as the app matures though, so we'll keep them separate
+    // Check the comments page to see an example of how to reuse a template/controller
     .state('tab.front-page', {
       url: '/front-page',
       views: {
@@ -71,6 +77,8 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
             }
         }
     })
+    // the comments pages are identical but we'd like to have each tab have their own,
+    // so we'll just reuse the controller and template for each one
     .state('tab.front-page-comments', {
       url: '/front-page/comments/:storyID',
       views: {
@@ -103,6 +111,7 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
   $urlRouterProvider.otherwise('/tab/front-page');
 
 })
+// a basic HTTP interceptor that passes each successful response through the 'response' method
 .factory('cacheInterceptor', function($q, RequestCache) {
   // keep this light, it runs before any request is returned, avoid async here
   return {
@@ -113,7 +122,8 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
     }
   }
 })
-// tiny custom directive to bind to hold events
+// custom directive to bind to hold events and trigger the sharing plugin
+// expects the parent scope to contain a post item from the HNAPI service
 .directive('fpShare', function($ionicGesture) {
   return {
     restrict :  'A',
@@ -123,7 +133,12 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
           console.error("Social Sharing Cordova Plugin not found. Disregard if on a desktop browser.");
           return;
         }
-        window.plugins.socialsharing.share(scope.$parent.post.title+' - Via FrontPage the Ionic Framework Hacker News App', null, null, scope.$parent.post.url)
+        window.plugins
+              .socialsharing
+              .share(scope.$parent.post.title+' - Via FrontPage the Ionic Framework Hacker News App',
+                     null,
+                     null,
+                     scope.$parent.post.url)
       }, elem);
     }
   }

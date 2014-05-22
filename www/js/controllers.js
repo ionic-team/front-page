@@ -7,17 +7,27 @@ angular.module('frontpage.controllers', [])
     $scope.posts = posts;
   });
   $scope.refresh = function(){
+    // refresh the list with a new API call
     HNAPI.frontpage(0).then(function(posts){
+      // since the refresh is called immediately when you start pulling, it can be a little "too fast"
+      // this makes the spinner flash for a fraction of a second and the user isn't sure if it actually worked
+      // wrap the response in a timeout so
       $timeout(function(){
         $scope.posts = posts;
         $scope.$broadcast('scroll.refreshComplete');
-      },1000);
+      },2000);
     });
   }
   $scope.open = function(url){
+    // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
+    var params = 'location=no,' +
+                 'enableViewportScale=yes,' +
+                 'toolbarposition=top,' +
+                 'transitionstyle=crossdissolve,' +
+                 'closebuttoncaption=Done';
+    var iab = window.open(url,'_blank',params);
     // cordova tends to keep these in memory after they're gone so we'll help it forget
-    var iab = window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
-    iab.addEventListener('exit', function(e) {
+    iab.addEventListener('exit', function() {
       iab.removeEventListener('exit', argument.callee);
       iab.close();
       iab = null;
@@ -47,19 +57,25 @@ angular.module('frontpage.controllers', [])
       $timeout(function(){
         $scope.posts = posts;
         $scope.$broadcast('scroll.refreshComplete');
-      },1000);
+      },2000);
     });
   }
   $scope.refresh();
-  $scope.open = function(url){
-    // cordova tends to keep these in memory after they're gone so we'll help it forget
-    var iab = window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
-    iab.addEventListener('exit', function(e) {
-      iab.removeEventListener('exit', argument.callee);
-      iab.close();
-      iab = null;
-    });
-  }
+    $scope.open = function(url){
+      // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
+      var params = 'location=no,' +
+        'enableViewportScale=yes,' +
+        'toolbarposition=top,' +
+        'transitionstyle=crossdissolve,' +
+        'closebuttoncaption=Done';
+      var iab = window.open(url,'_blank',params);
+      // cordova tends to keep these in memory after they're gone so we'll help it forget
+      iab.addEventListener('exit', function() {
+        iab.removeEventListener('exit', argument.callee);
+        iab.close();
+        iab = null;
+      });
+    }
   $scope.loadMoreData = function(){
     currentPage++;
     console.log('loading page '+currentPage);
@@ -109,9 +125,15 @@ angular.module('frontpage.controllers', [])
     });
   };
   $scope.open = function(url){
+    // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
+    var params = 'location=no,' +
+      'enableViewportScale=yes,' +
+      'toolbarposition=top,' +
+      'transitionstyle=crossdissolve,' +
+      'closebuttoncaption=Done';
+    var iab = window.open(url,'_blank',params);
     // cordova tends to keep these in memory after they're gone so we'll help it forget
-    var iab = window.open(url,'_blank','location=no,enableViewportScale=yes,toolbarposition=top,transitionstyle=crossdissolve,closebuttoncaption=Done');
-    iab.addEventListener('exit', function(e) {
+    iab.addEventListener('exit', function() {
       iab.removeEventListener('exit', argument.callee);
       iab.close();
       iab = null;

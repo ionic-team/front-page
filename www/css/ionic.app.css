@@ -6450,7 +6450,7 @@ i.text-center {
   width: calc(100% - 30px) !important;
   text-overflow: initial;
   white-space: normal;
-  border-bottom: none;
+  border-bottom: 1px solid #fff;
   display: table; }
 
 .item.post-list {
@@ -6547,3 +6547,6 @@ ion-infinite-scroll .scroll-infinite-content {
 
 .backdrop {
   min-height: 1024px; }
+
+.scroll-refresher:not(.active) {
+  display: none; }

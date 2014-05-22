@@ -195,3 +195,6 @@ ion-infinite-scroll .scroll-infinite-content{
 .backdrop{
   min-height: 1024px;
 }
+.scroll-refresher:not(.active){
+  display:none;
+}
