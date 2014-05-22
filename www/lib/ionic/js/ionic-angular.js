@@ -109,6 +109,66 @@ var IonicModule = angular.module('ionic', ['ngAnimate', 'ngSanitize', 'ui.router
  * ```
  *
  */
+
+/**
+ * @ngdoc demo
+ * @name $ionicActionSheet#simple
+ * @module actionSheetSimple
+ * @javascript
+ * angular.module('actionSheetSimple', ['ionic'])
+ * .controller('ActionSheetCtrl', function($scope, $ionicActionSheet) {
+ *   $scope.messages = [];
+ *   $scope.takeAction = function() {
+ *     $ionicActionSheet.show({
+ *       buttons: [
+ *         { text: 'Share <i class="icon ion-share">' },
+ *         { text: 'Edit <i class="icon ion-edit">' }
+ *       ],
+ *       destructiveText: 'Delete <i class="icon ion-trash-b">',
+ *       titleText: 'Modify your album',
+ *       cancelText: 'Cancel',
+ *       cancel: function() {
+ *         $scope.message('Cancel');
+ *         return true;
+ *       },
+ *       buttonClicked: function(index) {
+ *         $scope.message(index === 0 ? 'Share' : 'Edit');
+ *         return true;
+ *       },
+ *       destructiveButtonClicked: function() {
+ *         $scope.message('Delete');
+ *         return true;
+ *       }
+ *     });
+ *   };
+ *   $scope.message = function(msg) {
+ *     $scope.messages.unshift({
+ *       text: 'User pressed ' + msg
+ *     });
+ *   };
+ *
+ * });
+ *
+ * @html
+ * <ion-header-bar class="bar-positive">
+ *   <h1 class="title">Action</h1>
+ * </ion-header-bar>
+ * <ion-content ng-controller="ActionSheetCtrl" class="padding">
+ *   <div class="button button-assertive button-block" ng-click="takeAction()">
+ *     Take Action!
+ *   </div>
+ *   <div class="card" ng-show="messages.length">
+ *     <div class="item item-divider">
+ *       User Log
+ *     </div>
+ *     <div class="item item-text-wrap">
+ *       <div ng-repeat="message in messages">
+ *         {{message.text}}
+ *       </div>
+ *     </div> 
+ *   </div>
+ * </ion-content>
+ */
 IonicModule
 .factory('$ionicActionSheet', [
   '$rootScope',
@@ -402,6 +462,9 @@ function($document) {
      * Releases the backdrop.
      */
     release: release,
+
+    getElement: getElement,
+
     // exposed for testing
     _element: el
   };
@@ -422,6 +485,11 @@ function($document) {
       }, 100);
     }
   }
+
+  function getElement() {
+    return el;
+  }
+
 }]);
 
 /**
@@ -1204,6 +1272,7 @@ function($document, $ionicTemplateLoader, $ionicBackdrop, $timeout, $q, $log, $c
             this.hasBackdrop = !options.noBackdrop && options.showBackdrop !== false;
             if (this.hasBackdrop) {
               $ionicBackdrop.retain();
+              $ionicBackdrop.getElement().addClass('backdrop-loading');
             }
           }
 
@@ -1238,6 +1307,7 @@ function($document, $ionicTemplateLoader, $ionicBackdrop, $timeout, $q, $log, $c
           if (this.isShown) {
             if (this.hasBackdrop) {
               $ionicBackdrop.release();
+              $ionicBackdrop.getElement().removeClass('backdrop-loading');
             }
             self.element.removeClass('active');
             setTimeout(function() {
@@ -1398,6 +1468,14 @@ function($rootScope, $document, $compile, $timeout, $ionicPlatform, $ionicTempla
      */
     show: function() {
       var self = this;
+
+      if(self.scope.$$destroyed) {
+        console.error('Cannot call modal.show() after remove(). Please create a new modal instance using $ionicModal.');
+        return;
+      }
+
+      console.log(self.scope);
+
       var modalEl = jqLite(self.modalEl);
 
       self.el.classList.remove('hide');
@@ -1907,6 +1985,119 @@ var POPUP_TPL =
  *  };
  *});
  *```
+ */
+
+/**
+ * @ngdoc demo
+ * @name $ionicPopup#simple
+ * @module popupSimple
+ * @javascript
+angular.module('popupSimple', ['ionic'])
+.controller('PopupCtrl', function($scope, $timeout, $q, $ionicPopup) {
+  $scope.showPopup = function() {
+    $scope.data = {}
+
+    $ionicPopup.show({
+      templateUrl: 'popup-template.html',
+      title: 'Enter Wi-Fi Password',
+      subTitle: 'Please use normal things',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancel', onTap: function(e) { return true; } },
+        {
+          text: '<b>Save</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            return $scope.data.wifi;
+          }
+        },
+      ]
+      }).then(function(res) {
+        console.log('Tapped!', res);
+      }, function(err) {
+        console.log('Err:', err);
+      }, function(msg) {
+        console.log('message:', msg);
+      });
+
+    $timeout(function() {
+      $ionicPopup.confirm({
+        title: 'Do you like ice cream?',
+        cancelText: 'No',
+        okText: 'Yes, of course'
+      }).then(function(res) {
+        console.log('Your love for ice cream:', res);
+      });
+    }, 1000);
+  };
+
+  $scope.showConfirm = function() {
+    $ionicPopup.confirm({
+      title: 'Consume Ice Cream',
+      content: 'Are you sure you want to eat this ice cream?'
+    }).then(function(res) {
+      if(res) {
+        console.log('You are sure');
+      } else {
+        console.log('You are not sure');
+      }
+    });
+  };
+  $scope.showPrompt = function() {
+    $ionicPopup.prompt({
+      title: 'ID Check',
+      subTitle: 'What is your name?'
+    }).then(function(res) {
+      console.log('Your name is', res);
+    });
+  };
+  $scope.showPasswordPrompt = function() {
+    $ionicPopup.prompt({
+      title: 'Password Check',
+      subTitle: 'Enter your secret password',
+      inputType: 'password',
+      inputPlaceholder: 'Your password'
+    }).then(function(res) {
+      console.log('Your name is', res);
+    });
+  };
+  $scope.showAlert = function() {
+    $ionicPopup.alert({
+      title: 'Draft Saved',
+      content: 'Your Data has been saved!'
+    }).then(function(res) {
+      console.log('Your Data has been saved!');
+    }, function(err) {},
+    function(popup) {
+      console.log('Got popup', popup);
+      $timeout(function() {
+        popup.close();
+      }, 1000);
+    });
+  };
+});
+ * @html
+<ion-header-bar class="bar-positive">
+  <h1 class="title">Popups</h1>
+</ion-header-bar>
+<ion-content ng-controller="PopupCtrl">
+  <button class="button button-dark" ng-click="showPopup()">Generic</button>
+  <button class="button button-primary" ng-click="showConfirm()">Confirm</button>
+  <button class="button button-balanced" ng-click="showPrompt()">Prompt</button>
+  <button class="button button-balanced" ng-click="showPasswordPrompt()">Password Prompt</button>
+  <button class="button button-positive" ng-click="showAlert()">Alert</button>
+  <div class="list">
+    <a class="item" href="#"
+      ng-repeat="item in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]">
+      Item {{item}}
+    </a>
+  </div>
+</ion-content>
+
+<script id="popup-template.html" type="text/ng-template">
+  <input ng-model="data.wifi" type="text" placeholder="Password">
+</script>
+ *
  */
 IonicModule
 .factory('$ionicPopup', [
@@ -3715,7 +3906,15 @@ function($scope, scrollViewOptions, $timeout, $window, $$scrollValueCache, $loca
 
   if (!angular.isDefined(scrollViewOptions.bouncing)) {
     ionic.Platform.ready(function() {
-      scrollView.options.bouncing = !ionic.Platform.isAndroid();
+      scrollView.options.bouncing = true;
+
+      if(ionic.Platform.isAndroid()) {
+        // No bouncing by default on Android
+        scrollView.options.bouncing = false;
+        // Faster scroll decel
+        scrollView.options.deceleration = 0.95;
+      } else {
+      }
     });
   }
 
@@ -4742,6 +4941,9 @@ IonicModule
  * will not align correctly.  This will be fixed soon.
  *
  * @param {string=} align-title Where to align the title.
+ * @param {boolean=} no-tap-scroll By default, the header bar will scroll the
+ * content to the top when tapped.  Set no-tap-scroll to true to disable this 
+ * behavior.
  * Avaialble: 'left', 'right', or 'center'.  Defaults to 'center'.
  *
  * @usage
@@ -4882,6 +5084,9 @@ function tapScrollToTopDirective() {
     return {
       restrict: 'E',
       link: function($scope, $element, $attr) {
+        if ($attr.noTapScroll == 'true') {
+          return;
+        }
         ionic.on('tap', onTap, $element[0]);
         $scope.$on('$destroy', function() {
           ionic.off('tap', onTap, $element[0]);
@@ -6050,6 +6255,8 @@ function($animate, $rootScope) {
  * with {@link ionic.service:$ionicNavBarDelegate}.
  * @param align-title {string=} Where to align the title of the navbar.
  * Available: 'left', 'right', 'center'. Defaults to 'center'.
+ * @param {boolean=} no-tap-scroll By default, the navbar will scroll the content
+ * to the top when tapped.  Set no-tap-scroll to true to disable this behavior.
  *
  * </table><br/>
  *
@@ -6654,7 +6861,7 @@ IonicModule
  * @ngdoc demo
  * @name ionRefresher#withAList
  * @module refresherList
- * @javascript 
+ * @javascript
  * angular.module('refresherList', ['ionic'])
  * .controller('RefresherCtrl', function($scope, $timeout) {
  *   $scope.items = ['Item 1', 'Item 2', 'Item 3'];
@@ -6674,19 +6881,19 @@ IonicModule
  * <ion-header-bar class="bar-positive">
  *   <h1 class="title">Refresher</h1>
  * </ion-header-bar>
- * 
+ *
  * <ion-content ng-controller="RefresherCtrl">
- * 
- *   <ion-refresher on-refresh="doRefresh()" 
- *                  pulling-text="Pull to refresh..." 
- *                  refreshing-text="Refreshing!" 
+ *
+ *   <ion-refresher on-refresh="doRefresh()"
+ *                  pulling-text="Pull to refresh..."
+ *                  refreshing-text="Refreshing!"
  *                  refreshing-icon="ion-loading-c">
  *   </ion-refresher>
- * 
+ *
  *   <ion-list>
  *     <ion-item ng-repeat="item in items">{{item}}</ion-item>
  *   </ion-list>
- * 
+ *
  * </ion-content>
  */
 IonicModule
@@ -6726,8 +6933,10 @@ IonicModule
 
         scrollCtrl._setRefresher($scope, $element[0]);
         $scope.$on('scroll.refreshComplete', function() {
-          $element[0].classList.remove('active');
-          scrollCtrl.scrollView.finishPullToRefresh();
+          $scope.$evalAsync(function() {
+            $element[0].classList.remove('active');
+            scrollCtrl.scrollView.finishPullToRefresh();
+          });
         });
       };
     }
@@ -7113,6 +7322,160 @@ app.controller('SideMenusSimpleCtrl', function($scope, $ionicSideMenuDelegate) {
   </ion-side-menus>
 </ion-view>
  */
+/**
+ * @ngdoc demo
+ * @name ionSideMenus#navWithMenu
+ * @module sideMenuWithNav
+ * @javascript
+angular.module('sideMenuWithNav', ['ionic'])
+.config(function($stateProvider, $urlRouterProvider) {
+  $stateProvider
+
+    .state('app', {
+      url: "/app",
+      abstract: true,
+      templateUrl: "templates/menu.html",
+      controller: 'AppCtrl'
+    })
+
+    .state('app.search', {
+      url: "/search",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/search.html"
+        }
+      }
+    })
+
+    .state('app.browse', {
+      url: "/browse",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/browse.html"
+        }
+      }
+    })
+    .state('app.playlists', {
+      url: "/playlists",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/playlists.html",
+          controller: 'PlaylistsCtrl'
+        }
+      }
+    })
+
+    .state('app.single', {
+      url: "/playlists/:playlistId",
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/playlist.html",
+          controller: 'PlaylistCtrl'
+        }
+      }
+    });
+  // if none of the above states are matched, use this as the fallback
+  $urlRouterProvider.otherwise('/app/playlists');
+})
+
+.controller('AppCtrl', function($scope) {
+})
+
+.controller('PlaylistsCtrl', function($scope) {
+  $scope.playlists = [
+    { title: 'Reggae', id: 1 },
+    { title: 'Chill', id: 2 },
+    { title: 'Dubstep', id: 3 },
+    { title: 'Indie', id: 4 },
+    { title: 'Rap', id: 5 },
+    { title: 'Cowbell', id: 6 }
+  ];
+})
+
+.controller('PlaylistCtrl', function($scope, $stateParams) {
+})
+ *
+ * @html
+<ion-nav-view>
+</ion-nav-view>
+
+<script type="text/ng-template" id="templates/menu.html">
+  <ion-side-menus>
+
+    <ion-pane ion-side-menu-content>
+      <ion-nav-bar class="bar-stable nav-title-slide-ios7">
+        <ion-nav-back-button class="button-clear"><i class="icon ion-chevron-left"></i> Back</ion-nav-back-button>
+      </ion-nav-bar>
+      <ion-nav-view name="menuContent" animation="slide-left-right"></ion-nav-view>
+    </ion-pane>
+
+    <ion-side-menu side="left">
+      <header class="bar bar-header bar-stable">
+        <h1 class="title">Left</h1>
+      </header>
+      <ion-content class="has-header">
+        <ion-list>
+          <ion-item nav-clear menu-close href="#/app/search">
+            Search
+          </ion-item>
+          <ion-item nav-clear menu-close href="#/app/browse">
+            Browse
+          </ion-item>
+          <ion-item nav-clear menu-close href="#/app/playlists">
+            Playlists
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ion-side-menu>
+
+  </ion-side-menus>
+</script>
+
+<script type="text/ng-template" id="templates/browse.html">
+  <ion-view title="Browse">
+    <ion-nav-buttons side="left">
+      <button menu-toggle="left"class="button button-icon icon ion-navicon"></button>
+    </ion-nav-buttons>
+    <ion-content class="has-header">
+      <h1>Browse</h1>
+    </ion-content>
+  </ion-view>
+</script>
+
+<script type="text/ng-template" id="templates/playlist.html">
+  <ion-view title="Playlist">
+    <ion-content class="has-header">
+      <h1>Playlist</h1>
+    </ion-content>
+  </ion-view>
+</script>
+
+<script type="text/ng-template" id="templates/playlists.html">
+  <ion-view title="Playlists">
+    <ion-nav-buttons side="left">
+      <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+    </ion-nav-buttons>
+    <ion-content class="has-header">
+      <ion-list>
+        <ion-item ng-repeat="playlist in playlists" href="#/app/playlists/{{playlist.id}}">
+          {{playlist.title}}
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-view>
+</script>
+
+<script type="text/ng-template" id="templates/search.html">
+  <ion-view title="Search">
+    <ion-nav-buttons side="left">
+      <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+    </ion-nav-buttons>
+    <ion-content class="has-header">
+      <h1>Search</h1>
+    </ion-content>
+  </ion-view>
+</script>
+ */
 
 .directive('ionSideMenus', [function() {
   return {
@@ -7237,7 +7600,7 @@ function($timeout, $compile, $ionicSlideBoxDelegate) {
       };
 
       this.onPagerClick = function(index) {
-        void 0;
+        console.log('pagerClick', index);
         $scope.pagerClick({index: index});
       };
 
