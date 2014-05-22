@@ -13,7 +13,7 @@
                 ng-style="{'padding-left':comment.indent*15+'px'}">
         <p class="timestamp">{{comment.timestamp}}</p>
         <p class="author">{{comment.author}} <i class="icon ion-arrow-down-b"></i></p>
-        <p class="text">{{comment.text}}</p>
+        <div class="text" ng-bind-html="trust(comment.html)" ng-click="bubbleCheck($event)"></div>
       </ion-item>
       <ion-item class="padding text-center" ng-if="comments.length < 1">
         <h3>No Comments Yet</h3>
