@@ -23,7 +23,6 @@ angular.module('frontpage.controllers', [])
     var params = 'location=no,' +
                  'enableViewportScale=yes,' +
                  'toolbarposition=top,' +
-                 'transitionstyle=crossdissolve,' +
                  'closebuttoncaption=Done';
     var iab = window.open(url,'_blank',params);
     // cordova tends to keep these in memory after they're gone so we'll help it forget
@@ -66,7 +65,6 @@ angular.module('frontpage.controllers', [])
       var params = 'location=no,' +
         'enableViewportScale=yes,' +
         'toolbarposition=top,' +
-        'transitionstyle=crossdissolve,' +
         'closebuttoncaption=Done';
       var iab = window.open(url,'_blank',params);
       // cordova tends to keep these in memory after they're gone so we'll help it forget
@@ -89,14 +87,29 @@ angular.module('frontpage.controllers', [])
   }
 })
 
-.controller('CommentsCtrl', function($scope, HNAPI, $stateParams, $ionicLoading) {
-  $ionicLoading.show({
-    template: 'Loading...'
-  });
+.controller('CommentsCtrl', function($scope, HNAPI, $stateParams, $ionicLoading, $sce, $timeout) {
+  $timeout(function(){
+    if(loading === false) return;
+    $ionicLoading.show({
+      template: 'Loading...'
+    });
+  },300);
+  loading = true;
   HNAPI.comments($stateParams.storyID).then(function(comments){
+    loading = false;
     $scope.comments = comments;
     $ionicLoading.hide();
   });
+  $scope.trust = function(comment){
+    return $sce.trustAsHtml(comment);
+  }
+  $scope.bubbleCheck = function(e){
+    if(e.toElement.tagName == "A"){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    }
+  }
 })
 
 .controller('SearchCtrl', function($scope, HNAPI, $ionicLoading, $state) {

@@ -92,10 +92,13 @@ i.text-center{
   border-right: none;
   border-left: none;
   @include calc(width, "100% - 30px");
-  text-overflow: initial;
+  text-overflow: clip;
   white-space: normal;
   border-bottom: none;
   display: table;
+  overflow: hidden;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
 }
 .item.post-list{
    padding: 0 0 0 0;
@@ -124,7 +127,10 @@ i.text-center{
   font-weight: normal;
   margin-bottom: 1em;
 }
-
+.item.comment a{
+  color:$energized;
+  word-break:break-all;
+}
 .item.comment p.author{
   color:#111111;
   font-weight: bold;
@@ -133,19 +139,19 @@ i.text-center{
   float: right;
   color: $stable;
 }
-.item.comment p.text{
+.item.comment .text{
   max-height: 800px;
   overflow: hidden;
 }
 // hide comment animation
-.item.comment p, .item.comment i{
+.item.comment p, .item.comment i, .item.comment .text{
   -webkit-transition: all .2s ease; /* For Safari 3.1 to 6.0 */
   transition: all .2s ease;
 }
 .item.hidden p{
   margin:0;
 }
-.item.hidden p.text{
+.item.hidden .text{
   opacity: 0;
   margin-bottom: 0;
   max-height: 0px;
