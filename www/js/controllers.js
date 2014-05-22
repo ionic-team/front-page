@@ -94,12 +94,19 @@ angular.module('frontpage.controllers', [])
       template: 'Loading...'
     });
   },300);
+  $timeout(function(){
+    $scope.requestFail();
+  }, 5000);
   loading = true;
   HNAPI.comments($stateParams.storyID).then(function(comments){
     loading = false;
     $scope.comments = comments;
     $ionicLoading.hide();
-  });
+  },$scope.requestFail);
+  $scope.requestFail = function(){
+    $scope.comments = [];
+    $ionicLoading.hide();
+  }
   $scope.trust = function(comment){
     return $sce.trustAsHtml(comment);
   }
