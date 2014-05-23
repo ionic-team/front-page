@@ -104,6 +104,7 @@ angular.module('frontpage.controllers', [])
     $ionicLoading.hide();
   },$scope.requestFail);
   $scope.requestFail = function(){
+    if(loading === false)return;
     $scope.comments = [];
     $ionicLoading.hide();
   }

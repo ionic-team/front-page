@@ -1,0 +1,30 @@
+body, .ionic-body, .tab-item,
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6,
+p, span{
+    font-family: Roboto, Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+.scroll-content{
+    overflow: hidden;
+}
+.bar .title{
+    text-align: left;
+    padding-left: 5px;
+}
+.tabs, .tabs-light > .tabs, .tabs.tabs-light{
+    bottom: auto;
+    top:40px;
+    border-bottom: 1px solid #eae3df;
+}
+.tab-item.tab-item-active{
+    border-bottom:5px solid #ff6600;
+    margin-top: 1px;
+}
+.tab-item.tab-item-active .icon{
+    margin-top: -1px;
+}
+.has-tabs, .bar-footer.has-tabs {
+    bottom: 0px;
+}
+.has-header {
+    top: 89px;
+}
