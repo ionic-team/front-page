@@ -51,23 +51,3 @@ input, button, select, textarea{
     text-decoration: none;
     border-bottom: none;
 }
-.energized-bg input::-webkit-input-placeholder,
-.energized-bg textarea::-webkit-input-placeholder {
-    color:rgba(255, 255, 255, 1);
-    font-weight: 400;
-}
-.item-input-wrapper.energized-bg i{
-    color:white;
-}
-i.text-center{
-    left:0 !important;
-}
-form.bar-header .text-center{
-    text-align: left;
-}
-.bar.bar-energized{
-}
-.item-input-wrapper.energized-bg{
-    background:transparent;
-    border-bottom: 2px solid #ffffff;
-}
