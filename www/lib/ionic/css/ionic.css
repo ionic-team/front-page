@@ -2619,6 +2619,13 @@ a.subdued {
       .bar .button.button-clear .icon:before, .bar .button.button-clear.icon:before, .bar .button.button-clear.icon-left:before, .bar .button.button-clear.icon-right:before {
         font-size: 32px;
         line-height: 32px; }
+    .bar .button.back-button {
+      padding: 0;
+      opacity: 0.8; }
+      .bar .button.back-button .back-button-title {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 4px; }
     .bar .button.back-button.active, .bar .button.back-button.activated {
       opacity: 1; }
   .bar .button-bar > .button, .bar .buttons > .button {
@@ -2980,6 +2987,81 @@ a.subdued {
     background-color: #fff;
     color: #444; }
 
+.tabs-striped .tabs {
+  background-color: white;
+  background-image: none;
+  border: none; }
+.tabs-striped.tabs-light .tab-item.tab-item-active, .tabs-striped.tabs-light .tab-item.active, .tabs-striped.tabs-light .tab-item.activated {
+  margin-top: -4px;
+  color: #fff;
+  border-style: solid;
+  border-width: 4px 0 0 0;
+  border-color: #fff; }
+.tabs-striped.tabs-stable .tab-item.tab-item-active, .tabs-striped.tabs-stable .tab-item.active, .tabs-striped.tabs-stable .tab-item.activated {
+  margin-top: -4px;
+  color: #f8f8f8;
+  border-style: solid;
+  border-width: 4px 0 0 0;
+  border-color: #f8f8f8; }
+.tabs-striped.tabs-positive .tab-item.tab-item-active, .tabs-striped.tabs-positive .tab-item.active, .tabs-striped.tabs-positive .tab-item.activated {
+  margin-top: -4px;
+  color: #4a87ee;
+  border-style: solid;
+  border-width: 4px 0 0 0;
+  border-color: #4a87ee; }
+.tabs-striped.tabs-calm .tab-item.tab-item-active, .tabs-striped.tabs-calm .tab-item.active, .tabs-striped.tabs-calm .tab-item.activated {
+  margin-top: -4px;
+  color: #43cee6;
+  border-style: solid;
+  border-width: 4px 0 0 0;
+  border-color: #43cee6; }
+.tabs-striped.tabs-assertive .tab-item.tab-item-active, .tabs-striped.tabs-assertive .tab-item.active, .tabs-striped.tabs-assertive .tab-item.activated {
+  margin-top: -4px;
+  color: #ef4e3a;
+  border-style: solid;
+  border-width: 4px 0 0 0;
+  border-color: #ef4e3a; }
+.tabs-striped.tabs-balanced .tab-item.tab-item-active, .tabs-striped.tabs-balanced .tab-item.active, .tabs-striped.tabs-balanced .tab-item.activated {
+  margin-top: -4px;
+  color: #66cc33;
+  border-style: solid;
+  border-width: 4px 0 0 0;
+  border-color: #66cc33; }
+.tabs-striped.tabs-energized .tab-item.tab-item-active, .tabs-striped.tabs-energized .tab-item.active, .tabs-striped.tabs-energized .tab-item.activated {
+  margin-top: -4px;
+  color: #f0b840;
+  border-style: solid;
+  border-width: 4px 0 0 0;
+  border-color: #f0b840; }
+.tabs-striped.tabs-royal .tab-item.tab-item-active, .tabs-striped.tabs-royal .tab-item.active, .tabs-striped.tabs-royal .tab-item.activated {
+  margin-top: -4px;
+  color: #8a6de9;
+  border-style: solid;
+  border-width: 4px 0 0 0;
+  border-color: #8a6de9; }
+.tabs-striped.tabs-dark .tab-item.tab-item-active, .tabs-striped.tabs-dark .tab-item.active, .tabs-striped.tabs-dark .tab-item.activated {
+  margin-top: -4px;
+  color: #444;
+  border-style: solid;
+  border-width: 4px 0 0 0;
+  border-color: #444; }
+.tabs-striped .tab-item {
+  color: #000;
+  opacity: 0.4; }
+.tabs-striped .tab-item + .tab-item:before {
+  border-left: 1px solid #ccc;
+  display: block;
+  float: left;
+  width: 2px;
+  height: 26px;
+  margin: 11px auto;
+  content: " "; }
+
+.tabs-top.tabs-striped .tab-item.tab-item-active, .tabs-top.tabs-striped .tab-item.active, .tabs-top.tabs-striped .tab-item.activated {
+  margin-top: 0;
+  margin-bottom: -4px;
+  border-width: 0px 0px 4px 0px !important; }
+
 /* Allow parent element to have tabs-top */
 /* If you change this, change platform.scss as well */
 .tabs-top > .tabs, .tabs.tabs-top {
@@ -3093,6 +3175,11 @@ a.subdued {
   opacity: 0.4;
   cursor: default;
   pointer-events: none; }
+
+/** Platform styles **/
+
+.tab-item.tab-item-android {
+  border-top: 2px solid inherit; }
 
 /**
  * Menus
@@ -5579,9 +5666,9 @@ a.button {
  * --------------------------------------------------
  */
 .slide-left-right-ios7 > .ng-enter, .slide-left-right-ios7.ng-enter, .slide-left-right-ios7 > .ng-leave, .slide-left-right-ios7.ng-leave, .slide-right-left-ios7.reverse > .ng-enter, .slide-right-left-ios7.reverse.ng-enter, .slide-right-left-ios7.reverse > .ng-leave, .slide-right-left-ios7.reverse.ng-leave {
-  -webkit-transition: all ease-in-out 250ms;
-  -moz-transition: all ease-in-out 250ms;
-  transition: all ease-in-out 250ms;
+  -webkit-transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 340ms;
+  -moz-transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 340ms;
+  transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 340ms;
   position: absolute;
   top: 0;
   right: -1px;
@@ -5595,7 +5682,10 @@ a.button {
   /* NEW content placed far RIGHT BEFORE it slides IN from the RIGHT */
   -webkit-transform: translate3d(100%, 0, 0);
   -moz-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0); }
+  transform: translate3d(100%, 0, 0);
+  z-index: 2; }
+.slide-left-right-ios7 > .ng-leave, .slide-left-right-ios7.ng-leave, .slide-right-left-ios7.reverse > .ng-leave, .slide-right-left-ios7.reverse.ng-leave {
+  z-index: 1; }
 .slide-left-right-ios7 > .ng-enter.ng-enter-active, .slide-left-right-ios7.ng-enter.ng-enter-active, .slide-right-left-ios7.reverse > .ng-enter.ng-enter-active, .slide-right-left-ios7.reverse.ng-enter.ng-enter-active {
   /* NEW content ACTIVELY sliding IN from the RIGHT */
   -webkit-transform: translate3d(0, 0, 0);
@@ -5608,9 +5698,9 @@ a.button {
   transform: translate3d(-15%, 0, 0); }
 
 .slide-left-right-ios7.reverse > .ng-enter, .slide-left-right-ios7.reverse.ng-enter, .slide-left-right-ios7.reverse > .ng-leave, .slide-left-right-ios7.reverse.ng-leave, .slide-right-left-ios7 > .ng-enter, .slide-right-left-ios7.ng-enter, .slide-right-left-ios7 > .ng-leave, .slide-right-left-ios7.ng-leave {
-  -webkit-transition: all ease-in-out 250ms;
-  -moz-transition: all ease-in-out 250ms;
-  transition: all ease-in-out 250ms;
+  -webkit-transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 340ms;
+  -moz-transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 340ms;
+  transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 340ms;
   position: absolute;
   top: 0;
   right: -1px;
@@ -5621,9 +5711,12 @@ a.button {
   border-left: 1px solid #ddd; }
 .slide-left-right-ios7.reverse > .ng-enter, .slide-left-right-ios7.reverse.ng-enter, .slide-right-left-ios7 > .ng-enter, .slide-right-left-ios7.ng-enter {
   /* NEW content placed far LEFT BEFORE it slides IN from the LEFT */
-  -webkit-transform: translate3d(-100%, 0, 0);
-  -moz-transform: translate3d(-100%, 0, 0);
-  transform: translate3d(-100%, 0, 0); }
+  -webkit-transform: translate3d(-15%, 0, 0);
+  -moz-transform: translate3d(-15%, 0, 0);
+  transform: translate3d(-15%, 0, 0);
+  z-index: 1; }
+.slide-left-right-ios7.reverse > .ng-leave, .slide-left-right-ios7.reverse.ng-leave, .slide-right-left-ios7 > .ng-leave, .slide-right-left-ios7.ng-leave {
+  z-index: 2; }
 .slide-left-right-ios7.reverse > .ng-enter.ng-enter-active, .slide-left-right-ios7.reverse.ng-enter.ng-enter-active, .slide-right-left-ios7 > .ng-enter.ng-enter-active, .slide-right-left-ios7.ng-enter.ng-enter-active {
   /* NEW content ACTIVELY sliding IN from the LEFT */
   -webkit-transform: translate3d(0, 0, 0);
@@ -5631,10 +5724,150 @@ a.button {
   transform: translate3d(0, 0, 0); }
 .slide-left-right-ios7.reverse > .ng-leave.ng-leave-active, .slide-left-right-ios7.reverse.ng-leave.ng-leave-active, .slide-right-left-ios7 > .ng-leave.ng-leave-active, .slide-right-left-ios7.ng-leave.ng-leave-active {
   /* OLD content ACTIVELY sliding OUT to the RIGHT */
-  -webkit-transform: translate3d(15%, 0, 0);
-  -moz-transform: translate3d(15%, 0, 0);
-  transform: translate3d(15%, 0, 0); }
+  -webkit-transform: translate3d(100%, 0, 0);
+  -moz-transform: translate3d(100%, 0, 0);
+  transform: translate3d(100%, 0, 0); }
 
+/**
+ * Android style "pop in" with fade and scale
+ */
+.fade-explode > .ng-enter, .fade-explode.ng-enter, .fade-explode > .ng-leave, .fade-explode.ng-leave {
+  -webkit-transition: all ease-out 300ms;
+  -moz-transition: all ease-out 300ms;
+  transition: all ease-out 300ms;
+  position: absolute;
+  top: 0;
+  right: -1px;
+  bottom: 0;
+  left: -1px;
+  width: auto; }
+  .fade-explode > .ng-enter:not(.bar), .fade-explode.ng-enter:not(.bar), .fade-explode > .ng-leave:not(.bar), .fade-explode.ng-leave:not(.bar) {
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd; }
+.fade-explode > .ng-enter, .fade-explode.ng-enter {
+  /* NEW content placed far RIGHT BEFORE it slides IN from the RIGHT */
+  -webkit-transform: scale(1.6);
+  -moz-transform: scale(1.6);
+  transform: scale(1.6);
+  opacity: 0;
+  z-index: 2; }
+.fade-explode > .ng-leave, .fade-explode.ng-leave {
+  z-index: 1; }
+.fade-explode > .ng-enter.ng-enter-active, .fade-explode.ng-enter.ng-enter-active {
+  /* NEW content ACTIVELY sliding IN from the RIGHT */
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  transform: scale(1);
+  opacity: 1; }
+.fade-explode > .ng-leave.ng-leave-active, .fade-explode.ng-leave.ng-leave-active {
+  /* OLD content ACTIVELY sliding OUT to the LEFT */
+  -webkit-transform: scale(0.95);
+  -moz-transform: scale(0.95);
+  transform: scale(0.95); }
+
+.fade-explode.reverse > .ng-enter, .fade-explode.reverse.ng-enter, .fade-explode.reverse > .ng-leave, .fade-explode.reverse.ng-leave {
+  -webkit-transition: all ease-out 300ms;
+  -moz-transition: all ease-out 300ms;
+  transition: all ease-out 300ms;
+  position: absolute;
+  top: 0;
+  right: -1px;
+  bottom: 0;
+  left: -1px;
+  width: auto;
+  border-right: 1px solid #ddd;
+  border-left: 1px solid #ddd; }
+.fade-explode.reverse > .ng-enter, .fade-explode.reverse.ng-enter {
+  /* NEW content placed far LEFT BEFORE it slides IN from the LEFT */
+  -webkit-transform: scale(0.95);
+  -moz-transform: scale(0.95);
+  transform: scale(0.95);
+  opacity: 0;
+  z-index: 1; }
+.fade-explode.reverse > .ng-leave, .fade-explode.reverse.ng-leave {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  transform: scale(1);
+  opacity: 1;
+  z-index: 2; }
+.fade-explode.reverse > .ng-enter.ng-enter-active, .fade-explode.reverse.ng-enter.ng-enter-active {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  transform: scale(1);
+  opacity: 1; }
+.fade-explode.reverse > .ng-leave.ng-leave-active, .fade-explode.reverse.ng-leave.ng-leave-active {
+  -webkit-transform: scale(1.6);
+  -moz-transform: scale(1.6);
+  transform: scale(1.6);
+  opacity: 0; }
+
+/**
+ * Android style "pop in" with fade and scale
+ */
+.fade-implode > .ng-enter, .fade-implode.ng-enter, .fade-implode > .ng-leave, .fade-implode.ng-leave {
+  -webkit-transition: all ease-out 200ms;
+  -moz-transition: all ease-out 200ms;
+  transition: all ease-out 200ms;
+  position: absolute;
+  top: 0;
+  right: -1px;
+  bottom: 0;
+  left: -1px;
+  width: auto; }
+  .fade-implode > .ng-enter:not(.bar), .fade-implode.ng-enter:not(.bar), .fade-implode > .ng-leave:not(.bar), .fade-implode.ng-leave:not(.bar) {
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd; }
+.fade-implode > .ng-enter, .fade-implode.ng-enter {
+  /* NEW content placed far RIGHT BEFORE it slides IN from the RIGHT */
+  -webkit-transform: scale(0.8);
+  -moz-transform: scale(0.8);
+  transform: scale(0.8);
+  opacity: 0;
+  z-index: 2; }
+.fade-implode > .ng-leave, .fade-implode.ng-leave {
+  z-index: 1; }
+.fade-implode > .ng-enter.ng-enter-active, .fade-implode.ng-enter.ng-enter-active {
+  /* NEW content */
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  transform: scale(1);
+  opacity: 1; }
+
+.fade-implode.reverse > .ng-enter, .fade-implode.reverse.ng-enter, .fade-implode.reverse > .ng-leave, .fade-implode.reverse.ng-leave {
+  -webkit-transition: all ease-out 200ms;
+  -moz-transition: all ease-out 200ms;
+  transition: all ease-out 200ms;
+  position: absolute;
+  top: 0;
+  right: -1px;
+  bottom: 0;
+  left: -1px;
+  width: auto;
+  border-right: 1px solid #ddd;
+  border-left: 1px solid #ddd; }
+.fade-implode.reverse > .ng-enter, .fade-implode.reverse.ng-enter {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  transform: scale(1);
+  opacity: 1;
+  z-index: 1; }
+.fade-implode.reverse > .ng-leave, .fade-implode.reverse.ng-leave {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  transform: scale(1);
+  opacity: 1;
+  z-index: 2; }
+.fade-implode.reverse > .ng-enter.ng-enter-active, .fade-implode.reverse.ng-enter.ng-enter-active {
+  opacity: 1; }
+.fade-implode.reverse > .ng-leave.ng-leave-active, .fade-implode.reverse.ng-leave.ng-leave-active {
+  -webkit-transform: scale(0.8);
+  -moz-transform: scale(0.8);
+  transform: scale(0.8);
+  opacity: 0; }
+
+/**
+ * Simple slide-in animation
+ */
 .slide-in-left {
   -webkit-transform: translate3d(0%, 0, 0);
   -moz-transform: translate3d(0%, 0, 0);
@@ -5881,12 +6114,12 @@ a.button {
  * Some component specific animations
  */
 .nav-title-slide-ios7:not(.no-animation) .button.back-button {
-  -webkit-transition: all 250ms;
-  -moz-transition: all 250ms;
-  transition: all 250ms;
-  -webkit-transition-timing-function: ease-in-out;
-  -moz-transition-timing-function: ease-in-out;
-  transition-timing-function: ease-in-out;
+  -webkit-transition: all 340ms;
+  -moz-transition: all 340ms;
+  transition: all 340ms;
+  -webkit-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  -moz-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
   -webkit-transform: translate3d(0%, 0, 0);
   -moz-transform: translate3d(0%, 0, 0);
   transform: translate3d(0%, 0, 0);
@@ -5903,18 +6136,22 @@ a.button {
   .nav-title-slide-ios7:not(.no-animation) .button.back-button.ng-hide-add {
     position: absolute; }
 .nav-title-slide-ios7 > .ng-enter, .nav-title-slide-ios7.ng-enter, .nav-title-slide-ios7 > .ng-leave, .nav-title-slide-ios7.ng-leave {
-  -webkit-transition: all 250ms;
-  -moz-transition: all 250ms;
-  transition: all 250ms;
-  -webkit-transition-timing-function: ease-in-out;
-  -moz-transition-timing-function: ease-in-out;
-  transition-timing-function: ease-in-out;
+  -webkit-transition: all 340ms;
+  -moz-transition: all 340ms;
+  transition: all 340ms;
+  -webkit-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  -moz-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
   opacity: 1; }
 .nav-title-slide-ios7 > .ng-enter, .nav-title-slide-ios7.ng-enter {
   -webkit-transform: translate3d(30%, 0, 0);
   -moz-transform: translate3d(30%, 0, 0);
   transform: translate3d(30%, 0, 0);
   opacity: 0; }
+  .nav-title-slide-ios7 > .ng-enter.title, .nav-title-slide-ios7.ng-enter.title {
+    -webkit-transform: translate3d(100%, 0, 0);
+    -moz-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0); }
 .nav-title-slide-ios7 > .ng-enter.ng-enter-active, .nav-title-slide-ios7.ng-enter.ng-enter-active {
   -webkit-transform: translate3d(0, 0, 0);
   -moz-transform: translate3d(0, 0, 0);
@@ -5926,9 +6163,12 @@ a.button {
   transform: translate3d(-30%, 0, 0);
   opacity: 0; }
 .nav-title-slide-ios7.reverse > .ng-enter, .nav-title-slide-ios7.reverse.ng-enter, .nav-title-slide-ios7.reverse > .ng-leave, .nav-title-slide-ios7.reverse.ng-leave {
-  -webkit-transition: all ease-in-out 250ms;
-  -moz-transition: all ease-in-out 250ms;
-  transition: all ease-in-out 250ms;
+  -webkit-transition: all 340ms;
+  -moz-transition: all 340ms;
+  transition: all 340ms;
+  -webkit-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  -moz-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
   opacity: 1; }
 .nav-title-slide-ios7.reverse > .ng-enter, .nav-title-slide-ios7.reverse.ng-enter {
   -webkit-transform: translate3d(-30%, 0, 0);
@@ -5941,9 +6181,9 @@ a.button {
   transform: translate3d(0, 0, 0);
   opacity: 1; }
 .nav-title-slide-ios7.reverse > .ng-leave.ng-leave-active, .nav-title-slide-ios7.reverse.ng-leave.ng-leave-active {
-  -webkit-transform: translate3d(30%, 0, 0);
-  -moz-transform: translate3d(30%, 0, 0);
-  transform: translate3d(30%, 0, 0);
+  -webkit-transform: translate3d(100%, 0, 0);
+  -moz-transform: translate3d(100%, 0, 0);
+  transform: translate3d(100%, 0, 0);
   opacity: 0; }
 
 /**
@@ -6411,6 +6651,57 @@ a.button {
  * --------------------------------------------------
  * Platform specific tweaks
  */
+.platform-android {
+  /*
+  font-family: 'Roboto';
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Roboto', $font-family-base;
+  }
+
+  .tab-item {
+    font-family: 'Roboto', $font-family-base;
+  }
+
+
+  input, button, select, textarea {
+    font-family: 'Roboto', $font-family-base;
+  }
+  */ }
+  .platform-android .bar {
+    padding: 0;
+    line-height: 40px; }
+    .platform-android .bar .button {
+      line-height: 40px; }
+    .platform-android .bar .button-icon:before {
+      font-size: 24px; }
+  .platform-android .back-button {
+    margin-left: -3px;
+    padding: 0px 2px !important; }
+    .platform-android .back-button.button-icon:before {
+      line-height: 40px; }
+    .platform-android .back-button.ion-android-arrow-back:before {
+      font-size: 12px; }
+    .platform-android .back-button.back-button.active, .platform-android .back-button.back-button.activated {
+      background-color: rgba(0, 0, 0, 0.1); }
+  .platform-android .item-divider {
+    background: none;
+    border-top-width: 0;
+    border-bottom-width: 2px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    font-size: 14px; }
+  .platform-android .item {
+    border-left-width: 0;
+    border-right-width: 0; }
+  .platform-android .item-divider ~ .item:not(.item-divider) {
+    border-bottom-width: 0; }
+  .platform-android .back-button:not(.ng-hide) + .left-buttons + .title {
+    display: none; }
+  .platform-android .bar .title {
+    text-align: left;
+    font-weight: normal; }
+
 .platform-ios7.platform-cordova:not(.fullscreen) .bar-header:not(.bar-subheader) {
   height: 64px; }
   .platform-ios7.platform-cordova:not(.fullscreen) .bar-header:not(.bar-subheader).item-input-inset .item-input-wrapper {
