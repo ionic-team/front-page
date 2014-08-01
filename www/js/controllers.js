@@ -2,13 +2,13 @@ angular.module('frontpage.controllers', [])
 
 .controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state, $timeout) {
   $scope.posts = RequestCache.get('frontpage/0');
-  var currentPage = 0;
-  HNAPI.frontpage(0).then(function(posts){
+  var currentPage = 1;
+  HNAPI.frontpage(1).then(function(posts){
     $scope.posts = posts;
   });
   $scope.refresh = function(){
     // refresh the list with a new API call
-    HNAPI.frontpage(0).then(function(posts){
+    HNAPI.frontpage(1).then(function(posts){
       // since the refresh is called immediately when you start pulling, it can be a little "too fast"
       // this makes the spinner flash for a fraction of a second and the user isn't sure if it actually worked
       // wrap the response in a timeout so
@@ -47,12 +47,12 @@ angular.module('frontpage.controllers', [])
 
 .controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state, $timeout) {
   $scope.posts = RequestCache.get('newest/0');
-  var currentPage = 0;
-  HNAPI.newest(0).then(function(posts){
+  var currentPage = 1;
+  HNAPI.newest(1).then(function(posts){
     $scope.posts = posts;
   });
   $scope.refresh = function(){
-    HNAPI.newest(0).then(function(posts){
+    HNAPI.newest(1).then(function(posts){
       $timeout(function(){
         $scope.posts = posts;
         $scope.$broadcast('scroll.refreshComplete');
