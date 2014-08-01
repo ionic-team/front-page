@@ -42,6 +42,16 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 .item-input-wrapper.energized-bg{
   background: darken($energized, 3%);
   padding-right: 40px;
+  -webkit-transition: all .2s ease;
+  transition: all .2s ease;
+}
+// because sass can't calc, we make it a mixin
+@mixin calc($property, $expression) {
+  #{$property}: -webkit-calc(#{$expression}) !important;
+  #{$property}: calc(#{$expression}) !important;
+}
+.item-input-wrapper.energized-bg.centered{
+  @include calc(padding-left, "50% - 35px");
 }
 .item.activated+.item{
   border-top-color:rgba($light,.0)
@@ -63,14 +73,6 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
   font-size:16px;
   color:rgba($search-input, .5);
   text-decoration: none;
-}
-// because sass can't calc, we make it a mixin
-@mixin calc($property, $expression) {
-  #{$property}: -webkit-calc(#{$expression}) !important;
-  #{$property}: calc(#{$expression}) !important;
-}
-i.text-center{
-  @include calc(left, "46% - 20px");
 }
 .ion-ios7-close.dark{
   font-size: 20px;
@@ -178,8 +180,8 @@ i.text-center{
   -webkit-text-stroke: 0px transparent;
   font-size: 29%;
   position: absolute;
-  top: 35px;
-  right: 7px;
+  top: 32px;
+  right: 6px;
   width: 30px;
   text-align: center;
 }
@@ -203,4 +205,10 @@ ion-infinite-scroll .scroll-infinite-content{
 }
 .scroll-refresher:not(.active){
   display:none;
+}
+// spinner
+.spinner{
+  margin:100px auto 0;
+  text-align: center;
+  font-size:50px;
 }

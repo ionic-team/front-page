@@ -17,7 +17,7 @@ angular.module('frontpage.controllers', [])
         $scope.$broadcast('scroll.refreshComplete');
       },2000);
     });
-  }
+  };
   $scope.open = function(url){
     // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
     var params = 'location=no,' +
@@ -31,7 +31,7 @@ angular.module('frontpage.controllers', [])
       iab.close();
       iab = null;
     });
-  }
+  };
   $scope.loadMoreData = function(){
     currentPage++;
     console.log('loading page '+currentPage);
@@ -39,7 +39,7 @@ angular.module('frontpage.controllers', [])
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
     });
-  }
+  };
   $scope.loadComments = function(storyID){
     $state.go('tab.front-page-comments',{storyID:storyID});
   }
@@ -58,7 +58,7 @@ angular.module('frontpage.controllers', [])
         $scope.$broadcast('scroll.refreshComplete');
       },2000);
     });
-  }
+  };
   $scope.refresh();
     $scope.open = function(url){
       // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
@@ -73,7 +73,7 @@ angular.module('frontpage.controllers', [])
         iab.close();
         iab = null;
       });
-    }
+    };
   $scope.loadMoreData = function(){
     currentPage++;
     console.log('loading page '+currentPage);
@@ -81,36 +81,49 @@ angular.module('frontpage.controllers', [])
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
     });
-  }
+  };
   $scope.loadComments = function(storyID){
     $state.go('tab.newest-comments',{storyID:storyID});
   }
 })
 
-.controller('CommentsCtrl', function($scope, HNAPI, $stateParams, $ionicLoading, $sce, $timeout) {
-  $timeout(function(){
-    if(loading === false) return;
-    $ionicLoading.show({
-      template: 'Loading...'
-    });
-  },300);
-  $timeout(function(){
-    $scope.requestFail();
-  }, 5000);
-  loading = true;
+.controller('CommentsCtrl', function($scope, HNAPI, $stateParams, $sce, $timeout) {
+  // requests take time, so we do a few things to keep things smooth.
+  // we don't load comments until the page animation is over.
+  // if after the page animation, the comments are still not available, we show a loading screen
+  var commentsStaging = [];
+  $scope.animating = true
+  $scope.loading = true;
   HNAPI.comments($stateParams.storyID).then(function(comments){
-    loading = false;
-    $scope.comments = comments;
-    $ionicLoading.hide();
+    $scope.loading = false;
+    commentsStaging = comments;
+    if(!$scope.animating){
+      $scope.comments = commentsStaging;
+    }
   },$scope.requestFail);
+
+  $timeout(function(){
+    $scope.animating = false;
+    $scope.comments = commentsStaging;
+  },333);
+
+  $timeout(function(){
+    console.log(commentsStaging.length)
+    if(commentsStaging.length < 1)$scope.requestFail();
+  }, 10000);
+
   $scope.requestFail = function(){
-    if(loading === false)return;
+
+    console.log('gets here too')
+    commentsStaging = [];
     $scope.comments = [];
-    $ionicLoading.hide();
-  }
+    $scope.requestFailed = true;
+    if($scope.loading === false)return;
+    $scope.loading = false;
+  };
   $scope.trust = function(comment){
     return $sce.trustAsHtml(comment);
-  }
+  };
   $scope.bubbleCheck = function(e){
     if(e.toElement.tagName == "A"){
       e.preventDefault();
@@ -121,7 +134,7 @@ angular.module('frontpage.controllers', [])
 })
 
 .controller('SearchCtrl', function($scope, HNAPI, $ionicLoading, $state) {
-  $scope.focused= 'text-center'
+  $scope.focused= 'centered';
   $scope.searchTerm = '';
   $scope.posts = [];
   console.log(localStorage.searchCache);
@@ -129,9 +142,10 @@ angular.module('frontpage.controllers', [])
     var sc = JSON.parse(localStorage.searchCache);
     $scope.searchTerm = sc.term;
     $scope.posts = sc.results;
-    $scope.focused = 'left-center';
+    $scope.focused = 'left';
   }
   $scope.search = function(searchTerm){
+    if(searchTerm === '')return;
     $ionicLoading.show({
       template: 'Searching...'
     });
@@ -159,14 +173,14 @@ angular.module('frontpage.controllers', [])
       iab.close();
       iab = null;
     });
-  }
+  };
   $scope.clear = function(){
     $scope.posts = [];
     $scope.searchTerm = '';
-    $scope.focused = 'text-center';
+    $scope.focused = 'centered';
     document.getElementById('searchInput').blur();
     delete localStorage.searchCache;
-  }
+  };
   $scope.loadComments = function(storyID){
     $state.go('tab.search-comments',{storyID:storyID});
   }

@@ -1,13 +1,13 @@
-// Ionic Starter App
+// Ionic FrontPage App
 
 // angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
+// 'frontpage' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-// 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.services'])
+// 'frontpage.services' is found in services.js
+angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.services', 'frontpage.directives'])
 
-.run(function($ionicPlatform, $collectionRepeatManager) {
+.run(function($ionicPlatform, $templateCache, $http) {
   $ionicPlatform.ready(function() {
     // for ios7 style header bars
     if(window.StatusBar) {
@@ -23,6 +23,16 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
     if(navigator.splashscreen){
       navigator.splashscreen.hide();
     }
+    // Lastly, we pre-load templates so page transitions are sexy-smooth
+    var templates = [
+      "tab-front-page",
+      "tab-newest",
+      "tab-search",
+      "tab-comments"
+    ];
+    templates.forEach(function(tpl){
+      $http.get('templates/'+tpl+'.html', { cache: $templateCache });
+    })
   });
 })
 
@@ -122,24 +132,4 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
     }
   }
 })
-// custom directive to bind to hold events and trigger the sharing plugin
-// expects the parent scope to contain a post item from the HNAPI service
-.directive('fpShare', function($ionicGesture) {
-  return {
-    restrict :  'A',
-    link : function(scope, elem, attrs) {
-      $ionicGesture.on('hold', function(){
-        if(typeof window.plugins === 'undefined' || typeof window.plugins.socialsharing === 'undefined'){
-          console.error("Social Sharing Cordova Plugin not found. Disregard if on a desktop browser.");
-          return;
-        }
-        window.plugins
-              .socialsharing
-              .share(scope.$parent.post.title+' - Via FrontPage the Ionic Framework Hacker News App',
-                     null,
-                     null,
-                     scope.$parent.post.url)
-      }, elem);
-    }
-  }
-});
+;

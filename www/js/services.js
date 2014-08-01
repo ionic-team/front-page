@@ -6,7 +6,7 @@ angular.module('frontpage.services', [])
 
 .factory('HNAPI', function($rootScope, $http, $q) {
   // define the API in just one place so it's easy to update
-  var apiURL = 'http://hn.ionicsdk.com/';
+  var apiURL = 'http://hn-api.ionic.io/';
 
   function validateResponse(result){
     return !(typeof result.data != 'array' && typeof result.data != 'object');
