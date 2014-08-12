@@ -73,7 +73,7 @@ angular.module('frontpage.services', [])
 
 .factory('RequestCache', function() {
   // what pages should we cache?
-  var requestsToCache = ['frontpage/0','new/0'];
+  var requestsToCache = ['frontpage/1','new/1'];
   // create the cache if it doesn't exist yet
   var cache = typeof localStorage.cache == 'undefined'?{}:JSON.parse(localStorage.cache);
   return{
@@ -86,7 +86,7 @@ angular.module('frontpage.services', [])
         }
       }
     },
-    // request a cache item's data based on the reuqested URL
+    // request a cache item's data based on the requested URL
     get:function(url){
       return typeof cache[url] === 'undefined' ? false:cache[url];
     }

@@ -1,7 +1,7 @@
 angular.module('frontpage.controllers', [])
 
 .controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state, $timeout) {
-  $scope.posts = RequestCache.get('frontpage/0');
+  $scope.posts = RequestCache.get('frontpage/1');
   var currentPage = 1;
   HNAPI.frontpage(1).then(function(posts){
     $scope.posts = posts;
@@ -46,7 +46,7 @@ angular.module('frontpage.controllers', [])
 })
 
 .controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state, $timeout) {
-  $scope.posts = RequestCache.get('newest/0');
+  $scope.posts = RequestCache.get('new/1');
   var currentPage = 1;
   HNAPI.newest(1).then(function(posts){
     $scope.posts = posts;
@@ -55,6 +55,7 @@ angular.module('frontpage.controllers', [])
     HNAPI.newest(1).then(function(posts){
       $timeout(function(){
         $scope.posts = posts;
+        currentPage = 1;
         $scope.$broadcast('scroll.refreshComplete');
       },2000);
     });
@@ -92,7 +93,7 @@ angular.module('frontpage.controllers', [])
   // we don't load comments until the page animation is over.
   // if after the page animation, the comments are still not available, we show a loading screen
   var commentsStaging = [];
-  $scope.animating = true
+  $scope.animating = true;
   $scope.loading = true;
   HNAPI.comments($stateParams.storyID).then(function(comments){
     $scope.loading = false;
@@ -108,13 +109,13 @@ angular.module('frontpage.controllers', [])
   },333);
 
   $timeout(function(){
-    console.log(commentsStaging.length)
+    console.log(commentsStaging.length);
     if(commentsStaging.length < 1)$scope.requestFail();
   }, 10000);
 
   $scope.requestFail = function(){
 
-    console.log('gets here too')
+    console.log('request failed');
     commentsStaging = [];
     $scope.comments = [];
     $scope.requestFailed = true;
