@@ -26,6 +26,10 @@
           <span>{{post.comments}}</span>
         </a>
       </ion-item>
+      <ion-item class="padding text-center" ng-if="error">
+        <h3>Request Failed</h3>
+        <small>Check that you are online. If you are, the server may be offline.</small>
+      </ion-item>
     </ion-list>
   </ion-content>
 </ion-view>

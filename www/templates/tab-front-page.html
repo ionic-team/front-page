@@ -30,6 +30,10 @@
           <span>{{post.comments}}</span>
         </a>
       </ion-item>
+      <ion-item class="padding text-center" ng-if="!posts && error">
+        <h3>Request Failed</h3>
+        <small>Check that you are online. If you are, the server may be offline.</small>
+      </ion-item>
     </ion-list>
     <ion-infinite-scroll icon="" on-infinite="loadMoreData()"></ion-infinite-scroll>
   </ion-content>

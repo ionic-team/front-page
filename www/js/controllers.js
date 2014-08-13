@@ -5,7 +5,8 @@ angular.module('frontpage.controllers', [])
   var currentPage = 1;
   HNAPI.frontpage(1).then(function(posts){
     $scope.posts = posts;
-  });
+    $scope.error = false;
+  }, function(){$scope.error = true;});
   $scope.refresh = function(){
     // refresh the list with a new API call
     HNAPI.frontpage(1).then(function(posts){
@@ -38,7 +39,8 @@ angular.module('frontpage.controllers', [])
     HNAPI.frontpage(currentPage).then(function(posts){
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
-    });
+      $scope.error = false;
+    }, function(){$scope.error = true;});
   };
   $scope.loadComments = function(storyID){
     $state.go('tab.front-page-comments',{storyID:storyID});
@@ -50,7 +52,8 @@ angular.module('frontpage.controllers', [])
   var currentPage = 1;
   HNAPI.newest(1).then(function(posts){
     $scope.posts = posts;
-  });
+    $scope.error = false;
+  }, function(){$scope.error = true;});
   $scope.refresh = function(){
     HNAPI.newest(1).then(function(posts){
       $timeout(function(){
@@ -81,7 +84,8 @@ angular.module('frontpage.controllers', [])
     HNAPI.newest(currentPage).then(function(posts){
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
-    });
+      $scope.error = false;
+    },function(){$scope.error = true;});
   };
   $scope.loadComments = function(storyID){
     $state.go('tab.newest-comments',{storyID:storyID});
@@ -155,9 +159,11 @@ angular.module('frontpage.controllers', [])
       $scope.posts = searchResults;
       localStorage.searchCache = JSON.stringify({term:searchTerm,results:searchResults});
       $ionicLoading.hide();
+      $scope.error = false;
     },function(){
       $scope.posts = [];
       $ionicLoading.hide();
+      $scope.error = true;
     });
   };
   $scope.open = function(url){
