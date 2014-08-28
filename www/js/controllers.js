@@ -1,24 +1,20 @@
 angular.module('frontpage.controllers', [])
 
-.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state, $timeout) {
+.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state) {
+
+
+  $scope.pageName = 'Front Page';
   $scope.posts = RequestCache.get('frontpage/1');
   var currentPage = 1;
-  HNAPI.frontpage(1).then(function(posts){
-    $scope.posts = posts;
-    $scope.error = false;
-  }, function(){$scope.error = true;});
   $scope.refresh = function(){
     // refresh the list with a new API call
     HNAPI.frontpage(1).then(function(posts){
-      // since the refresh is called immediately when you start pulling, it can be a little "too fast"
-      // this makes the spinner flash for a fraction of a second and the user isn't sure if it actually worked
-      // wrap the response in a timeout so
-      $timeout(function(){
-        $scope.posts = posts;
-        $scope.$broadcast('scroll.refreshComplete');
-      },2000);
+      if(!angular.equals($scope.posts, posts))$scope.posts = posts;
+      currentPage = 1;
+      $scope.$broadcast('scroll.refreshComplete');
     });
   };
+  $scope.refresh();
   $scope.open = function(url){
     // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
     var params = 'location=no,' +
@@ -47,37 +43,32 @@ angular.module('frontpage.controllers', [])
   }
 })
 
-.controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state, $timeout) {
+.controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state) {
+  $scope.pageName = 'Newest';
   $scope.posts = RequestCache.get('new/1');
   var currentPage = 1;
-  HNAPI.newest(1).then(function(posts){
-    $scope.posts = posts;
-    $scope.error = false;
-  }, function(){$scope.error = true;});
   $scope.refresh = function(){
     HNAPI.newest(1).then(function(posts){
-      $timeout(function(){
-        $scope.posts = posts;
-        currentPage = 1;
-        $scope.$broadcast('scroll.refreshComplete');
-      },2000);
-    });
+      if(!angular.equals($scope.posts, posts))$scope.posts = posts;
+      currentPage = 1;
+      $scope.$broadcast('scroll.refreshComplete');
+    }, function(){$scope.error = true;});
   };
   $scope.refresh();
-    $scope.open = function(url){
-      // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
-      var params = 'location=no,' +
-        'enableViewportScale=yes,' +
-        'toolbarposition=top,' +
-        'closebuttoncaption=Done';
-      var iab = window.open(url,'_blank',params);
-      // cordova tends to keep these in memory after they're gone so we'll help it forget
-      iab.addEventListener('exit', function() {
-        iab.removeEventListener('exit', argument.callee);
-        iab.close();
-        iab = null;
-      });
-    };
+  $scope.open = function(url){
+    // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
+    var params = 'location=no,' +
+                 'enableViewportScale=yes,' +
+                 'toolbarposition=top,' +
+                 'closebuttoncaption=Done';
+    var iab = window.open(url,'_blank',params);
+    // cordova tends to keep these in memory after they're gone so we'll help it forget
+    iab.addEventListener('exit', function() {
+      iab.removeEventListener('exit', argument.callee);
+      iab.close();
+      iab = null;
+    });
+  };
   $scope.loadMoreData = function(){
     currentPage++;
     console.log('loading page '+currentPage);
@@ -118,7 +109,6 @@ angular.module('frontpage.controllers', [])
   }, 10000);
 
   $scope.requestFail = function(){
-
     console.log('request failed');
     commentsStaging = [];
     $scope.comments = [];

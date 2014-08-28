@@ -5,9 +5,9 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
 // 'frontpage.services' is found in services.js
-angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.services', 'frontpage.directives'])
+angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.services', 'frontpage.directives', 'ionic.services.analytics'])
 
-.run(function($ionicPlatform, $templateCache, $http) {
+.run(function($ionicPlatform, $templateCache, $http, $ionicTrack) {
   $ionicPlatform.ready(function() {
     // for ios7 style header bars
     if(window.StatusBar) {
@@ -23,10 +23,16 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
     if(navigator.splashscreen){
       navigator.splashscreen.hide();
     }
+
+    $ionicTrack.identify({
+      user_id: '99',
+      name: 'Perry Govier',
+      email: 'perry@drifty.com'
+    });
+
     // Lastly, we pre-load templates so page transitions are sexy-smooth
     var templates = [
-      "tab-front-page",
-      "tab-newest",
+      "tab-feed",
       "tab-search",
       "tab-comments"
     ];
@@ -36,10 +42,16 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
   });
 })
 
-.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
+.config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider) {
 
   // Listen to all successful requests, so we can cache some queries
   $httpProvider.interceptors.push('cacheInterceptor');
+
+  // register app with analytics
+  $ionicAppProvider.identify({
+    app_id: 'b661da31',
+    write_key: 'd4ddb1d982c3ce52a16a230383d1e7c080f96fe9ba89704e55676c30ebaeb5be693a6c08d0141b2bae93c9cd6c5e7c1cdeb558d64626ad1a33bf554edd8289c6e7e7711233a7901ee91d584c92e15e0f55d1fdb16fa95aefe8e44bfee38e1ee186ccec1d3b159d68869557d15b9e5e8789c7cc16016073a1e7557d80b725c466a69a98615af958a5c1474e7937d914a0'
+  });
 
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
@@ -63,7 +75,7 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
       url: '/front-page',
       views: {
         'tab-front-page': {
-          templateUrl: 'templates/tab-front-page.html',
+          templateUrl: 'templates/tab-feed.html',
           controller: 'FrontPageCtrl'
         }
       }
@@ -73,7 +85,7 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
       url: '/newest',
       views: {
         'tab-newest': {
-          templateUrl: 'templates/tab-newest.html',
+          templateUrl: 'templates/tab-feed.html',
           controller: 'NewestCtrl'
         }
       }

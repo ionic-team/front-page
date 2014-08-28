@@ -37,6 +37,12 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 // Include all of Ionic
 @import "www/lib/ionic/scss/ionic";
 
+// because sass can't calc, we make it a mixin
+@mixin calc($property, $expression) {
+  #{$property}: -webkit-calc(#{$expression}) !important;
+  #{$property}: calc(#{$expression}) !important;
+}
+
 // overrides can go here
 //search bar styling
 .item-input-wrapper.energized-bg{
@@ -44,35 +50,31 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
   padding-right: 40px;
   -webkit-transition: all .2s ease;
   transition: all .2s ease;
+  input[type="search"] {
+    -moz-appearance:    textfield;
+    -webkit-appearance: textfield;
+    appearance: textfield;
+    color:white;
+    padding-left: 0px;
+    font-weight: 300;
+  }
+  i{
+    position:relative;
+    font-size:16px;
+    color:rgba($search-input, .5);
+    text-decoration: none;
+  }
+  &.centered{
+    @include calc(padding-left, "50% - 35px");
+  }
 }
-// because sass can't calc, we make it a mixin
-@mixin calc($property, $expression) {
-  #{$property}: -webkit-calc(#{$expression}) !important;
-  #{$property}: calc(#{$expression}) !important;
-}
-.item-input-wrapper.energized-bg.centered{
-  @include calc(padding-left, "50% - 35px");
-}
+
 .item.activated+.item{
   border-top-color:rgba($light,.0)
 }
 .energized-bg input::-webkit-input-placeholder,
 .energized-bg textarea::-webkit-input-placeholder {
   color:rgba(126, 50, 0, .7);
-}
-.item-input-wrapper.energized-bg input[type="search"] {
-  -moz-appearance:    textfield;
-  -webkit-appearance: textfield;
-  appearance: textfield;
-  color:white;
-  padding-left: 0px;
-  font-weight: 300;
-}
-.item-input-wrapper.energized-bg i{
-  position:relative;
-  font-size:16px;
-  color:rgba($search-input, .5);
-  text-decoration: none;
 }
 .ion-ios7-close.dark{
   font-size: 20px;
@@ -83,9 +85,9 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
   height: 40px;
   padding: 10px;
   width: 40px;
-}
-.ion-ios7-close.dark:active{
-  color:rgba($search-input, 1);
+  &:active{
+    color:rgba($search-input, 1);
+  }
 }
 // list item styles
 .item{
@@ -101,68 +103,75 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
   overflow: hidden;
   overflow-x: hidden;
   overflow-wrap: break-word;
-}
-.item.post-list{
-   padding: 0 0 0 0;
-}
-.item.item-icon-right{
-  padding-right: 50px;
-}
-.item h2{
-  font-weight: 300;
-  font-size:95%;
-  text-overflow: initial;
-  white-space: normal;
-  margin-bottom: 8px;
-}
-.item p{
-  color:$stable;
-  font-size:73%;
-  margin-bottom: 0;
-  font-weight:300;
-}
-// the comments are styled differently
-.item.comment p{
-  text-overflow: initial;
-  white-space: normal;
-  color:#585350;
-  font-weight: normal;
-  margin-bottom: 1em;
-}
-.item.comment a{
-  color:$energized;
-  word-break:break-all;
-}
-.item.comment p.author{
-  color:#111111;
-  font-weight: bold;
-}
-.item.comment p.timestamp{
-  float: right;
-  color: $stable;
-}
-.item.comment .text{
-  max-height: 800px;
-  overflow: hidden;
+  &.post-list{
+    padding: 0 0 0 0;
+  }
+  &.item-icon-right{
+    padding-right: 50px;
+  }
+  h2{
+    font-weight: 300;
+    font-size:95%;
+    text-overflow: initial;
+    white-space: normal;
+    margin-bottom: 8px;
+  }
+  p{
+    color:$stable;
+    font-size:73%;
+    margin-bottom: 0;
+    font-weight:300;
+  }
+  // the comments are styled differently
+  &.comment{
+    p{
+      text-overflow: initial;
+      white-space: normal;
+      color:#585350;
+      font-weight: normal;
+      margin-bottom: 1em;
+      &.author{
+        color:#111111;
+        font-weight: bold;
+      }
+      &.timestamp{
+        float: right;
+        color: $stable;
+      }
+    }
+    a{
+      color:$energized;
+      word-break:break-all;
+    }
+    .text{
+      max-height: 800px;
+      overflow: hidden;
+    }
+  }
 }
 // hide comment animation
 .item.comment p, .item.comment i, .item.comment .text{
   -webkit-transition: all .2s ease; /* For Safari 3.1 to 6.0 */
   transition: all .2s ease;
 }
-.item.hidden p{
-  margin:0;
-}
-.item.hidden .text{
-  opacity: 0;
-  margin-bottom: 0;
-  max-height: 0px;
-}
-.item.hidden p.author, .item.hidden i{
-  color:$stable;
-}
-.item.hidden i{
-  -webkit-transform:rotate(-90deg);
+
+.item.hidden{
+  p{
+    margin:0;
+  }
+  .text{
+    opacity: 0;
+    margin-bottom: 0;
+    max-height: 0px;
+  }
+  p.author {
+    color:$stable;
+  }
+  i{
+    color:$stable;
+    -webkit-transform:rotate(-90deg);
+  }
+
 }
 .ion-chatbubble.light{
   -webkit-text-stroke: 1px $stable;
@@ -173,17 +182,17 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
   height: 86px;
   padding-left:10px;
   text-decoration: none;
-}
-.ion-chatbubble.light span{
-  font-family: $font-family-sans-serif;
-  color:$stable;
-  -webkit-text-stroke: 0px transparent;
-  font-size: 29%;
-  position: absolute;
-  top: 32px;
-  right: 6px;
-  width: 30px;
-  text-align: center;
+  span{
+    font-family: $font-family-sans-serif;
+    color:$stable;
+    -webkit-text-stroke: 0px transparent;
+    font-size: 29%;
+    position: absolute;
+    top: 32px;
+    right: 6px;
+    width: 30px;
+    text-align: center;
+  }
 }
 ion-tabs{
   overflow-x: hidden;

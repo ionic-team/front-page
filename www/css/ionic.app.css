@@ -7552,30 +7552,27 @@ a.button {
   padding-right: 40px;
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease; }
-
-.item-input-wrapper.energized-bg.centered {
-  padding-left: -webkit-calc(50% - 35px) !important;
-  padding-left: calc(50% - 35px) !important; }
+  .item-input-wrapper.energized-bg input[type="search"] {
+    -moz-appearance: textfield;
+    -webkit-appearance: textfield;
+    appearance: textfield;
+    color: white;
+    padding-left: 0px;
+    font-weight: 300; }
+  .item-input-wrapper.energized-bg i {
+    position: relative;
+    font-size: 16px;
+    color: rgba(126, 50, 0, 0.5);
+    text-decoration: none; }
+  .item-input-wrapper.energized-bg.centered {
+    padding-left: -webkit-calc(50% - 35px) !important;
+    padding-left: calc(50% - 35px) !important; }
 
 .item.activated + .item {
   border-top-color: rgba(255, 255, 255, 0); }
 
 .energized-bg input::-webkit-input-placeholder, .energized-bg textarea::-webkit-input-placeholder {
   color: rgba(126, 50, 0, 0.7); }
-
-.item-input-wrapper.energized-bg input[type="search"] {
-  -moz-appearance: textfield;
-  -webkit-appearance: textfield;
-  appearance: textfield;
-  color: white;
-  padding-left: 0px;
-  font-weight: 300; }
-
-.item-input-wrapper.energized-bg i {
-  position: relative;
-  font-size: 16px;
-  color: rgba(126, 50, 0, 0.5);
-  text-decoration: none; }
 
 .ion-ios7-close.dark {
   font-size: 20px;
@@ -7586,9 +7583,8 @@ a.button {
   height: 40px;
   padding: 10px;
   width: 40px; }
-
-.ion-ios7-close.dark:active {
-  color: #7e3200; }
+  .ion-ios7-close.dark:active {
+    color: #7e3200; }
 
 .item {
   margin: -1px 15px;
@@ -7604,48 +7600,39 @@ a.button {
   overflow: hidden;
   overflow-x: hidden;
   overflow-wrap: break-word; }
-
-.item.post-list {
-  padding: 0 0 0 0; }
-
-.item.item-icon-right {
-  padding-right: 50px; }
-
-.item h2 {
-  font-weight: 300;
-  font-size: 95%;
-  text-overflow: initial;
-  white-space: normal;
-  margin-bottom: 8px; }
-
-.item p {
-  color: #aaa;
-  font-size: 73%;
-  margin-bottom: 0;
-  font-weight: 300; }
-
-.item.comment p {
-  text-overflow: initial;
-  white-space: normal;
-  color: #585350;
-  font-weight: normal;
-  margin-bottom: 1em; }
-
-.item.comment a {
-  color: #ff6600;
-  word-break: break-all; }
-
-.item.comment p.author {
-  color: #111111;
-  font-weight: bold; }
-
-.item.comment p.timestamp {
-  float: right;
-  color: #aaa; }
-
-.item.comment .text {
-  max-height: 800px;
-  overflow: hidden; }
+  .item.post-list {
+    padding: 0 0 0 0; }
+  .item.item-icon-right {
+    padding-right: 50px; }
+  .item h2 {
+    font-weight: 300;
+    font-size: 95%;
+    text-overflow: initial;
+    white-space: normal;
+    margin-bottom: 8px; }
+  .item p {
+    color: #aaa;
+    font-size: 73%;
+    margin-bottom: 0;
+    font-weight: 300; }
+  .item.comment p {
+    text-overflow: initial;
+    white-space: normal;
+    color: #585350;
+    font-weight: normal;
+    margin-bottom: 1em; }
+    .item.comment p.author {
+      color: #111111;
+      font-weight: bold; }
+    .item.comment p.timestamp {
+      float: right;
+      color: #aaa; }
+  .item.comment a {
+    color: #ff6600;
+    word-break: break-all; }
+  .item.comment .text {
+    max-height: 800px;
+    overflow: hidden; }
 
 .item.comment p, .item.comment i, .item.comment .text {
   -webkit-transition: all 0.2s ease;
@@ -7654,16 +7641,14 @@ a.button {
 
 .item.hidden p {
   margin: 0; }
-
 .item.hidden .text {
   opacity: 0;
   margin-bottom: 0;
   max-height: 0px; }
-
-.item.hidden p.author, .item.hidden i {
+.item.hidden p.author {
   color: #aaa; }
-
 .item.hidden i {
+  color: #aaa;
   -webkit-transform: rotate(-90deg); }
 
 .ion-chatbubble.light {
@@ -7675,17 +7660,16 @@ a.button {
   height: 86px;
   padding-left: 10px;
   text-decoration: none; }
-
-.ion-chatbubble.light span {
-  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-  color: #aaa;
-  -webkit-text-stroke: 0px transparent;
-  font-size: 29%;
-  position: absolute;
-  top: 32px;
-  right: 6px;
-  width: 30px;
-  text-align: center; }
+  .ion-chatbubble.light span {
+    font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    color: #aaa;
+    -webkit-text-stroke: 0px transparent;
+    font-size: 29%;
+    position: absolute;
+    top: 32px;
+    right: 6px;
+    width: 30px;
+    text-align: center; }
 
 ion-tabs {
   overflow-x: hidden; }
