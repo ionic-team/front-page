@@ -5,9 +5,10 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
 // 'frontpage.services' is found in services.js
-angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.services', 'frontpage.directives', 'ionic.services.analytics'])
+angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'frontpage.services', 'frontpage.directives',
+                             'ionic.services.analytics', 'ionic.services.update'])
 
-.run(function($ionicPlatform, $templateCache, $http, $ionicTrack) {
+.run(function($ionicPlatform, $templateCache, $http, $ionicTrack, $ionicUpdate) {
   $ionicPlatform.ready(function() {
     // for ios7 style header bars
     if(window.StatusBar) {
@@ -39,6 +40,13 @@ angular.module('frontpage', ['ionic', 'frontpage.controllers', 'frontpage.servic
     templates.forEach(function(tpl){
       $http.get('templates/'+tpl+'.html', { cache: $templateCache });
     })
+
+    //$ionicUpdate.initialize('8cdd99a2')
+    //$ionicUpdate.check().then(function(somevar){
+    //  alert(somevar)
+    //}, function(error){
+    //  alert(error);
+    //})
   });
 })
 

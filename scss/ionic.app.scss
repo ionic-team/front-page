@@ -216,8 +216,22 @@ ion-infinite-scroll .scroll-infinite-content{
   display:none;
 }
 // spinner
-.spinner{
-  margin:100px auto 0;
+.spinner {
+  margin: 100px auto 0;
   text-align: center;
-  font-size:50px;
+  font-size: 50px;
+  position: absolute;
+  top: 50px;
+  left: -webkit-calc(50% - 25px);
+  z-index: 2;
+  -webkit-transition:all .4s cubic-bezier(.6,-1.6,.92,.48);
+  transition:all .4s cubic-bezier(.6,-1.6,.92,.48);
+}
+.spinner.ng-hide-add{
+  -webkit-transform: scale(1,1);
+  transform: scale(1,1);
+}
+.spinner.ng-hide-add-active{
+  -webkit-transform: scale(0,0);
+  transform: scale(0,0);
 }

@@ -1,8 +1,6 @@
 angular.module('frontpage.controllers', [])
 
 .controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state) {
-
-
   $scope.pageName = 'Front Page';
   $scope.posts = RequestCache.get('frontpage/1');
   var currentPage = 1;
@@ -12,7 +10,7 @@ angular.module('frontpage.controllers', [])
       if(!angular.equals($scope.posts, posts))$scope.posts = posts;
       currentPage = 1;
       $scope.$broadcast('scroll.refreshComplete');
-    });
+    }, function(){$scope.error = true;});
   };
   $scope.refresh();
   $scope.open = function(url){
@@ -92,25 +90,17 @@ angular.module('frontpage.controllers', [])
   $scope.loading = true;
   HNAPI.comments($stateParams.storyID).then(function(comments){
     $scope.loading = false;
-    commentsStaging = comments;
-    if(!$scope.animating){
-      $scope.comments = commentsStaging;
-    }
+    $timeout(function() {
+      $scope.comments = comments;
+    },350);
   },$scope.requestFail);
 
   $timeout(function(){
-    $scope.animating = false;
-    $scope.comments = commentsStaging;
-  },333);
-
-  $timeout(function(){
-    console.log(commentsStaging.length);
-    if(commentsStaging.length < 1)$scope.requestFail();
+    if($scope.comments < 1)$scope.requestFail();
   }, 10000);
 
   $scope.requestFail = function(){
     console.log('request failed');
-    commentsStaging = [];
     $scope.comments = [];
     $scope.requestFailed = true;
     if($scope.loading === false)return;

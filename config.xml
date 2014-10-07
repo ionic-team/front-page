@@ -1,30 +1,25 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <widget id="com.ionic.frontpage" version="1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>FrontPage</name>
-    <description>
+  <name>FrontPage</name>
+  <description>
         An Ionic Framework and Cordova Hacker News app.
     </description>
-    <author email="perry@drifty.com" href="http://ionicframework.com/">
+  <author email="perry@drifty.com" href="http://ionicframework.com/">
       Ionic Framework Team
     </author>
-    <content src="index.html" />
-    <access origin="*" />
-    <preference name="fullscreen" value="false" />
-    <preference name="webviewbounce" value="false" />
-    <preference name="UIWebViewBounce" value="false" />
-    <preference name="DisallowOverscroll" value="true" />
-    <preference name="StatusBarBackgroundColor" value="#FFFFFF" />
-    <preference name="AutoHideSplashScreen" value="false" />
-
-    <!-- Don't store local date in an iCloud backup. Turn this to "cloud" to enable storage 
-         to be sent to iCloud. Note: enabling this could result in Apple rejecting your app.
-    -->
-    <preference name="BackupWebStorage" value="none" />
-
-    <feature name="StatusBar">
-      <param name="ios-package" value="CDVStatusBar" onload="true" />
-    </feature>
-    <feature name="Keyboard">
-        <param name="ios-package" value="IonicKeyboard" onload="true" />
-    </feature>
+  <content src="index.html"/>
+  <access origin="*"/>
+  <preference name="fullscreen" value="false"/>
+  <preference name="webviewbounce" value="false"/>
+  <preference name="UIWebViewBounce" value="false"/>
+  <preference name="DisallowOverscroll" value="true"/>
+  <preference name="StatusBarBackgroundColor" value="#FFFFFF"/>
+  <preference name="AutoHideSplashScreen" value="false"/>
+  <preference name="BackupWebStorage" value="none"/>
+  <feature name="StatusBar">
+    <param name="ios-package" value="CDVStatusBar" onload="true"/>
+  </feature>
+  <feature name="Keyboard">
+    <param name="ios-package" value="IonicKeyboard" onload="true"/>
+  </feature>
 </widget>

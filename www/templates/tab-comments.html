@@ -21,8 +21,8 @@
       <ion-item class="padding text-center" ng-if="requestFailed">
         <h3>Unable to load comments</h3>
       </ion-item>
-      <div class="spinner" ng-if="loading && !animating">
-        <i class="icon ion-ios7-reloading"></i>
+      <div class="spinner" ng-show="loading">
+        <i class="icon ion-loading-d energized"></i>
       </div>
     </ion-list>
   </ion-content>
