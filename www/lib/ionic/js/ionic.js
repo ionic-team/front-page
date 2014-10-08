@@ -2,7 +2,7 @@
  * Copyright 2014 Drifty Co.
  * http://drifty.com/
  *
- * Ionic, v1.0.0-beta.12
+ * Ionic, v1.0.0-beta.13
  * A powerful HTML5 mobile app framework.
  * http://ionicframework.com/
  *
@@ -18,12 +18,12 @@
 // build processes may have already created an ionic obj
 window.ionic = window.ionic || {};
 window.ionic.views = {};
-window.ionic.version = '1.0.0-beta.12';
+window.ionic.version = '1.0.0-beta.13';
 
 (function(window, document, ionic) {
 
   var readyCallbacks = [];
-  var isDomReady = false;
+  var isDomReady = document.readyState === 'complete' || document.readyState === 'interactive';
 
   function domReady() {
     isDomReady = true;
@@ -33,7 +33,10 @@ window.ionic.version = '1.0.0-beta.12';
     readyCallbacks = [];
     document.removeEventListener('DOMContentLoaded', domReady);
   }
-  document.addEventListener('DOMContentLoaded', domReady);
+  if (!isDomReady){
+    document.addEventListener('DOMContentLoaded', domReady);
+  }
+  
 
   // From the man himself, Mr. Paul Irish.
   // The requestAnimationFrame polyfill
@@ -132,7 +135,7 @@ window.ionic.version = '1.0.0-beta.12';
      * @param {function} callback The function to be called.
      */
     ready: function(cb) {
-      if(isDomReady || document.readyState === "complete") {
+      if(isDomReady) {
         ionic.requestAnimationFrame(cb);
       } else {
         readyCallbacks.push(cb);
@@ -2195,7 +2198,8 @@ window.ionic.version = '1.0.0-beta.12';
 
   var platformName = null, // just the name, like iOS or Android
   platformVersion = null, // a float of the major and minor, like 7.1
-  readyCallbacks = [];
+  readyCallbacks = [],
+  windowLoadListenderAttached;
 
   // setup listeners to know when the device is ready to go
   function onWindowLoad() {
@@ -2208,8 +2212,17 @@ window.ionic.version = '1.0.0-beta.12';
       // cordova/phonegap object, so its just a browser, not a webview wrapped w/ cordova
       onPlatformReady();
     }
-    window.removeEventListener("load", onWindowLoad, false);
+    if (windowLoadListenderAttached){
+      window.removeEventListener("load", onWindowLoad, false);
+    }
   }
+  if (document.readyState === 'complete') {
+    onWindowLoad();
+  } else {
+    windowLoadListenderAttached = true;
+    window.addEventListener("load", onWindowLoad, false);
+  }
+  
   window.addEventListener("load", onWindowLoad, false);
 
   function onPlatformReady() {
@@ -2613,7 +2626,7 @@ function tapClick(e) {
 
   var c = ionic.tap.pointerCoord(e);
 
-  console.log('tapClick', e.type, ele.tagName, '('+c.x+','+c.y+')');
+  //console.log('tapClick', e.type, ele.tagName, '('+c.x+','+c.y+')');
   triggerMouseEvent('click', ele, c.x, c.y);
 
   // if it's an input, focus in on the target, otherwise blur
@@ -2637,7 +2650,7 @@ function tapClickGateKeeper(e) {
   // do not allow through any click events that were not created by ionic.tap
   if( (ionic.scroll.isScrolling && ionic.tap.containsOrIsTextInput(e.target) ) ||
       (!e.isIonicTap && !ionic.tap.requiresNativeClick(e.target)) ) {
-    console.log('clickPrevent', e.target.tagName);
+    //console.log('clickPrevent', e.target.tagName);
     e.stopPropagation();
 
     if( !ionic.tap.isLabelWithTextInput(e.target) ) {
@@ -2859,7 +2872,7 @@ function tapHasPointerMoved(endEvent) {
   var endCoordinates = ionic.tap.pointerCoord(endEvent);
 
   var hasClassList = !!(endEvent.target.classList && endEvent.target.classList.contains);
-  var releaseTolerance = hasClassList & endEvent.target.classList.contains('button') ?
+  var releaseTolerance = hasClassList && endEvent.target.classList.contains('button') ?
     TAP_RELEASE_BUTTON_TOLERANCE :
     TAP_RELEASE_TOLERANCE;
 
@@ -4318,7 +4331,8 @@ ionic.views.Scroll = ionic.views.View.inherit({
       if( !self.isScrolledIntoView ) {
         // shrink scrollview so we can actually scroll if the input is hidden
         // if it isn't shrink so we can scroll to inputs under the keyboard
-        if (ionic.Platform.isIOS() || ionic.Platform.isFullScreen){
+        if((ionic.Platform.isIOS() || ionic.Platform.isFullScreen) && !container.parentNode.classList.contains('modal')){
+
           // if there are things below the scroll view account for them and
           // subtract them from the keyboard height when resizing
           scrollBottomOffsetToTop = container.getBoundingClientRect().bottom;
@@ -4376,11 +4390,13 @@ ionic.views.Scroll = ionic.views.View.inherit({
 
     self.resetScrollView = function(e) {
       //return scrollview to original height once keyboard has hidden
-      self.isScrolledIntoView = false;
-      container.style.height = "";
-      container.style.overflow = "";
-      self.resize();
-      ionic.scroll.isScrolling = false;
+      if(self.isScrolledIntoView) {
+        self.isScrolledIntoView = false;
+        container.style.height = "";
+        container.style.overflow = "";
+        self.resize();
+        ionic.scroll.isScrolling = false;
+      }
     };
 
     //Broadcasted when keyboard is shown on some platforms.
@@ -4605,7 +4621,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
     var bar = document.createElement('div'),
       indicator = document.createElement('div');
 
-    indicator.className = 'scroll-bar-indicator';
+    indicator.className = 'scroll-bar-indicator scroll-bar-fade-out';
 
     if(direction == 'h') {
       bar.className = 'scroll-bar scroll-bar-h';
@@ -4803,6 +4819,8 @@ ionic.views.Scroll = ionic.views.View.inherit({
   },
 
   resize: function() {
+    if(!this.__container || !this.options) return;
+
     // Update Scroller dimensions for changed content
     // Add padding to bottom of content
     this.setDimensions(
@@ -5026,6 +5044,9 @@ ionic.views.Scroll = ionic.views.View.inherit({
         self.__refreshActive = false;
         if (self.__refreshDeactivate) {
           self.__refreshDeactivate();
+        }
+        if(self.__refreshHide){
+          self.__refreshHide();
         }
 
         self.scrollTo(self.__scrollLeft, self.__scrollTop, true);

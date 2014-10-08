@@ -128,7 +128,6 @@ angular.module('ionic.services.analytics', ['ionic.services.common'])
     $ionicTrack.addType({
       name: 'tab-item',
       handle: function(event, data) {
-        console.log(event);
         if(!event.type === 'click' || !event.target) {
           return;
         }

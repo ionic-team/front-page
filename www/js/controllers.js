@@ -1,5 +1,23 @@
 angular.module('frontpage.controllers', [])
 
+.controller('MainCtrl', function($scope){
+  $scope.open = function(url){
+    // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
+    var params = 'location=no,' +
+      'enableViewportScale=yes,' +
+      'toolbarposition=top,' +
+      'closebuttoncaption=Done';
+    var iab = window.open(url,'_blank',params);
+    // cordova tends to keep these in memory after they're gone so we'll help it forget
+    iab.addEventListener('exit', function() {
+      iab.removeEventListener('exit', argument.callee);
+      iab.close();
+      iab = null;
+    });
+  };
+
+})
+
 .controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state) {
   $scope.pageName = 'Front Page';
   $scope.posts = RequestCache.get('frontpage/1');
@@ -13,23 +31,8 @@ angular.module('frontpage.controllers', [])
     }, function(){$scope.error = true;});
   };
   $scope.refresh();
-  $scope.open = function(url){
-    // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
-    var params = 'location=no,' +
-                 'enableViewportScale=yes,' +
-                 'toolbarposition=top,' +
-                 'closebuttoncaption=Done';
-    var iab = window.open(url,'_blank',params);
-    // cordova tends to keep these in memory after they're gone so we'll help it forget
-    iab.addEventListener('exit', function() {
-      iab.removeEventListener('exit', argument.callee);
-      iab.close();
-      iab = null;
-    });
-  };
   $scope.loadMoreData = function(){
     currentPage++;
-    console.log('loading page '+currentPage);
     HNAPI.frontpage(currentPage).then(function(posts){
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
@@ -53,23 +56,8 @@ angular.module('frontpage.controllers', [])
     }, function(){$scope.error = true;});
   };
   $scope.refresh();
-  $scope.open = function(url){
-    // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
-    var params = 'location=no,' +
-                 'enableViewportScale=yes,' +
-                 'toolbarposition=top,' +
-                 'closebuttoncaption=Done';
-    var iab = window.open(url,'_blank',params);
-    // cordova tends to keep these in memory after they're gone so we'll help it forget
-    iab.addEventListener('exit', function() {
-      iab.removeEventListener('exit', argument.callee);
-      iab.close();
-      iab = null;
-    });
-  };
   $scope.loadMoreData = function(){
     currentPage++;
-    console.log('loading page '+currentPage);
     HNAPI.newest(currentPage).then(function(posts){
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
@@ -144,21 +132,6 @@ angular.module('frontpage.controllers', [])
       $scope.posts = [];
       $ionicLoading.hide();
       $scope.error = true;
-    });
-  };
-  $scope.open = function(url){
-    // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
-    var params = 'location=no,' +
-      'enableViewportScale=yes,' +
-      'toolbarposition=top,' +
-      'transitionstyle=crossdissolve,' +
-      'closebuttoncaption=Done';
-    var iab = window.open(url,'_blank',params);
-    // cordova tends to keep these in memory after they're gone so we'll help it forget
-    iab.addEventListener('exit', function() {
-      iab.removeEventListener('exit', argument.callee);
-      iab.close();
-      iab = null;
     });
   };
   $scope.clear = function(){

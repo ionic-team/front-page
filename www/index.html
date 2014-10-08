@@ -18,9 +18,9 @@
     <script src="lib/ionic/js/ionic.bundle.js"></script>
 
     <!-- ionic services -->
-    <script src="js/analytics.js"></script>
+    <!--script src="js/analytics.js"></script>
     <script src="https://d26b395fwzu5fz.cloudfront.net/3.0.7/keen-tracker.min.js"></script>
-    <script src="js/update.js"></script>
+    <script src="js/update.js"></script>-->
 
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
@@ -33,7 +33,7 @@
 
     <script src="js/platform.js"></script>
   </head>
-  <body ng-app="frontpage" animation="slide-left-right-ios7" ion-track-auto>
+  <body ng-app="frontpage" animation="slide-left-right-ios7" ion-track-auto ng-controller="MainCtrl">
     <!-- Moved the nav bar in to template files because we need more granular control of its markup -->
 
     <!-- 

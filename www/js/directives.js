@@ -16,7 +16,7 @@ angular.module('frontpage.directives', [])
     },
     template:
       '<form class="bar bar-header bar-energized item-input-inset" ng-submit="submit()">' +
-        '<div class="item-input-wrapper energized-bg" ng-class="focused">' +
+        '<div class="item-input-wrapper energized-bg" ng-class="focused" ng-click="focus()">' +
           '<i class="icon ion-ios7-search placeholder-icon"></i>' +
           '<input type="search"' +
             'id="searchInput"' +
@@ -27,8 +27,10 @@ angular.module('frontpage.directives', [])
           '</div>' +
           '<i class="icon ion-ios7-close dark" ng-show="model.length" ng-click="clear()"></i>' +
       '</form>',
-    compile: function(element, attr) {
-
+    link: function(scope, elem, attrs, $document){
+      scope.focus = function(){
+        document.getElementById('searchInput').focus()
+      }
     }
   };
 })
