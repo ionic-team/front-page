@@ -1,0 +1,24 @@
+body, .ionic-body, .tab-item,
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6,
+p, span, .ion-chatbubble.light span,
+input, button, select, textarea{
+  font-family: Roboto, Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 500;
+}
+.scroll-content{
+  overflow: hidden;
+}
+.back-button:not(.ng-hide)+div+.title{
+  margin-left: -15px;
+}
+.item.comment p.timestamp {
+  float: none;
+  position: absolute;
+  right: 0;
+  width: 200px;
+  text-align: right;
+}
+.item.comment p, .item.comment i, .item.comment .text{
+  -webkit-transition: none; /* For Safari 3.1 to 6.0 */
+  transition: none;
+}

@@ -2,52 +2,31 @@ body, .ionic-body, .tab-item,
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6,
 p, span, .ion-chatbubble.light span,
 input, button, select, textarea{
-    font-family: Roboto, Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-family: Roboto, Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 500;
 }
 .scroll-content{
-    overflow: hidden;
-}
-.bar .title{
-    text-align: left;
-    padding-left: 5px;
+  overflow: hidden;
 }
 .back-button:not(.ng-hide)+div+.title{
-    margin-left: -15px;
-}
-.tabs, .tabs-light > .tabs, .tabs.tabs-light{
-    bottom: auto;
-    top:40px;
-    border-bottom: 1px solid #eae3df;
-}
-.tab-item.tab-item-active{
-    border-bottom:5px solid #ff6600;
-    margin-top: 1px;
-}
-.tab-item.tab-item-active .icon{
-    margin-top: -1px;
-}
-.has-tabs, .bar-footer.has-tabs, .has-footer.has-tabs {
-    bottom: 0px;
-}
-.has-header {
-    top: 89px;
+  margin-left: -15px;
 }
 .ion-chatbubble.light span {
-    top: 33px;
-    right: 6px;
+  top: 33px;
+  right: 6px;
 }
 .item.comment p.timestamp {
-    float: none;
-    position: absolute;
-    right: 0;
-    width: 200px;
-    text-align: right;
+  float: none;
+  position: absolute;
+  right: 0;
+  width: 200px;
+  text-align: right;
 }
 .item.comment p, .item.comment i, .item.comment .text{
-    -webkit-transition: none; /* For Safari 3.1 to 6.0 */
-    transition: none;
+  -webkit-transition: none; /* For Safari 3.1 to 6.0 */
+  transition: none;
 }
 .ion-chatbubble.light{
-    text-decoration: none;
-    border-bottom: none;
+  text-decoration: none;
+  border-bottom: none;
 }

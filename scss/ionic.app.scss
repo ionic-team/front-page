@@ -99,28 +99,30 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
   text-overflow: clip;
   white-space: normal;
   border-bottom: none;
-  display: table;
   overflow: hidden;
   overflow-x: hidden;
   overflow-wrap: break-word;
   &.post-list{
     padding: 0 0 0 0;
-  }
-  &.item-icon-right{
-    padding-right: 50px;
+    height:92px
   }
   h2{
     font-weight: 300;
     font-size:95%;
-    text-overflow: initial;
-    white-space: normal;
+    margin-top:20px;
     margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   p{
     color:$stable;
     font-size:73%;
     margin-bottom: 0;
     font-weight:300;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   // the comments are styled differently
   &.comment{
@@ -174,24 +176,27 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 
 }
 .ion-chatbubble.light{
-  -webkit-text-stroke: 1px $stable;
-  position:absolute;
-  font-size: 48px;
+  font-family: $font-family-sans-serif;
+  color:$stable;
+  -webkit-text-stroke: 0px transparent;
+  font-size: 14px;
   width: 50px;
-  right: 0;
+  padding-top:30px;
+  text-align: center;
+  position:relative;
+  right:-5px;
+  display:block;
+  float:right;
   height: 86px;
-  padding-left:10px;
-  text-decoration: none;
-  span{
-    font-family: $font-family-sans-serif;
-    color:$stable;
-    -webkit-text-stroke: 0px transparent;
-    font-size: 29%;
-    position: absolute;
-    top: 32px;
-    right: 6px;
-    width: 30px;
-    text-align: center;
+  &::before{
+    color:$light;
+    text-decoration: none;
+    -webkit-text-stroke: 1px $stable;
+    position:absolute;
+    font-size: 48px;
+    right:13px;
+    top:15px;
+    z-index:-1;
   }
 }
 ion-tabs{
@@ -212,9 +217,6 @@ ion-infinite-scroll .scroll-infinite-content{
 .backdrop{
   min-height: 1024px;
 }
-.scroll-refresher:not(.active){
-  display:none;
-}
 // spinner
 .spinner {
   margin: 100px auto 0;
@@ -234,4 +236,48 @@ ion-infinite-scroll .scroll-infinite-content{
 .spinner.ng-hide-add-active{
   -webkit-transform: scale(0,0);
   transform: scale(0,0);
+}
+.item-input-wrapper.light-bg{
+  border-radius: 2px;
+  padding: 8px 20px;
+  box-shadow: 0px 2px 3px rgba(0,0,0,.3);
+  margin-top:2px;
+  i{
+    font-size: 150%;
+  }
+}
+// make header/tabs bar taller
+.tabs-top {
+  & > .tabs {
+    top: 64px;
+    .tab-title{
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+  }
+  .bar-header{
+    height:64px;
+    &.bar-energized{
+      background-color: rgba(255, 102, 0, 1);
+      padding-top: 0px;
+    }
+    .back-button{
+      margin-top:15px;
+    }
+    .title{
+      position:static;
+      text-align: left;
+      padding-left: 10px;
+      font-size:22px;
+      padding-top:10px;
+      height:auto;
+      font-weight: 400;
+    }
+  }
+}
+.has-header{
+  top:43px;
+  &.has-tabs-top{
+    top:112px
+  }
 }

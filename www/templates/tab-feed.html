@@ -1,8 +1,8 @@
 <ion-view title="{{pageName}}">
-  <ion-nav-bar class="bar-energized nav-title-slide-ios7">
+  <ion-nav-bar class="bar-energized">
     <ion-nav-back-button class="button-icon icon ion-ios7-arrow-back"></ion-nav-back-button>
   </ion-nav-bar>
-  <ion-content class="has-header">
+  <ion-content class="has-header" delegate-handle="mainScroll">
     <ion-refresher on-refresh="refresh()">
     </ion-refresher>
     <ion-list>
@@ -12,27 +12,23 @@
                 collection-item-height="92"
                 ng-class="post.points > 0?'item-icon-right':''"
                 ng-show="post.title.length"
-                fp-share
-                style="-webkit-calc(100% - 30px);">
-        <div style="display: table-row; height:90px;" ng-click="open(post.url)">
-          <div style="display:table-cell;vertical-align: middle;">
-            <h2>{{post.title}}</h2>
-            <p>
-              <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
-              <span ng-if="post.submitted_on.length">{{post.submitted_on}} &nbsp;</span>
-              <span ng-if="post.submitted_by.length"> {{post.submitted_by}}</span>
-            </p>
-          </div>
-        </div>
+                fp-share style="">
+
         <a ng-if="post.comments != null" class="icon ion-chatbubble light" ng-click="loadComments(post.id)">
-          <span>{{post.comments}}</span>
+          {{post.comments}}
         </a>
+        <h2 ng-click="open(post.url)">{{post.title}}</h2>
+        <p>
+          <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
+          {{post.submitted_on}} &nbsp;
+          {{post.submitted_by}}
+        </p>
       </ion-item>
       <ion-item class="padding text-center" ng-if="!posts && error">
         <h3>Request Failed</h3>
         <small>Check that you are online. If you are, the server may be offline.</small>
       </ion-item>
     </ion-list>
-    <ion-infinite-scroll icon="" on-infinite="loadMoreData()"></ion-infinite-scroll>
+    <ion-infinite-scroll icon="" on-infinite="loadMoreData()" distance="5%"</ion-infinite-scroll>
   </ion-content>
 </ion-view>

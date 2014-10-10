@@ -18,7 +18,7 @@ angular.module('frontpage.controllers', [])
 
 })
 
-.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state) {
+.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state, $timeout, $ionicScrollDelegate) {
   $scope.pageName = 'Front Page';
   $scope.posts = RequestCache.get('frontpage/1');
   var currentPage = 1;
