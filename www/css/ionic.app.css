@@ -7788,7 +7788,7 @@ $ios-transition-box-shadow-end: -200px 0px 200px rgba(0,0,0,0.15), -5px 0px 5px 
     position: absolute;
     font-size: 48px;
     right: 13px;
-    top: 15px;
+    top: 16px;
     z-index: -1; }
 
 ion-tabs {
@@ -7860,3 +7860,6 @@ ion-infinite-scroll .scroll-infinite-content {
   top: 43px; }
   .has-header.has-tabs-top {
     top: 112px; }
+
+ion-nav-view {
+  background-color: white; }
