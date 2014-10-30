@@ -336,13 +336,16 @@ ion-infinite-scroll {
 // A full screen section with a solid background
 .pane {
   @include translate3d(0,0,0);
+  @include transition-duration(0);
   z-index: $z-index-pane;
 }
 .view {
   z-index: $z-index-view;
 }
 .pane,
-.view {
+.view,
+.view-container,
+.nav-view {
   position: absolute;
   top: 0;
   right: 0;
@@ -353,12 +356,6 @@ ion-infinite-scroll {
   background-color: $base-background-color;
   overflow: hidden;
 }
-
-ion-nav-view {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #000;
+.nav-view-cache {
+  display: none;
 }

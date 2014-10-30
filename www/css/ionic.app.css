@@ -2474,12 +2474,14 @@ ion-infinite-scroll {
 .pane {
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
+  -webkit-transition-duration: 0;
+  transition-duration: 0;
   z-index: 1; }
 
 .view {
   z-index: 1; }
 
-.pane, .view {
+.pane, .view, .view-container, .nav-view {
   position: absolute;
   top: 0;
   right: 0;
@@ -2490,13 +2492,8 @@ ion-infinite-scroll {
   background-color: #fff;
   overflow: hidden; }
 
-ion-nav-view {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #000; }
+.nav-view-cache {
+  display: none; }
 
 /**
  * Typography
@@ -2721,7 +2718,7 @@ a.subdued {
   position: absolute;
   right: 0;
   left: 0;
-  z-index: 10;
+  z-index: 9;
   box-sizing: border-box;
   padding: 5px;
   width: 100%;
@@ -2733,7 +2730,8 @@ a.subdued {
   background-color: white;
   /* border-width: 1px will actually create 2 device pixels on retina */
   /* this nifty trick sets an actual 1px border on hi-res displays */
-  background-size: 0; }
+  background-size: 0;
+  pointer-events: auto; }
   @media (min--moz-device-pixel-ratio: 1.5), (-webkit-min-device-pixel-ratio: 1.5), (min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
     .bar {
       border: none;
@@ -2886,23 +2884,21 @@ a.subdued {
         font-size: 32px;
         line-height: 32px; }
     .bar .button.back-button {
+      display: block;
       padding: 0;
-      opacity: 0.8; }
-      .bar .button.back-button .back-button-title {
-        display: inline-block;
-        vertical-align: middle;
-        margin-left: 4px; }
+      opacity: 0.8;
+      white-space: nowrap; }
     .bar .button.back-button.active, .bar .button.back-button.activated {
       opacity: 1; }
   .bar .button-bar > .button, .bar .buttons > .button {
     min-height: 31px;
     line-height: 32px; }
-  .bar .button-bar + .button, .bar .button + .button-bar {
+  .bar .button-bar + .button, .bar .button + .button-bar, .bar .back-button + .buttons, .bar .buttons + .back-button {
     margin-left: 5px; }
-  .bar .buttons, .bar .buttons.left-buttons, .bar .buttons.right-buttons {
+  .bar .buttons, .bar .buttons.primary-buttons, .bar .buttons.secondary-buttons {
     display: inherit; }
   .bar .buttons span {
-    display: inline-flex; }
+    display: inline-block; }
   .bar .title + .button:last-child, .bar > .button + .button:last-child, .bar > .button.pull-right, .bar .buttons.pull-right, .bar .title + .buttons {
     position: absolute;
     top: 5px;
@@ -3123,6 +3119,31 @@ a.subdued {
 .bar-subfooter {
   bottom: 44px;
   display: block; }
+
+.nav-bar-block {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9; }
+
+.nav-bar-block-active {
+  z-index: 10; }
+  .nav-bar-block-active .bar {
+    background: red;
+    background: transparent; }
+
+.nav-bar-container .nav-bar-block .nav-bar-stage .title, .nav-bar-container .nav-bar-block .nav-bar-stage .buttons {
+  opacity: 0; }
+
+.nav-bar-container .nav-bar-block .nav-bar-stage .title, .nav-bar-container .nav-bar-block .nav-bar-stage .buttons, .nav-bar-container .nav-bar-block .nav-bar-stage .back-text, .nav-bar-container .nav-bar-block .nav-bar-no-transition .title, .nav-bar-container .nav-bar-block .nav-bar-no-transition .buttons, .nav-bar-container .nav-bar-block .nav-bar-no-transition .back-text {
+  -webkit-transition-duration: 0s;
+  transition-duration: 0s; }
+
+.bar .back-button.hide, .bar .buttons .hide {
+  display: none; }
 
 /**
  * Tabs
@@ -6148,929 +6169,6 @@ a.button {
     border-radius: 0px 2px 2px 0px; }
 
 /**
- * Animations
- * --------------------------------------------------
- * The animations in this file are "simple" - not too complex
- * and pretty easy on performance. They can be overidden
- * and enhanced easily.
- */
-/**
- * Keyframes
- * --------------------------------------------------
- */
-@-webkit-keyframes slideInUp {
-  0% {
-    -webkit-transform: translate3d(0, 100%, 0); }
-
-  100% {
-    -webkit-transform: translate3d(0, 0, 0); } }
-
-@-moz-keyframes slideInUp {
-  0% {
-    -moz-transform: translate3d(0, 100%, 0); }
-
-  100% {
-    -moz-transform: translate3d(0, 0, 0); } }
-
-@keyframes slideInUp {
-  0% {
-    transform: translate3d(0, 100%, 0); }
-
-  100% {
-    transform: translate3d(0, 0, 0); } }
-
-@-webkit-keyframes slideOutUp {
-  0% {
-    -webkit-transform: translate3d(0, 0, 0); }
-
-  100% {
-    -webkit-transform: translate3d(0, 100%, 0); } }
-
-@-moz-keyframes slideOutUp {
-  0% {
-    -moz-transform: translate3d(0, 0, 0); }
-
-  100% {
-    -moz-transform: translate3d(0, 100%, 0); } }
-
-@keyframes slideOutUp {
-  0% {
-    transform: translate3d(0, 0, 0); }
-
-  100% {
-    transform: translate3d(0, 100%, 0); } }
-
-@-webkit-keyframes slideInFromLeft {
-  from {
-    -webkit-transform: translate3d(-100%, 0, 0); }
-
-  to {
-    -webkit-transform: translate3d(0, 0, 0); } }
-
-@-moz-keyframes slideInFromLeft {
-  from {
-    -moz-transform: translateX(-100%); }
-
-  to {
-    -moz-transform: translateX(0); } }
-
-@keyframes slideInFromLeft {
-  from {
-    transform: translateX(-100%); }
-
-  to {
-    transform: translateX(0); } }
-
-@-webkit-keyframes slideInFromRight {
-  from {
-    -webkit-transform: translate3d(100%, 0, 0); }
-
-  to {
-    -webkit-transform: translate3d(0, 0, 0); } }
-
-@-moz-keyframes slideInFromRight {
-  from {
-    -moz-transform: translateX(100%); }
-
-  to {
-    -moz-transform: translateX(0); } }
-
-@keyframes slideInFromRight {
-  from {
-    transform: translateX(100%); }
-
-  to {
-    transform: translateX(0); } }
-
-@-webkit-keyframes slideOutToLeft {
-  from {
-    -webkit-transform: translate3d(0, 0, 0); }
-
-  to {
-    -webkit-transform: translate3d(-100%, 0, 0); } }
-
-@-moz-keyframes slideOutToLeft {
-  from {
-    -moz-transform: translateX(0); }
-
-  to {
-    -moz-transform: translateX(-100%); } }
-
-@keyframes slideOutToLeft {
-  from {
-    transform: translateX(0); }
-
-  to {
-    transform: translateX(-100%); } }
-
-@-webkit-keyframes slideOutToRight {
-  from {
-    -webkit-transform: translate3d(0, 0, 0); }
-
-  to {
-    -webkit-transform: translate3d(100%, 0, 0); } }
-
-@-moz-keyframes slideOutToRight {
-  from {
-    -moz-transform: translateX(0); }
-
-  to {
-    -moz-transform: translateX(100%); } }
-
-@keyframes slideOutToRight {
-  from {
-    transform: translateX(0); }
-
-  to {
-    transform: translateX(100%); } }
-
-@-webkit-keyframes fadeOut {
-  from {
-    opacity: 1; }
-
-  to {
-    opacity: 0; } }
-
-@-moz-keyframes fadeOut {
-  from {
-    opacity: 1; }
-
-  to {
-    opacity: 0; } }
-
-@keyframes fadeOut {
-  from {
-    opacity: 1; }
-
-  to {
-    opacity: 0; } }
-
-@-webkit-keyframes fadeIn {
-  from {
-    opacity: 0; }
-
-  to {
-    opacity: 1; } }
-
-@-moz-keyframes fadeIn {
-  from {
-    opacity: 0; }
-
-  to {
-    opacity: 1; } }
-
-@keyframes fadeIn {
-  from {
-    opacity: 0; }
-
-  to {
-    opacity: 1; } }
-
-@-webkit-keyframes fadeInHalf {
-  from {
-    background-color: rgba(0, 0, 0, 0); }
-
-  to {
-    background-color: rgba(0, 0, 0, 0.5); } }
-
-@-moz-keyframes fadeInHalf {
-  from {
-    background-color: rgba(0, 0, 0, 0); }
-
-  to {
-    background-color: rgba(0, 0, 0, 0.5); } }
-
-@keyframes fadeInHalf {
-  from {
-    background-color: rgba(0, 0, 0, 0); }
-
-  to {
-    background-color: rgba(0, 0, 0, 0.5); } }
-
-@-webkit-keyframes fadeOutHalf {
-  from {
-    background-color: rgba(0, 0, 0, 0.5); }
-
-  to {
-    background-color: rgba(0, 0, 0, 0); } }
-
-@-moz-keyframes fadeOutHalf {
-  from {
-    background-color: rgba(0, 0, 0, 0.5); }
-
-  to {
-    background-color: rgba(0, 0, 0, 0); } }
-
-@keyframes fadeOutHalf {
-  from {
-    background-color: rgba(0, 0, 0, 0.5); }
-
-  to {
-    background-color: rgba(0, 0, 0, 0); } }
-
-@-webkit-keyframes scaleOut {
-  from {
-    -webkit-transform: scale(1);
-    opacity: 1; }
-
-  to {
-    -webkit-transform: scale(0.8);
-    opacity: 0; } }
-
-@-moz-keyframes scaleOut {
-  from {
-    -moz-transform: scale(1);
-    opacity: 1; }
-
-  to {
-    -moz-transform: scale(0.8);
-    opacity: 0; } }
-
-@keyframes scaleOut {
-  from {
-    transform: scale(1);
-    opacity: 1; }
-
-  to {
-    transform: scale(0.8);
-    opacity: 0; } }
-
-@-webkit-keyframes scaleIn {
-  from {
-    -webkit-transform: scale(0); }
-
-  to {
-    -webkit-transform: scale(1); } }
-
-@-moz-keyframes scaleIn {
-  from {
-    -moz-transform: scale(0); }
-
-  to {
-    -moz-transform: scale(1); } }
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0); }
-
-  to {
-    transform: scale(1); } }
-
-@-webkit-keyframes superScaleIn {
-  from {
-    -webkit-transform: scale(1.2);
-    opacity: 0; }
-
-  to {
-    -webkit-transform: scale(1);
-    opacity: 1; } }
-
-@-moz-keyframes superScaleIn {
-  from {
-    -moz-transform: scale(1.2);
-    opacity: 0; }
-
-  to {
-    -moz-transform: scale(1);
-    opacity: 1; } }
-
-@keyframes superScaleIn {
-  from {
-    transform: scale(1.2);
-    opacity: 0; }
-
-  to {
-    transform: scale(1);
-    opacity: 1; } }
-
-@-webkit-keyframes spin {
-  100% {
-    -webkit-transform: rotate(360deg); } }
-
-@-moz-keyframes spin {
-  100% {
-    -moz-transform: rotate(360deg); } }
-
-@keyframes spin {
-  100% {
-    transform: rotate(360deg); } }
-
-.no-animation > .ng-enter, .no-animation.ng-enter, .no-animation > .ng-leave, .no-animation.ng-leave {
-  -webkit-transition: none;
-  transition: none; }
-
-.noop-animation > .ng-enter, .noop-animation.ng-enter, .noop-animation > .ng-leave, .noop-animation.ng-leave {
-  -webkit-transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 250ms;
-  transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 250ms;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0; }
-
-.ng-animate .pane {
-  position: absolute; }
-
-/**
- * Slide Left-Right, and Right-Left, each with the reserve
- * --------------------------------------------------
- * NEW content slides IN from the RIGHT, OLD slides OUT to the LEFT
- * Reverse: NEW content slides IN from the LEFT, OLD slides OUT to the RIGHT
- */
-.slide-left-right > .ng-enter, .slide-left-right.ng-enter, .slide-left-right > .ng-leave, .slide-left-right.ng-leave, .slide-right-left.reverse > .ng-enter, .slide-right-left.reverse.ng-enter, .slide-right-left.reverse > .ng-leave, .slide-right-left.reverse.ng-leave {
-  -webkit-transition: all ease-in-out 250ms;
-  transition: all ease-in-out 250ms;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0; }
-.slide-left-right > .ng-enter, .slide-left-right.ng-enter, .slide-right-left.reverse > .ng-enter, .slide-right-left.reverse.ng-enter {
-  /* NEW content placed far RIGHT BEFORE it slides IN from the RIGHT */
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0); }
-.slide-left-right > .ng-enter.ng-enter-active, .slide-left-right.ng-enter.ng-enter-active, .slide-right-left.reverse > .ng-enter.ng-enter-active, .slide-right-left.reverse.ng-enter.ng-enter-active {
-  /* NEW content ACTIVELY sliding IN from the RIGHT */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0); }
-.slide-left-right > .ng-leave.ng-leave-active, .slide-left-right.ng-leave.ng-leave-active, .slide-right-left.reverse > .ng-leave.ng-leave-active, .slide-right-left.reverse.ng-leave.ng-leave-active {
-  /* OLD content ACTIVELY sliding OUT to the LEFT */
-  -webkit-transform: translate3d(-100%, 0, 0);
-  transform: translate3d(-100%, 0, 0); }
-
-.slide-left-right.reverse > .ng-enter, .slide-left-right.reverse.ng-enter, .slide-left-right.reverse > .ng-leave, .slide-left-right.reverse.ng-leave, .slide-right-left > .ng-enter, .slide-right-left.ng-enter, .slide-right-left > .ng-leave, .slide-right-left.ng-leave {
-  -webkit-transition: all ease-in-out 250ms;
-  transition: all ease-in-out 250ms;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0; }
-.slide-left-right.reverse > .ng-enter, .slide-left-right.reverse.ng-enter, .slide-right-left > .ng-enter, .slide-right-left.ng-enter {
-  /* NEW content placed far LEFT BEFORE it slides IN from the LEFT */
-  -webkit-transform: translate3d(-100%, 0, 0);
-  transform: translate3d(-100%, 0, 0); }
-.slide-left-right.reverse > .ng-enter.ng-enter-active, .slide-left-right.reverse.ng-enter.ng-enter-active, .slide-right-left > .ng-enter.ng-enter-active, .slide-right-left.ng-enter.ng-enter-active {
-  /* NEW content ACTIVELY sliding IN from the LEFT */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0); }
-.slide-left-right.reverse > .ng-leave.ng-leave-active, .slide-left-right.reverse.ng-leave.ng-leave-active, .slide-right-left > .ng-leave.ng-leave-active, .slide-right-left.ng-leave.ng-leave-active {
-  /* OLD content ACTIVELY sliding OUT to the RIGHT */
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0); }
-
-/**
- * iOS style slide left to right
- * --------------------------------------------------
- */
-/*
-$ios-transition-box-shadow-start: -200px 0px 200px rgba(0,0,0,0), -5px 0px 5px rgba(0,0,0,0.01);
-$ios-transition-box-shadow-end: -200px 0px 200px rgba(0,0,0,0.15), -5px 0px 5px rgba(0,0,0,0.18);
-*/
-.slide-ios > .ng-enter, .slide-ios.ng-enter, .slide-ios > .ng-leave, .slide-ios.ng-leave, .slide-left-right-ios7 > .ng-enter, .slide-left-right-ios7.ng-enter, .slide-left-right-ios7 > .ng-leave, .slide-left-right-ios7.ng-leave, .slide-right-left-ios7.reverse > .ng-enter, .slide-right-left-ios7.reverse.ng-enter, .slide-right-left-ios7.reverse > .ng-leave, .slide-right-left-ios7.reverse.ng-leave {
-  -webkit-transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 400ms;
-  transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 400ms;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: auto;
-  border-right: none;
-  border-left: none; }
-  .slide-ios > .ng-enter:not(.bar), .slide-ios.ng-enter:not(.bar), .slide-ios > .ng-leave:not(.bar), .slide-ios.ng-leave:not(.bar), .slide-left-right-ios7 > .ng-enter:not(.bar), .slide-left-right-ios7.ng-enter:not(.bar), .slide-left-right-ios7 > .ng-leave:not(.bar), .slide-left-right-ios7.ng-leave:not(.bar), .slide-right-left-ios7.reverse > .ng-enter:not(.bar), .slide-right-left-ios7.reverse.ng-enter:not(.bar), .slide-right-left-ios7.reverse > .ng-leave:not(.bar), .slide-right-left-ios7.reverse.ng-leave:not(.bar) {
-    border-right: none;
-    border-left: none; }
-.slide-ios > .ng-enter, .slide-ios.ng-enter, .slide-left-right-ios7 > .ng-enter, .slide-left-right-ios7.ng-enter, .slide-right-left-ios7.reverse > .ng-enter, .slide-right-left-ios7.reverse.ng-enter {
-  /* NEW content placed far RIGHT BEFORE it slides IN from the RIGHT */
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0); }
-.slide-ios > .ng-leave, .slide-ios.ng-leave, .slide-left-right-ios7 > .ng-leave, .slide-left-right-ios7.ng-leave, .slide-right-left-ios7.reverse > .ng-leave, .slide-right-left-ios7.reverse.ng-leave {
-  z-index: 1; }
-.slide-ios > .ng-enter.ng-enter-active, .slide-ios.ng-enter.ng-enter-active, .slide-left-right-ios7 > .ng-enter.ng-enter-active, .slide-left-right-ios7.ng-enter.ng-enter-active, .slide-right-left-ios7.reverse > .ng-enter.ng-enter-active, .slide-right-left-ios7.reverse.ng-enter.ng-enter-active {
-  /* NEW content ACTIVELY sliding IN from the RIGHT */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0); }
-.slide-ios > .ng-leave.ng-leave-active, .slide-ios.ng-leave.ng-leave-active, .slide-left-right-ios7 > .ng-leave.ng-leave-active, .slide-left-right-ios7.ng-leave.ng-leave-active, .slide-right-left-ios7.reverse > .ng-leave.ng-leave-active, .slide-right-left-ios7.reverse.ng-leave.ng-leave-active {
-  /* OLD content ACTIVELY sliding OUT to the LEFT */
-  -webkit-transform: translate3d(-20%, 0, 0);
-  transform: translate3d(-20%, 0, 0); }
-
-.slide-ios.reverse > .ng-enter, .slide-ios.reverse.ng-enter, .slide-ios.reverse > .ng-leave, .slide-ios.reverse.ng-leave, .slide-left-right-ios7.reverse > .ng-enter, .slide-left-right-ios7.reverse.ng-enter, .slide-left-right-ios7.reverse > .ng-leave, .slide-left-right-ios7.reverse.ng-leave, .slide-right-left-ios7 > .ng-enter, .slide-right-left-ios7.ng-enter, .slide-right-left-ios7 > .ng-leave, .slide-right-left-ios7.ng-leave {
-  -webkit-transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 400ms;
-  transition: all cubic-bezier(0.4, 0.6, 0.2, 1) 400ms;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: auto;
-  border-right: none;
-  border-left: none; }
-.slide-ios.reverse > .ng-enter, .slide-ios.reverse.ng-enter, .slide-left-right-ios7.reverse > .ng-enter, .slide-left-right-ios7.reverse.ng-enter, .slide-right-left-ios7 > .ng-enter, .slide-right-left-ios7.ng-enter {
-  /* NEW content placed far LEFT BEFORE it slides IN from the LEFT */
-  -webkit-transform: translate3d(-20%, 0, 0);
-  transform: translate3d(-20%, 0, 0); }
-.slide-ios.reverse > .ng-leave, .slide-ios.reverse.ng-leave, .slide-left-right-ios7.reverse > .ng-leave, .slide-left-right-ios7.reverse.ng-leave, .slide-right-left-ios7 > .ng-leave, .slide-right-left-ios7.ng-leave {
-  z-index: 2; }
-.slide-ios.reverse > .ng-enter.ng-enter-active, .slide-ios.reverse.ng-enter.ng-enter-active, .slide-left-right-ios7.reverse > .ng-enter.ng-enter-active, .slide-left-right-ios7.reverse.ng-enter.ng-enter-active, .slide-right-left-ios7 > .ng-enter.ng-enter-active, .slide-right-left-ios7.ng-enter.ng-enter-active {
-  /* NEW content ACTIVELY sliding IN from the LEFT */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0); }
-.slide-ios.reverse > .ng-leave.ng-leave-active, .slide-ios.reverse.ng-leave.ng-leave-active, .slide-left-right-ios7.reverse > .ng-leave.ng-leave-active, .slide-left-right-ios7.reverse.ng-leave.ng-leave-active, .slide-right-left-ios7 > .ng-leave.ng-leave-active, .slide-right-left-ios7.ng-leave.ng-leave-active {
-  /* OLD content ACTIVELY sliding OUT to the RIGHT */
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0); }
-
-/**
- * iPad doesn't like box shadows
- */
-.grade-a .slide-ios > .ng-enter:not(.platform-ipad), .grade-a .slide-ios.ng-enter:not(.platform-ipad), .grade-a .slide-left-right-ios7 > .ng-enter:not(.platform-ipad), .grade-a .slide-left-right-ios7.ng-enter:not(.platform-ipad), .grade-a .slide-right-left-ios7.reverse > .ng-enter:not(.platform-ipad), .grade-a .slide-right-left-ios7.reverse.ng-enter:not(.platform-ipad) {
-  box-shadow: none; }
-.grade-a .slide-ios > .ng-enter.ng-enter-active:not(.platform-ipad), .grade-a .slide-ios.ng-enter.ng-enter-active:not(.platform-ipad), .grade-a .slide-left-right-ios7 > .ng-enter.ng-enter-active:not(.platform-ipad), .grade-a .slide-left-right-ios7.ng-enter.ng-enter-active:not(.platform-ipad), .grade-a .slide-right-left-ios7.reverse > .ng-enter.ng-enter-active:not(.platform-ipad), .grade-a .slide-right-left-ios7.reverse.ng-enter.ng-enter-active:not(.platform-ipad) {
-  box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.5); }
-.grade-a .slide-ios > .ng-leave, .grade-a .slide-ios.ng-leave, .grade-a .slide-left-right-ios7 > .ng-leave, .grade-a .slide-left-right-ios7.ng-leave, .grade-a .slide-right-left-ios7.reverse > .ng-leave, .grade-a .slide-right-left-ios7.reverse.ng-leave {
-  opacity: 1; }
-.grade-a .slide-ios > .ng-leave.ng-leave-active, .grade-a .slide-ios.ng-leave.ng-leave-active, .grade-a .slide-left-right-ios7 > .ng-leave.ng-leave-active, .grade-a .slide-left-right-ios7.ng-leave.ng-leave-active, .grade-a .slide-right-left-ios7.reverse > .ng-leave.ng-leave-active, .grade-a .slide-right-left-ios7.reverse.ng-leave.ng-leave-active {
-  opacity: 0.9; }
-.grade-a .slide-ios.reverse > .ng-enter, .grade-a .slide-ios.reverse.ng-enter, .grade-a .slide-left-right-ios7.reverse > .ng-enter, .grade-a .slide-left-right-ios7.reverse.ng-enter, .grade-a .slide-right-left-ios7 > .ng-enter, .grade-a .slide-right-left-ios7.ng-enter {
-  opacity: 0.9; }
-.grade-a .slide-ios.reverse > .ng-enter.ng-enter-active, .grade-a .slide-ios.reverse.ng-enter.ng-enter-active, .grade-a .slide-left-right-ios7.reverse > .ng-enter.ng-enter-active, .grade-a .slide-left-right-ios7.reverse.ng-enter.ng-enter-active, .grade-a .slide-right-left-ios7 > .ng-enter.ng-enter-active, .grade-a .slide-right-left-ios7.ng-enter.ng-enter-active {
-  opacity: 1; }
-.grade-a .slide-ios.reverse > .ng-leave, .grade-a .slide-ios.reverse.ng-leave, .grade-a .slide-left-right-ios7.reverse > .ng-leave, .grade-a .slide-left-right-ios7.reverse.ng-leave, .grade-a .slide-right-left-ios7 > .ng-leave, .grade-a .slide-right-left-ios7.ng-leave {
-  box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.5);
-  opacity: 1; }
-.grade-a .slide-ios.reverse > .ng-leave.ng-leave-active, .grade-a .slide-ios.reverse.ng-leave.ng-leave-active, .grade-a .slide-left-right-ios7.reverse > .ng-leave.ng-leave-active, .grade-a .slide-left-right-ios7.reverse.ng-leave.ng-leave-active, .grade-a .slide-right-left-ios7 > .ng-leave.ng-leave-active, .grade-a .slide-right-left-ios7.ng-leave.ng-leave-active {
-  box-shadow: none; }
-
-.slide-full > .ng-enter, .slide-full.ng-enter, .slide-full > .ng-leave, .slide-full.ng-leave {
-  -webkit-transition: all ease-in-out 400ms;
-  transition: all ease-in-out 400ms;
-  position: absolute;
-  top: 0;
-  right: -1px;
-  bottom: 0;
-  left: -1px;
-  width: auto;
-  border-right: none;
-  border-left: none; }
-  .slide-full > .ng-enter:not(.bar), .slide-full.ng-enter:not(.bar), .slide-full > .ng-leave:not(.bar), .slide-full.ng-leave:not(.bar) {
-    border-right: none;
-    border-left: none; }
-.slide-full > .ng-enter, .slide-full.ng-enter {
-  /* NEW content placed far RIGHT BEFORE it slides IN from the RIGHT */
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0); }
-.slide-full > .ng-leave, .slide-full.ng-leave {
-  z-index: 1; }
-.slide-full > .ng-enter.ng-enter-active, .slide-full.ng-enter.ng-enter-active {
-  /* NEW content ACTIVELY sliding IN from the RIGHT */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0); }
-.slide-full > .ng-leave.ng-leave-active, .slide-full.ng-leave.ng-leave-active {
-  /* OLD content ACTIVELY sliding OUT to the LEFT */
-  -webkit-transform: translate3d(-100%, 0, 0);
-  transform: translate3d(-100%, 0, 0); }
-
-.slide-full.reverse > .ng-enter, .slide-full.reverse.ng-enter, .slide-full.reverse > .ng-leave, .slide-full.reverse.ng-leave {
-  -webkit-transition: all ease-in-out 400ms;
-  transition: all ease-in-out 400ms;
-  position: absolute;
-  top: 0;
-  right: -1px;
-  bottom: 0;
-  left: -1px;
-  width: auto;
-  border-right: none;
-  border-left: none; }
-.slide-full.reverse > .ng-enter, .slide-full.reverse.ng-enter {
-  /* NEW content placed far LEFT BEFORE it slides IN from the LEFT */
-  -webkit-transform: translate3d(-100%, 0, 0);
-  transform: translate3d(-100%, 0, 0); }
-.slide-full.reverse > .ng-leave, .slide-full.reverse.ng-leave {
-  z-index: 2; }
-.slide-full.reverse > .ng-enter.ng-enter-active, .slide-full.reverse.ng-enter.ng-enter-active {
-  /* NEW content ACTIVELY sliding IN from the LEFT */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0); }
-.slide-full.reverse > .ng-leave.ng-leave-active, .slide-full.reverse.ng-leave.ng-leave-active {
-  /* OLD content ACTIVELY sliding OUT to the RIGHT */
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0); }
-
-.fade-explode.reverse > .ng-enter, .fade-explode.reverse.ng-enter, .fade-explode.reverse > .ng-leave, .fade-explode.reverse.ng-leave {
-  -webkit-transition: all ease-out 300ms;
-  transition: all ease-out 300ms;
-  position: absolute;
-  top: 0;
-  right: -1px;
-  bottom: 0;
-  left: -1px;
-  width: auto; }
-  .fade-explode.reverse > .ng-enter:not(.bar), .fade-explode.reverse.ng-enter:not(.bar), .fade-explode.reverse > .ng-leave:not(.bar), .fade-explode.reverse.ng-leave:not(.bar) {
-    border-right: 1px solid #ddd;
-    border-left: 1px solid #ddd; }
-.fade-explode.reverse > .ng-enter, .fade-explode.reverse.ng-enter {
-  /* NEW content placed far LEFT BEFORE it slides IN from the LEFT */
-  -webkit-transform: scale(0.95);
-  transform: scale(0.95);
-  opacity: 0;
-  z-index: 1; }
-.fade-explode.reverse > .ng-leave, .fade-explode.reverse.ng-leave {
-  -webkit-transform: scale(1);
-  transform: scale(1);
-  opacity: 1;
-  z-index: 2; }
-.fade-explode.reverse > .ng-enter.ng-enter-active, .fade-explode.reverse.ng-enter.ng-enter-active {
-  -webkit-transform: scale(1);
-  transform: scale(1);
-  opacity: 1; }
-.fade-explode.reverse > .ng-leave.ng-leave-active, .fade-explode.reverse.ng-leave.ng-leave-active {
-  -webkit-transform: scale(1.6);
-  transform: scale(1.6);
-  opacity: 0; }
-
-/**
- * Android style "pop in" with fade and scale
- */
-.fade-implode > .ng-enter, .fade-implode.ng-enter, .fade-implode > .ng-leave, .fade-implode.ng-leave {
-  -webkit-transition: all ease-out 200ms;
-  transition: all ease-out 200ms;
-  position: absolute;
-  top: 0;
-  right: -1px;
-  bottom: 0;
-  left: -1px;
-  width: auto; }
-  .fade-implode > .ng-enter:not(.bar), .fade-implode.ng-enter:not(.bar), .fade-implode > .ng-leave:not(.bar), .fade-implode.ng-leave:not(.bar) {
-    border-right: 1px solid #ddd;
-    border-left: 1px solid #ddd; }
-.fade-implode > .ng-enter, .fade-implode.ng-enter {
-  /* NEW content placed far RIGHT BEFORE it slides IN from the RIGHT */
-  -webkit-transform: scale(0.8);
-  transform: scale(0.8);
-  opacity: 0;
-  z-index: 2; }
-.fade-implode > .ng-leave, .fade-implode.ng-leave {
-  z-index: 1; }
-.fade-implode > .ng-enter.ng-enter-active, .fade-implode.ng-enter.ng-enter-active {
-  /* NEW content */
-  -webkit-transform: scale(1);
-  transform: scale(1);
-  opacity: 1; }
-
-.fade-implode.reverse > .ng-enter, .fade-implode.reverse.ng-enter, .fade-implode.reverse > .ng-leave, .fade-implode.reverse.ng-leave {
-  -webkit-transition: all ease-out 200ms;
-  transition: all ease-out 200ms;
-  position: absolute;
-  top: 0;
-  right: -1px;
-  bottom: 0;
-  left: -1px;
-  width: auto;
-  border-right: 1px solid #ddd;
-  border-left: 1px solid #ddd; }
-.fade-implode.reverse > .ng-enter, .fade-implode.reverse.ng-enter {
-  -webkit-transform: scale(1);
-  transform: scale(1);
-  opacity: 1;
-  z-index: 1; }
-.fade-implode.reverse > .ng-leave, .fade-implode.reverse.ng-leave {
-  -webkit-transform: scale(1);
-  transform: scale(1);
-  opacity: 1;
-  z-index: 2; }
-.fade-implode.reverse > .ng-enter.ng-enter-active, .fade-implode.reverse.ng-enter.ng-enter-active {
-  opacity: 1; }
-.fade-implode.reverse > .ng-leave.ng-leave-active, .fade-implode.reverse.ng-leave.ng-leave-active {
-  -webkit-transform: scale(0.8);
-  transform: scale(0.8);
-  opacity: 0; }
-
-/**
- * Simple slide-in animation
- */
-.slide-in-left {
-  -webkit-transform: translate3d(0%, 0, 0);
-  transform: translate3d(0%, 0, 0); }
-  .slide-in-left.ng-enter, .slide-in-left > .ng-enter {
-    -webkit-animation-name: slideInFromLeft;
-    animation-name: slideInFromLeft;
-    -webkit-animation-duration: 250ms;
-    animation-duration: 250ms;
-    -webkit-animation-timing-function: ease-in-out;
-    animation-timing-function: ease-in-out;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both; }
-  .slide-in-left.ng-leave, .slide-in-left > .ng-leave {
-    -webkit-animation-name: slideOutToLeft;
-    animation-name: slideOutToLeft;
-    -webkit-animation-duration: 250ms;
-    animation-duration: 250ms;
-    -webkit-animation-timing-function: ease-in-out;
-    animation-timing-function: ease-in-out;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both; }
-
-.slide-in-left-add {
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0);
-  -webkit-animation-duration: 250ms;
-  animation-duration: 250ms;
-  -webkit-animation-timing-function: ease-in-out;
-  animation-timing-function: ease-in-out;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both; }
-
-.slide-in-left-add-active {
-  -webkit-animation-name: slideInFromLeft;
-  animation-name: slideInFromLeft; }
-
-.slide-out-left {
-  -webkit-transform: translate3d(-100%, 0, 0);
-  transform: translate3d(-100%, 0, 0); }
-  .slide-out-left.ng-enter, .slide-out-left > .ng-enter {
-    -webkit-animation-name: slideOutToLeft;
-    animation-name: slideOutToLeft;
-    -webkit-animation-duration: 250ms;
-    animation-duration: 250ms;
-    -webkit-animation-timing-function: ease-in-out;
-    animation-timing-function: ease-in-out;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both; }
-  .slide-out-left.ng-leave, .slide-out-left > .ng-leave {
-    -webkit-animation-name: slideOutToLeft;
-    animation-name: slideOutToLeft;
-    -webkit-animation-duration: 250ms;
-    animation-duration: 250ms;
-    -webkit-animation-timing-function: ease-in-out;
-    animation-timing-function: ease-in-out;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both; }
-
-.slide-out-left-add {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  -webkit-animation-duration: 250ms;
-  animation-duration: 250ms;
-  -webkit-animation-timing-function: ease-in-out;
-  animation-timing-function: ease-in-out;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both; }
-
-.slide-out-left-add-active {
-  -webkit-animation-name: slideOutToLeft;
-  animation-name: slideOutToLeft; }
-
-.slide-in-right {
-  -webkit-transform: translate3d(0%, 0, 0);
-  transform: translate3d(0%, 0, 0); }
-  .slide-in-right.ng-enter, .slide-in-right > .ng-enter {
-    -webkit-animation-name: slideInFromRight;
-    animation-name: slideInFromRight;
-    -webkit-animation-duration: 250ms;
-    animation-duration: 250ms;
-    -webkit-animation-timing-function: ease-in-out;
-    animation-timing-function: ease-in-out;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both; }
-  .slide-in-right.ng-leave, .slide-in-right > .ng-leave {
-    -webkit-animation-name: slideOutToRight;
-    animation-name: slideOutToRight;
-    -webkit-animation-duration: 250ms;
-    animation-duration: 250ms;
-    -webkit-animation-timing-function: ease-in-out;
-    animation-timing-function: ease-in-out;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both; }
-
-.slide-in-right-add {
-  -webkit-transform: translate3d(-100%, 0, 0);
-  transform: translate3d(-100%, 0, 0);
-  -webkit-animation-duration: 250ms;
-  animation-duration: 250ms;
-  -webkit-animation-timing-function: ease-in-out;
-  animation-timing-function: ease-in-out;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both; }
-
-.slide-in-right-add-active {
-  -webkit-animation-name: slideInFromRight;
-  animation-name: slideInFromRight; }
-
-.slide-out-right {
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0); }
-  .slide-out-right.ng-enter, .slide-out-right > .ng-enter {
-    -webkit-animation-name: slideOutToRight;
-    animation-name: slideOutToRight;
-    -webkit-animation-duration: 250ms;
-    animation-duration: 250ms;
-    -webkit-animation-timing-function: ease-in-out;
-    animation-timing-function: ease-in-out;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both; }
-  .slide-out-right.ng-leave, .slide-out-right > .ng-leave {
-    -webkit-animation-name: slideOutToRight;
-    animation-name: slideOutToRight;
-    -webkit-animation-duration: 250ms;
-    animation-duration: 250ms;
-    -webkit-animation-timing-function: ease-in-out;
-    animation-timing-function: ease-in-out;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both; }
-
-.slide-out-right-add {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  -webkit-animation-duration: 250ms;
-  animation-duration: 250ms;
-  -webkit-animation-timing-function: ease-in-out;
-  animation-timing-function: ease-in-out;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both; }
-
-.slide-out-right-add-active {
-  -webkit-animation-name: slideOutToRight;
-  animation-name: slideOutToRight; }
-
-/**
- * Slide up from the bottom, used for modals
- * --------------------------------------------------
- */
-.slide-in-up {
-  -webkit-transform: translate3d(0, 100%, 0);
-  transform: translate3d(0, 100%, 0); }
-
-.slide-in-up.ng-enter, .slide-in-up > .ng-enter {
-  -webkit-transition: all cubic-bezier(0.1, 0.7, 0.1, 1) 400ms;
-  transition: all cubic-bezier(0.1, 0.7, 0.1, 1) 400ms; }
-
-.slide-in-up.ng-enter-active, .slide-in-up > .ng-enter-active {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0); }
-
-.slide-in-up.ng-leave, .slide-in-up > .ng-leave {
-  -webkit-transition: all ease-in-out 250ms;
-  transition: all ease-in-out 250ms; }
-
-.fade-in {
-  -webkit-animation: fadeOut 0.3s;
-  animation: fadeOut 0.3s; }
-  .fade-in.active {
-    -webkit-animation: fadeIn 0.3s;
-    animation: fadeIn 0.3s; }
-
-.fade-in-not-out.ng-enter, .fade-in-not-out .ng-enter {
-  -webkit-animation: fadeIn 0.3s;
-  animation: fadeIn 0.3s;
-  position: relative; }
-.fade-in-not-out.ng-leave, .fade-in-not-out .ng-leave {
-  display: none; }
-
-/**
- * Some component specific animations
- */
-.nav-title-slide-ios:not(.no-animation) .button.back-button, .nav-title-slide-ios7:not(.no-animation) .button.back-button {
-  -webkit-transition: all 400ms;
-  transition: all 400ms;
-  -webkit-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
-  transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
-  -webkit-transform: translate3d(0%, 0, 0);
-  transform: translate3d(0%, 0, 0);
-  opacity: 1; }
-  .nav-title-slide-ios:not(.no-animation) .button.back-button.active, .nav-title-slide-ios:not(.no-animation) .button.back-button.activated, .nav-title-slide-ios7:not(.no-animation) .button.back-button.active, .nav-title-slide-ios7:not(.no-animation) .button.back-button.activated {
-    opacity: 0.5; }
-  .nav-title-slide-ios:not(.no-animation) .button.back-button.ng-hide, .nav-title-slide-ios7:not(.no-animation) .button.back-button.ng-hide {
-    opacity: 0;
-    -webkit-transform: translate3d(30%, 0, 0);
-    transform: translate3d(30%, 0, 0); }
-  .nav-title-slide-ios:not(.no-animation) .button.back-button.ng-hide-add, .nav-title-slide-ios:not(.no-animation) .button.back-button.ng-hide-remove, .nav-title-slide-ios7:not(.no-animation) .button.back-button.ng-hide-add, .nav-title-slide-ios7:not(.no-animation) .button.back-button.ng-hide-remove {
-    display: block !important; }
-  .nav-title-slide-ios:not(.no-animation) .button.back-button.ng-hide-add, .nav-title-slide-ios7:not(.no-animation) .button.back-button.ng-hide-add {
-    position: absolute; }
-.nav-title-slide-ios > .ng-enter, .nav-title-slide-ios.ng-enter, .nav-title-slide-ios > .ng-leave, .nav-title-slide-ios.ng-leave, .nav-title-slide-ios7 > .ng-enter, .nav-title-slide-ios7.ng-enter, .nav-title-slide-ios7 > .ng-leave, .nav-title-slide-ios7.ng-leave {
-  -webkit-transition: all 400ms;
-  transition: all 400ms;
-  -webkit-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
-  transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
-  opacity: 1; }
-.nav-title-slide-ios > .ng-enter, .nav-title-slide-ios.ng-enter, .nav-title-slide-ios7 > .ng-enter, .nav-title-slide-ios7.ng-enter {
-  -webkit-transform: translate3d(30%, 0, 0);
-  transform: translate3d(30%, 0, 0);
-  opacity: 0; }
-  .nav-title-slide-ios > .ng-enter.title, .nav-title-slide-ios.ng-enter.title, .nav-title-slide-ios7 > .ng-enter.title, .nav-title-slide-ios7.ng-enter.title {
-    -webkit-transform: translate3d(100%, 0, 0);
-    transform: translate3d(100%, 0, 0); }
-.nav-title-slide-ios > .ng-enter.ng-enter-active, .nav-title-slide-ios.ng-enter.ng-enter-active, .nav-title-slide-ios7 > .ng-enter.ng-enter-active, .nav-title-slide-ios7.ng-enter.ng-enter-active {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  opacity: 1; }
-.nav-title-slide-ios > .ng-leave.ng-leave-active, .nav-title-slide-ios.ng-leave.ng-leave-active, .nav-title-slide-ios7 > .ng-leave.ng-leave-active, .nav-title-slide-ios7.ng-leave.ng-leave-active {
-  -webkit-transform: translate3d(-30%, 0, 0);
-  transform: translate3d(-30%, 0, 0);
-  opacity: 0; }
-.nav-title-slide-ios.reverse > .ng-enter, .nav-title-slide-ios.reverse.ng-enter, .nav-title-slide-ios.reverse > .ng-leave, .nav-title-slide-ios.reverse.ng-leave, .nav-title-slide-ios7.reverse > .ng-enter, .nav-title-slide-ios7.reverse.ng-enter, .nav-title-slide-ios7.reverse > .ng-leave, .nav-title-slide-ios7.reverse.ng-leave {
-  -webkit-transition: all 400ms;
-  transition: all 400ms;
-  -webkit-transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
-  transition-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
-  opacity: 1; }
-.nav-title-slide-ios.reverse > .ng-enter, .nav-title-slide-ios.reverse.ng-enter, .nav-title-slide-ios7.reverse > .ng-enter, .nav-title-slide-ios7.reverse.ng-enter {
-  -webkit-transform: translate3d(-30%, 0, 0);
-  transform: translate3d(-30%, 0, 0);
-  opacity: 0; }
-.nav-title-slide-ios.reverse > .ng-enter.ng-enter-active, .nav-title-slide-ios.reverse.ng-enter.ng-enter-active, .nav-title-slide-ios7.reverse > .ng-enter.ng-enter-active, .nav-title-slide-ios7.reverse.ng-enter.ng-enter-active {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  opacity: 1; }
-.nav-title-slide-ios.reverse > .ng-leave.ng-leave-active, .nav-title-slide-ios.reverse.ng-leave.ng-leave-active, .nav-title-slide-ios7.reverse > .ng-leave.ng-leave-active, .nav-title-slide-ios7.reverse.ng-leave.ng-leave-active {
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0);
-  opacity: 0; }
-
-/**
- * Some component specific animations
- */
-.nav-title-slide-full:not(.no-animation) .button.back-button {
-  -webkit-transition: all 400ms;
-  transition: all 400ms;
-  -webkit-transition-timing-function: ease-in-out;
-  transition-timing-function: ease-in-out;
-  -webkit-transform: translate3d(0%, 0, 0);
-  transform: translate3d(0%, 0, 0);
-  opacity: 1; }
-  .nav-title-slide-full:not(.no-animation) .button.back-button.active, .nav-title-slide-full:not(.no-animation) .button.back-button.activated {
-    opacity: 0.5; }
-  .nav-title-slide-full:not(.no-animation) .button.back-button.ng-hide {
-    opacity: 0;
-    -webkit-transform: translate3d(30%, 0, 0);
-    transform: translate3d(30%, 0, 0); }
-  .nav-title-slide-full:not(.no-animation) .button.back-button.ng-hide-add, .nav-title-slide-full:not(.no-animation) .button.back-button.ng-hide-remove {
-    display: block !important; }
-  .nav-title-slide-full:not(.no-animation) .button.back-button.ng-hide-add {
-    position: absolute; }
-.nav-title-slide-full > .ng-enter, .nav-title-slide-full.ng-enter, .nav-title-slide-full > .ng-leave, .nav-title-slide-full.ng-leave {
-  -webkit-transition: all 400ms;
-  transition: all 400ms;
-  -webkit-transition-timing-function: ease-in-out;
-  transition-timing-function: ease-in-out;
-  opacity: 1; }
-.nav-title-slide-full > .ng-enter, .nav-title-slide-full.ng-enter {
-  -webkit-transform: translate3d(30%, 0, 0);
-  transform: translate3d(30%, 0, 0);
-  opacity: 0; }
-  .nav-title-slide-full > .ng-enter.title, .nav-title-slide-full.ng-enter.title {
-    -webkit-transform: translate3d(100%, 0, 0);
-    transform: translate3d(100%, 0, 0); }
-.nav-title-slide-full > .ng-enter.ng-enter-active, .nav-title-slide-full.ng-enter.ng-enter-active {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  opacity: 1; }
-.nav-title-slide-full > .ng-leave.ng-leave-active, .nav-title-slide-full.ng-leave.ng-leave-active {
-  -webkit-transform: translate3d(-30%, 0, 0);
-  transform: translate3d(-30%, 0, 0);
-  opacity: 0; }
-.nav-title-slide-full.reverse > .ng-enter, .nav-title-slide-full.reverse.ng-enter, .nav-title-slide-full.reverse > .ng-leave, .nav-title-slide-full.reverse.ng-leave {
-  -webkit-transition: all 400ms;
-  transition: all 400ms;
-  -webkit-transition-timing-function: ease-in-out;
-  transition-timing-function: ease-in-out;
-  opacity: 1; }
-.nav-title-slide-full.reverse > .ng-enter, .nav-title-slide-full.reverse.ng-enter {
-  -webkit-transform: translate3d(-30%, 0, 0);
-  transform: translate3d(-30%, 0, 0);
-  opacity: 0; }
-.nav-title-slide-full.reverse > .ng-enter.ng-enter-active, .nav-title-slide-full.reverse.ng-enter.ng-enter-active {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  opacity: 1; }
-.nav-title-slide-full.reverse > .ng-leave.ng-leave-active, .nav-title-slide-full.reverse.ng-leave.ng-leave-active {
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0);
-  opacity: 0; }
-
-.nav-title-android:not(.no-animation) .button.back-button {
-  -webkit-transition: all 200ms;
-  transition: all 200ms;
-  -webkit-transition-timing-function: linear;
-  transition-timing-function: linear;
-  opacity: 1; }
-  .nav-title-android:not(.no-animation) .button.back-button.ng-hide {
-    opacity: 0; }
-  .nav-title-android:not(.no-animation) .button.back-button.ng-hide-add, .nav-title-android:not(.no-animation) .button.back-button.ng-hide-remove {
-    display: block !important; }
-  .nav-title-android:not(.no-animation) .button.back-button.ng-hide-add {
-    position: absolute; }
-.nav-title-android > .ng-enter, .nav-title-android.ng-enter, .nav-title-android > .ng-leave, .nav-title-android.ng-leave {
-  -webkit-transition: all 200ms;
-  transition: all 200ms;
-  -webkit-transition-timing-function: linear;
-  transition-timing-function: linear; }
-.nav-title-android > .ng-enter, .nav-title-android.ng-enter {
-  opacity: 0; }
-.nav-title-android > .ng-enter.ng-enter-active, .nav-title-android.ng-enter.ng-enter-active {
-  opacity: 1; }
-.nav-title-android > .ng-leave.ng-leave-active, .nav-title-android.ng-leave.ng-leave-active {
-  opacity: 0; }
-
-/**
  * Grid
  * --------------------------------------------------
  * Using flexbox for the grid, inspired by Philip Walton:
@@ -7404,7 +6502,13 @@ $ios-transition-box-shadow-end: -200px 0px 200px rgba(0,0,0,0.15), -5px 0px 5px 
   z-index: 99999;
   width: 100%;
   height: 100%;
-  background: transparent; }
+  opacity: 0;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0); }
+
+.click-block-hide {
+  -webkit-transform: translate3d(-9999px, 0, 0);
+  transform: translate3d(-9999px, 0, 0); }
 
 .no-resize {
   resize: none; }
@@ -7660,6 +6764,546 @@ $ios-transition-box-shadow-end: -200px 0px 200px rgba(0,0,0,0.15), -5px 0px 5px 
 .platform-c:not(.enable-transitions) * {
   -webkit-transition: none !important;
   transition: none !important; }
+
+/**
+ * Keyframes
+ * --------------------------------------------------
+ */
+@-webkit-keyframes slideInFromRight {
+  from {
+    -webkit-transform: translate3d(98%, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0); } }
+
+@keyframes slideInFromRight {
+  from {
+    transform: translate3d(98%, 0, 0); }
+
+  to {
+    transform: translate3d(0, 0, 0); } }
+
+@-webkit-keyframes slideOutToRight {
+  from {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(100%, 0, 0); } }
+
+@keyframes slideOutToRight {
+  from {
+    transform: translate3d(0, 0, 0); }
+
+  to {
+    transform: translate3d(100%, 0, 0); } }
+
+@-webkit-keyframes slideInFromLeft {
+  from {
+    -webkit-transform: translate3d(-100%, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0); } }
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translate3d(-100%, 0, 0); }
+
+  to {
+    transform: translate3d(0, 0, 0); } }
+
+@-webkit-keyframes slideInFromLeft33 {
+  from {
+    -webkit-transform: translate3d(-33%, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0); } }
+
+@keyframes slideInFromLeft33 {
+  from {
+    transform: translate3d(-33%, 0, 0); }
+
+  to {
+    transform: translate3d(0, 0, 0); } }
+
+@-webkit-keyframes slideOutToLeft {
+  from {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(-100%, 0, 0); } }
+
+@keyframes slideOutToLeft {
+  from {
+    transform: translate3d(0, 0, 0); }
+
+  to {
+    transform: translate3d(-100%, 0, 0); } }
+
+@-webkit-keyframes slideOutToLeft33 {
+  from {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(-33%, 0, 0); } }
+
+@keyframes slideOutToLeft33 {
+  from {
+    transform: translate3d(0, 0, 0); }
+
+  to {
+    transform: translate3d(-33%, 0, 0); } }
+
+@-webkit-keyframes slideInFromBottom {
+  from {
+    -webkit-transform: translate3d(0, 100%, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0); } }
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translate3d(0, 100%, 0); }
+
+  to {
+    transform: translate3d(0, 0, 0); } }
+
+@-webkit-keyframes slideOutToBottom {
+  from {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, 100%, 0); } }
+
+@keyframes slideOutToBottom {
+  from {
+    transform: translate3d(0, 0, 0); }
+
+  to {
+    transform: translate3d(0, 100%, 0); } }
+
+@-webkit-keyframes slideInFromTop {
+  from {
+    -webkit-transform: translate3d(0, -100%, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0); } }
+
+@keyframes slideInFromTop {
+  from {
+    transform: translate3d(0, -100%, 0); }
+
+  to {
+    transform: translate3d(0, 0, 0); } }
+
+@-webkit-keyframes slideOutToTop {
+  from {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, -100%, 0); } }
+
+@keyframes slideOutToTop {
+  from {
+    transform: translate3d(0, 0, 0); }
+
+  to {
+    transform: translate3d(0, -100%, 0); } }
+
+@-webkit-keyframes slideOutToTop33 {
+  from {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, -33%, 0); } }
+
+@keyframes slideOutToTop33 {
+  from {
+    transform: translate3d(0, 0, 0); }
+
+  to {
+    transform: translate3d(0, -33%, 0); } }
+
+@-webkit-keyframes fadeOut {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 0; } }
+
+@keyframes fadeOut {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 0; } }
+
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0; }
+
+  to {
+    opacity: 1; } }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0; }
+
+  to {
+    opacity: 1; } }
+
+@-webkit-keyframes fadeInFromPartial {
+  from {
+    opacity: 0.9; }
+
+  to {
+    opacity: 1; } }
+
+@keyframes fadeInFromPartial {
+  from {
+    opacity: 0.9; }
+
+  to {
+    opacity: 1; } }
+
+@-webkit-keyframes fadeOutToPartial {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 0.9; } }
+
+@keyframes fadeOutToPartial {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 0.9; } }
+
+@-webkit-keyframes fadeInHalf {
+  from {
+    background-color: rgba(0, 0, 0, 0); }
+
+  to {
+    background-color: rgba(0, 0, 0, 0.5); } }
+
+@keyframes fadeInHalf {
+  from {
+    background-color: rgba(0, 0, 0, 0); }
+
+  to {
+    background-color: rgba(0, 0, 0, 0.5); } }
+
+@-webkit-keyframes fadeOutHalf {
+  from {
+    background-color: rgba(0, 0, 0, 0.5); }
+
+  to {
+    background-color: rgba(0, 0, 0, 0); } }
+
+@keyframes fadeOutHalf {
+  from {
+    background-color: rgba(0, 0, 0, 0.5); }
+
+  to {
+    background-color: rgba(0, 0, 0, 0); } }
+
+@-webkit-keyframes addBoxShadow {
+  from {
+    -webkit-box-shadow: none;
+    box-shadow: none; }
+
+  to {
+    -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); } }
+
+@keyframes addBoxShadow {
+  from {
+    -webkit-box-shadow: none;
+    box-shadow: none; }
+
+  to {
+    -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); } }
+
+@-webkit-keyframes removeBoxShadow {
+  from {
+    -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+
+  to {
+    -webkit-box-shadow: none;
+    box-shadow: none; } }
+
+@keyframes removeBoxShadow {
+  from {
+    -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+
+  to {
+    -webkit-box-shadow: none;
+    box-shadow: none; } }
+
+@-webkit-keyframes scaleOut {
+  from {
+    -webkit-transform: scale(1);
+    opacity: 1; }
+
+  to {
+    -webkit-transform: scale(0.8);
+    opacity: 0; } }
+
+@keyframes scaleOut {
+  from {
+    transform: scale(1);
+    opacity: 1; }
+
+  to {
+    transform: scale(0.8);
+    opacity: 0; } }
+
+@-webkit-keyframes scaleIn {
+  from {
+    -webkit-transform: scale(0); }
+
+  to {
+    -webkit-transform: scale(1); } }
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0); }
+
+  to {
+    transform: scale(1); } }
+
+@-webkit-keyframes superScaleIn {
+  from {
+    -webkit-transform: scale(1.2);
+    opacity: 0; }
+
+  to {
+    -webkit-transform: scale(1);
+    opacity: 1; } }
+
+@keyframes superScaleIn {
+  from {
+    transform: scale(1.2);
+    opacity: 0; }
+
+  to {
+    transform: scale(1);
+    opacity: 1; } }
+
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg); } }
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg); } }
+
+@-webkit-keyframes holdAnimate {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 1; } }
+
+@keyframes holdAnimate {
+  from {
+    opacity: 1; }
+
+  to {
+    opacity: 1; } }
+
+.ios-transition.nav-forward {
+  background-color: #000; }
+  .ios-transition.nav-forward .nav-view-add {
+    -webkit-animation-name: slideInFromRight;
+    animation-name: slideInFromRight;
+    z-index: 3; }
+  .ios-transition.nav-forward .nav-view-remove {
+    -webkit-animation-name: slideOutToLeft33, fadeOutToPartial;
+    animation-name: slideOutToLeft33, fadeOutToPartial;
+    z-index: 2; }
+
+.ios-transition.nav-back {
+  background-color: #000; }
+  .ios-transition.nav-back .nav-view-add {
+    -webkit-animation-name: slideInFromLeft33, fadeInFromPartial;
+    animation-name: slideInFromLeft33, fadeInFromPartial;
+    z-index: 2; }
+  .ios-transition.nav-back .nav-view-remove {
+    -webkit-animation-name: slideOutToRight;
+    animation-name: slideOutToRight;
+    z-index: 3; }
+
+.ios-transition.nav-enter .nav-view-add, .ios-transition.nav-exit .nav-view-add {
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+  -webkit-animation-duration: 210ms;
+  animation-duration: 210ms;
+  z-index: 3; }
+.ios-transition.nav-enter .nav-view-remove, .ios-transition.nav-exit .nav-view-remove {
+  -webkit-animation-name: fadeOutToPartial;
+  animation-name: fadeOutToPartial;
+  -webkit-animation-duration: 210ms;
+  animation-duration: 210ms;
+  z-index: 2; }
+
+.ios-transition .nav-view-add, .ios-transition .nav-view-remove {
+  -webkit-animation-duration: 420ms;
+  animation-duration: 420ms;
+  -webkit-animation-timing-function: cubic-bezier(0.3, 0.9, 0.4, 1);
+  animation-timing-function: cubic-bezier(0.3, 0.9, 0.4, 1); }
+
+.ios-nav-bar .nav-bar-block .title, .ios-nav-bar .nav-bar-block .buttons, .ios-nav-bar .nav-bar-block .back-text {
+  -webkit-transition-duration: 420ms;
+  transition-duration: 420ms;
+  -webkit-transition-timing-function: cubic-bezier(0.3, 0.9, 0.4, 1);
+  transition-timing-function: cubic-bezier(0.3, 0.9, 0.4, 1);
+  -webkit-transition-property: opacity, -webkit-transform, transition;
+  transition-property: opacity, transform, -webkit-transform; }
+
+.android-transition.nav-forward .nav-view-entering, .android-transition.nav-forward .nav-bar-entering {
+  -webkit-transform: translate3d(0, 20%, 0);
+  transform: translate3d(0, 20%, 0); }
+.android-transition.nav-forward .nav-view-entering.nav-view, .android-transition.nav-forward .nav-bar-entering.nav-bar {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0); }
+.android-transition.nav-forward .nav-view-add, .android-transition.nav-forward .nav-bar-add {
+  -webkit-animation-name: androidViewSlideIn, fadeIn;
+  animation-name: androidViewSlideIn, fadeIn;
+  -webkit-animation-duration: 300ms;
+  animation-duration: 300ms;
+  -webkit-animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1); }
+.android-transition.nav-forward .nav-view-add {
+  z-index: 3; }
+.android-transition.nav-forward .nav-bar-add {
+  z-index: 10; }
+.android-transition.nav-forward .nav-view-remove, .android-transition.nav-forward .nav-bar-remove {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-animation-name: fadeOutToPartial;
+  animation-name: fadeOutToPartial;
+  -webkit-animation-duration: 300ms;
+  animation-duration: 300ms;
+  -webkit-animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1); }
+.android-transition.nav-forward .nav-view-remove {
+  z-index: 2; }
+
+.android-transition.nav-back .nav-view-entering, .android-transition.nav-back .nav-view-entering.nav-view, .android-transition.nav-back .nav-bar-entering, .android-transition.nav-back .nav-bar-entering.nav-bar {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0); }
+.android-transition.nav-back .nav-view-entering, .android-transition.nav-back .nav-view-entering.nav-view {
+  z-index: 2; }
+.android-transition.nav-back .nav-view-remove, .android-transition.nav-back .nav-bar-remove {
+  -webkit-animation-name: androidViewSlideOut, fadeOut;
+  animation-name: androidViewSlideOut, fadeOut;
+  -webkit-animation-duration: 300ms;
+  animation-duration: 300ms;
+  -webkit-animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1); }
+.android-transition.nav-back .nav-view-remove {
+  z-index: 3; }
+.android-transition.nav-back .nav-bar-remove {
+  z-index: 10; }
+
+@-webkit-keyframes androidViewSlideIn {
+  from {
+    -webkit-transform: translate3d(0, 20%, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0); } }
+
+@keyframes androidViewSlideIn {
+  from {
+    transform: translate3d(0, 20%, 0); }
+
+  to {
+    transform: translate3d(0, 0, 0); } }
+
+@-webkit-keyframes androidViewSlideOut {
+  from {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  to {
+    -webkit-transform: translate3d(0, 20%, 0); } }
+
+@keyframes androidViewSlideOut {
+  from {
+    transform: translate3d(0, 0, 0); }
+
+  to {
+    transform: translate3d(0, 20%, 0); } }
+
+.android-transition.nav-enter .nav-view-entering, .android-transition.nav-enter .nav-view-leaving, .android-transition.nav-exit .nav-view-entering, .android-transition.nav-exit .nav-view-leaving {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0); }
+.android-transition.nav-enter .nav-view-add, .android-transition.nav-exit .nav-view-add {
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+  -webkit-animation-duration: 150ms;
+  animation-duration: 150ms;
+  -webkit-animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  z-index: 3; }
+.android-transition.nav-enter .nav-view-remove, .android-transition.nav-exit .nav-view-remove {
+  -webkit-animation-name: fadeOutToPartial;
+  animation-name: fadeOutToPartial;
+  -webkit-animation-duration: 150ms;
+  animation-duration: 150ms;
+  -webkit-animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  animation-timing-function: cubic-bezier(0.4, 0.6, 0.2, 1);
+  z-index: 2; }
+
+.android-transition .nav-bar-entering, .android-transition .nav-bar-active.nav-bar-leaving {
+  opacity: 0; }
+.android-transition .nav-bar-entering.nav-bar, .android-transition .nav-bar-active.nav-bar-leaving.ng-animate {
+  opacity: 1; }
+
+.nav-view-entering, .nav-view-active.nav-view-leaving {
+  opacity: 0; }
+
+.nav-view-entering.nav-view, .nav-view-active.nav-view-leaving.ng-animate {
+  opacity: 1; }
+
+.nav-view-add, .nav-bar-add {
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn; }
+
+.nav-view-remove, .nav-bar-remove {
+  -webkit-animation-name: fadeOut;
+  animation-name: fadeOut; }
+
+.nav-view-add, .nav-view-remove, .nav-bar-add, .nav-bar-remove, .nav-swap .nav-view-entering {
+  opacity: 1;
+  -webkit-animation-duration: 0;
+  animation-duration: 0; }
+
+.ng-animate .pane {
+  position: absolute; }
+
+.pane {
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both; }
+
+.slide-in-up {
+  -webkit-transform: translate3d(0, 100%, 0);
+  transform: translate3d(0, 100%, 0); }
+
+.slide-in-up.ng-enter, .slide-in-up > .ng-enter {
+  -webkit-transition: all cubic-bezier(0.1, 0.7, 0.1, 1) 400ms;
+  transition: all cubic-bezier(0.1, 0.7, 0.1, 1) 400ms; }
+
+.slide-in-up.ng-enter-active, .slide-in-up > .ng-enter-active {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0); }
+
+.slide-in-up.ng-leave, .slide-in-up > .ng-leave {
+  -webkit-transition: all ease-in-out 250ms;
+  transition: all ease-in-out 250ms; }
 
 .item-input-wrapper.energized-bg {
   background: #f05c00;
