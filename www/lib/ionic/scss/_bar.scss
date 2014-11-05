@@ -39,6 +39,7 @@
     background-size: 100% 1px;
     background-repeat: no-repeat;
   }
+  pointer-events: auto;
 
   &.bar-clear {
     border: none;
@@ -205,13 +206,10 @@
     }
 
     &.back-button {
+      display: block;
       padding: 0;
       opacity: 0.8;
-      .back-button-title {
-        display: inline-block;
-        vertical-align: middle;
-        margin-left: 4px;
-      }
+      white-space: nowrap;
     }
 
     &.back-button.active,
@@ -227,18 +225,20 @@
   }
 
   .button-bar + .button,
-  .button + .button-bar {
+  .button + .button-bar,
+  .back-button + .buttons,
+  .buttons + .back-button {
     margin-left: 5px;
   }
 
   // Android 4.4 messes with the display property
   .buttons,
-  .buttons.left-buttons,
-  .buttons.right-buttons {
+  .buttons.primary-buttons,
+  .buttons.secondary-buttons {
     display: inherit;
   }
   .buttons span {
-    display: inline-flex;
+    display: inline-block;
   }
 
   // Place the last button in a bar on the right of the bar
@@ -346,3 +346,44 @@
   bottom: $bar-height;
   display: block;
 }
+
+.nav-bar-block {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: $z-index-bar;
+}
+
+.nav-bar-block-active {
+  z-index: $z-index-bar-above;
+
+  .bar {
+    background: red;
+    background: transparent;
+  }
+}
+
+.nav-bar-container .nav-bar-block .nav-bar-stage {
+  .title,
+  .buttons {
+    opacity: 0;
+  }
+}
+
+.nav-bar-container .nav-bar-block .nav-bar-stage,
+.nav-bar-container .nav-bar-block .nav-bar-no-transition {
+  .title,
+  .buttons,
+  .back-text {
+    @include transition-duration(0s);
+  }
+}
+
+.bar .back-button.hide,
+.bar .buttons .hide {
+  display: none;
+}
+

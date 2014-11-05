@@ -11,10 +11,6 @@ input, button, select, textarea{
 .back-button:not(.ng-hide)+div+.title{
   margin-left: -15px;
 }
-.ion-chatbubble.light span {
-  top: 33px;
-  right: 6px;
-}
 .item.comment p.timestamp {
   float: none;
   position: absolute;
@@ -25,8 +21,4 @@ input, button, select, textarea{
 .item.comment p, .item.comment i, .item.comment .text{
   -webkit-transition: none; /* For Safari 3.1 to 6.0 */
   transition: none;
-}
-.ion-chatbubble.light{
-  text-decoration: none;
-  border-bottom: none;
 }

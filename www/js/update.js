@@ -52,13 +52,23 @@ angular.module('ionic.services.update', ['ionic.services.common'])
     function($q) {
       return {
         check: function() {
+          console.log('checking');
           var deferred = $q.defer();
 
-          IonicUpdate.check(function(result) {
-            deferred.resolve(result === 'true');
-          }, function(error) {
-            deferred.reject(error);
-          });
+          if (typeof IonicUpdate != "undefined") {
+            console.log('calling ionicupdate.check')
+            IonicUpdate.check(function(result) {
+              console.log('ionicupdate.check callback success', result)
+              deferred.resolve(result === 'true');
+            }, function(error) {
+              console.log('ionicupdate.check callback fail', error)
+              deferred.reject(error);
+            });
+          } else {
+
+            console.log('ruh roh')
+            deferred.reject("Plugin not loaded");
+          }
 
           return deferred.promise;
         },
@@ -66,15 +76,19 @@ angular.module('ionic.services.update', ['ionic.services.common'])
         download: function() {
           var deferred = $q.defer();
 
-          IonicUpdate.download(function(result) {
-            if (result !== 'true' && result !== 'false') {
-              deferred.notify(result);
-            } else {
-              deferred.resolve(result === 'true');
-            }
-          }, function(error) {
-            deferred.reject(error);
-          });
+          if (typeof IonicUpdate != "undefined") {
+            IonicUpdate.download(function(result) {
+              if (result !== 'true' && result !== 'false') {
+                deferred.notify(result);
+              } else {
+                deferred.resolve(result === 'true');
+              }
+            }, function(error) {
+              deferred.reject(error);
+            });
+          } else {
+            deferred.reject("Plugin not loaded");
+          }
 
           return deferred.promise;
         },
@@ -82,25 +96,33 @@ angular.module('ionic.services.update', ['ionic.services.common'])
         extract: function() {
           var deferred = $q.defer();
 
-          IonicUpdate.extract(function(result) {
-            if (result !== 'done') {
-              deferred.notify(result);
-            } else {
-              deferred.resolve(result);
-            }
-          }, function(error) {
-            deferred.reject(error);
-          });
+          if (typeof IonicUpdate != "undefined") {
+            IonicUpdate.extract(function(result) {
+              if (result !== 'done') {
+                deferred.notify(result);
+              } else {
+                deferred.resolve(result);
+              }
+            }, function(error) {
+              deferred.reject(error);
+            });
+          } else {
+            deferred.reject("Plugin not loaded");
+          }
 
           return deferred.promise;
         },
 
         load: function() {
-          IonicUpdate.redirect();
+          if (typeof IonicUpdate != "undefined") {
+            IonicUpdate.redirect();
+          }
         },
 
         initialize: function(app_id) {
-          IonicUpdate.initialize(app_id);
+          if (typeof IonicUpdate != "undefined") {
+            IonicUpdate.initialize(app_id);
+          }
         }
       }
     }])

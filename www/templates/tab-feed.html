@@ -1,7 +1,4 @@
 <ion-view title="{{pageName}}">
-  <ion-nav-bar class="bar-energized">
-    <ion-nav-back-button class="button-icon icon ion-ios7-arrow-back"></ion-nav-back-button>
-  </ion-nav-bar>
   <ion-content class="has-header" delegate-handle="mainScroll">
     <ion-refresher on-refresh="refresh()">
     </ion-refresher>
@@ -29,6 +26,6 @@
         <small>Check that you are online. If you are, the server may be offline.</small>
       </ion-item>
     </ion-list>
-    <ion-infinite-scroll icon="" on-infinite="loadMoreData()" distance="5%"</ion-infinite-scroll>
+    <ion-infinite-scroll icon="" on-infinite="loadMoreData()" distance="5%"></ion-infinite-scroll>
   </ion-content>
 </ion-view>

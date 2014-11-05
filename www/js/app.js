@@ -6,11 +6,19 @@
 // 'starter.controllers' is found in controllers.js
 // 'frontpage.services' is found in services.js
 angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'frontpage.services', 'frontpage.directives',
+<<<<<<< HEAD
                             'ionic.services.analytics', 'ionic.services.common'
 ])
 
 .run(function($ionicPlatform, $templateCache, $http, $ionicTrack) {
 // .run(function($ionicPlatform, $templateCache, $http) {
+=======
+                             'ionic.services.analytics', 'ionic.services.update'
+])
+
+.run(function($ionicPlatform, $templateCache, $http, $ionicTrack, $ionicUpdate) {
+//.run(function($ionicPlatform, $templateCache, $http) {
+>>>>>>> 7565ab2babc10f37d887197eba65e2518447c09e
   $ionicPlatform.ready(function() {
     // for ios7 style header bars
     if(window.StatusBar) {
@@ -38,27 +46,55 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
     });
 
     $ionicTrack.identify({
-     user_id: '82',
-     name: 'Perry Govier',
-     email: 'perry@drifty.com'
+      user_id: '82',
+      name: 'Perry Govier',
+      email: 'perry@drifty.com'
     });
     $ionicTrack.track('load').then(function(resp) {
       console.log(resp);
     });
 
-
-    // $ionicUpdate.initialize('8cdd99a2')
-    // $ionicUpdate.check().then(function(somevar){
-    //  alert(somevar)
-    // }, function(error){
-    //  alert(error);
-    // })
+    $ionicUpdate.initialize('eb0ef00c')
+    $ionicUpdate.check().then(function(response) {
+      console.log('got a response', response)
+      // response will be true/false
+      if (response) {
+         // Download the updates
+        console.log('downloading updates')
+        $ionicUpdate.download().then(function() {
+               // Extract the updates
+          console.log('extracting updates')
+          $ionicUpdate.extract().then(function() {
+            console.log('update extracted, loading')
+                     // Load the updated version
+                  $ionicTrack.load();
+                }, function(error) {
+            console.log('error extracting')
+                     // Error extracting
+                }, function(progress) {
+                     // Do something with the zip extraction progress
+                  console.log('extraction progress',progress);
+                });
+          }, function(error) {
+          console.log('error downloading');
+                 // Error downloading the updates
+          }, function(progress) {
+                 // Do something with the download progress
+            console.log('progress downloading',progress);
+          });
+        } else {
+               // No updates, load the most up to date version of the app
+        console.log('no update, loading');
+          $ionicUpdate.load();
+        }
+     }, function(error) {
+      console.log('error checking for update');
+        // Error checking for updates
+     })
   });
 })
 
 .config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider) {
-// .config(function($stateProvider, $urlRouterProvider, $httpProvider) {
-
   // Listen to all successful requests, so we can cache some queries
   $httpProvider.interceptors.push('cacheInterceptor');
 

@@ -1,7 +1,8 @@
 <ion-view title="Search">
-  <ion-header>
+  <ion-header-bar>
+    <!-- this view supplied its own ion-header-bar to be used instead of the app's default ion-nav-bar -->
     <search-bar model="searchTerm" focused="focused" submit="search(searchTerm)" clear="clear()"></search-bar>
-  </ion-header>
+  </ion-header-bar>
   <ion-content class="has-header has-footer">
     <ion-list>
       <ion-item class="post-list"
