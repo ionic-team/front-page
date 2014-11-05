@@ -6,11 +6,11 @@
 // 'starter.controllers' is found in controllers.js
 // 'frontpage.services' is found in services.js
 angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'frontpage.services', 'frontpage.directives',
-//                             'ionic.services.analytics', 'ionic.services.update'
+                            'ionic.services.analytics', 'ionic.services.common'
 ])
 
-//.run(function($ionicPlatform, $templateCache, $http, $ionicTrack, $ionicUpdate) {
-.run(function($ionicPlatform, $templateCache, $http) {
+.run(function($ionicPlatform, $templateCache, $http, $ionicTrack) {
+// .run(function($ionicPlatform, $templateCache, $http) {
   $ionicPlatform.ready(function() {
     // for ios7 style header bars
     if(window.StatusBar) {
@@ -37,32 +37,36 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
       $http.get('templates/'+tpl+'.html', { cache: $templateCache });
     });
 
-    //$ionicTrack.identify({
-    //  user_id: '99',
-    //  name: 'Perry Govier',
-    //  email: 'perry@drifty.com'
-    //});
+    $ionicTrack.identify({
+     user_id: '82',
+     name: 'Perry Govier',
+     email: 'perry@drifty.com'
+    });
+    $ionicTrack.track('load').then(function(resp) {
+      console.log(resp);
+    });
 
-    //$ionicUpdate.initialize('8cdd99a2')
-    //$ionicUpdate.check().then(function(somevar){
+
+    // $ionicUpdate.initialize('8cdd99a2')
+    // $ionicUpdate.check().then(function(somevar){
     //  alert(somevar)
-    //}, function(error){
+    // }, function(error){
     //  alert(error);
-    //})
+    // })
   });
 })
 
-//.config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider) {
-.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
+.config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider) {
+// .config(function($stateProvider, $urlRouterProvider, $httpProvider) {
 
   // Listen to all successful requests, so we can cache some queries
   $httpProvider.interceptors.push('cacheInterceptor');
 
   // register app with analytics
-  //$ionicAppProvider.identify({
-  //  app_id: 'b661da31',
-  //  write_key: 'd4ddb1d982c3ce52a16a230383d1e7c080f96fe9ba89704e55676c30ebaeb5be693a6c08d0141b2bae93c9cd6c5e7c1cdeb558d64626ad1a33bf554edd8289c6e7e7711233a7901ee91d584c92e15e0f55d1fdb16fa95aefe8e44bfee38e1ee186ccec1d3b159d68869557d15b9e5e8789c7cc16016073a1e7557d80b725c466a69a98615af958a5c1474e7937d914a0'
-  //});
+  $ionicAppProvider.identify({
+    app_id: '7b04900f',
+    api_write_key: 'a1e784e75da43fd6bd2c6d594ac1133c5ac71ae3bf375278aa9f3c4ff565c1c935dd11ad6c9b2d9fe9895c7c7f57a9c948bddddb3d2b8043491690bbb57cf2601a7a513e1392635c05714df3972a537d5a48fa3c162ca6b7717478c24bba6e8d0316dbbbf13594bfeb78895710e6396601c8238ce0eaa0dfa42c3e247912f6604fab57edd3cf0f3afa6a011a132de67b'
+  });
 
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router

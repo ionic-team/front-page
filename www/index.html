@@ -32,11 +32,16 @@
     <script src="js/directives.js"></script>
 
     <script src="js/platform.js"></script>
+
+    <!-- Analytics stuff added -->
+    <script src="lib/ionic-service-analytics/ionic-analytics.js"></script>
+    <script src="lib/ionic-service-common/ionicCore.js"></script>
+
   </head>
   <body ng-app="frontpage" ion-track-auto ng-controller="MainCtrl">
     <!-- Moved the nav bar in to template files because we need more granular control of its markup -->
 
-    <!-- 
+    <!--
       The views will be rendered in the <ion-nav-view> directive below
       Templates are in the /templates folder (but you could also
       have templates inline in this html file if you'd like).
