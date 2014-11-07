@@ -1,5 +1,46 @@
 angular.module('ionic.services.analytics', ['ionic.services.common'])
 
+/**
+ * @private
+ * When the app runs, add some heuristics to track for UI events.
+ */
+.run(['$ionicTrack', 'scopeClean', function($ionicTrack, scopeClean) {
+  // Load events are how we track usage
+  $ionicTrack.track('load');
+
+  $ionicTrack.addType({
+    name: 'button',
+    shouldHandle: function(event) {
+    },
+    handle: function(event, data) {
+      if(!event.type === 'click' || !event.target || !event.target.classList.contains('button')) {
+        return;
+      }
+      $ionicTrack.trackClick(event.pageX, event.pageY, event.target);
+    }
+  });
+
+  $ionicTrack.addType({
+    name: 'tab-item',
+    handle: function(event, data) {
+      console.log(event);
+      if(!event.type === 'click' || !event.target) {
+        return;
+      }
+      var item = ionic.DomUtil.getParentWithClass(event.target, 'tab-item', 3);
+      if(!item) {
+        return;
+      }
+
+      var itemScope = angular.element(item).scope();
+
+      $ionicTrack.trackClick(event.pageX, event.pageY, event.target, {
+        scope: scopeClean(itemScope)
+      });
+    }
+  });
+}])
+
 .provider('$ionicAnalytics', function() {
   return {
     $get: ['$ionicApp', function($ionicApp) {
@@ -97,44 +138,6 @@ angular.module('ionic.services.analytics', ['ionic.services.common'])
   }
   return clean;
 })
-
-/**
- * @private
- * When the app runs, add some heuristics to track for UI events.
- */
-.run(['$ionicTrack', 'scopeClean', function($ionicTrack, scopeClean) {
-  $ionicTrack.addType({
-    name: 'button',
-    shouldHandle: function(event) {
-    },
-    handle: function(event, data) {
-      if(!event.type === 'click' || !event.target || !event.target.classList.contains('button')) {
-        return;
-      }
-      $ionicTrack.trackClick(event.pageX, event.pageY, event.target);
-    }
-  });
-
-  $ionicTrack.addType({
-    name: 'tab-item',
-    handle: function(event, data) {
-      console.log(event);
-      if(!event.type === 'click' || !event.target) {
-        return;
-      }
-      var item = ionic.DomUtil.getParentWithClass(event.target, 'tab-item', 3);
-      if(!item) {
-        return;
-      }
-
-      var itemScope = angular.element(item).scope();
-
-      $ionicTrack.trackClick(event.pageX, event.pageY, event.target, {
-        scope: scopeClean(itemScope)
-      });
-    }
-  });
-}])
 
 .factory('$ionicUser', [
   '$q',

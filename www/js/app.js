@@ -6,19 +6,11 @@
 // 'starter.controllers' is found in controllers.js
 // 'frontpage.services' is found in services.js
 angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'frontpage.services', 'frontpage.directives',
-<<<<<<< HEAD
-                            'ionic.services.analytics', 'ionic.services.common'
-])
-
-.run(function($ionicPlatform, $templateCache, $http, $ionicTrack) {
-// .run(function($ionicPlatform, $templateCache, $http) {
-=======
                              'ionic.services.analytics', 'ionic.services.update'
 ])
 
 .run(function($ionicPlatform, $templateCache, $http, $ionicTrack, $ionicUpdate) {
 //.run(function($ionicPlatform, $templateCache, $http) {
->>>>>>> 7565ab2babc10f37d887197eba65e2518447c09e
   $ionicPlatform.ready(function() {
     // for ios7 style header bars
     if(window.StatusBar) {
@@ -49,9 +41,6 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
       user_id: '82',
       name: 'Perry Govier',
       email: 'perry@drifty.com'
-    });
-    $ionicTrack.track('load').then(function(resp) {
-      console.log(resp);
     });
 
     $ionicUpdate.initialize('eb0ef00c')
