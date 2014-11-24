@@ -1,70 +1,38 @@
 
-
 // iOS View Transitions
 // -------------------------------
 
-$ios-transition-view-duration:              420ms !default;
-$ios-transition-view-timing-function:       cubic-bezier(.3, .9, .4, 1) !default;
-$ios-transition-container-bg-color:         #000 !default;
+$ios-transition-duration:              450ms !default;
+$ios-transition-timing-function:       cubic-bezier(.3, .9, .4, 1) !default;
+$ios-transition-container-bg-color:    #000 !default;
 
 
-.ios-transition.nav-forward {
-  background-color: $ios-transition-container-bg-color;
+[nav-view-transition="ios"] {
 
-  .nav-view-add {
-    // set the animation for the entering view
-    @include animation-name( slideInFromRight );
+  [nav-view="entering"],
+  [nav-view="leaving"] {
+    @include transition-duration( $ios-transition-duration );
+    @include transition-timing-function( $ios-transition-timing-function );
+    -webkit-transition-property: opacity, -webkit-transform;
+            transition-property: opacity, transform;
+  }
+
+  &[nav-view-direction="forward"],
+  &[nav-view-direction="back"] {
+    background-color: $ios-transition-container-bg-color;
+  }
+
+  [nav-view="active"],
+  &[nav-view-direction="forward"] [nav-view="entering"],
+  &[nav-view-direction="back"] [nav-view="leaving"] {
     z-index: $z-index-view-above;
   }
 
-  .nav-view-remove {
-    // set the animation for the leaving view
-    @include animation-name( slideOutToLeft33, fadeOutToPartial );
+  &[nav-view-direction="back"] [nav-view="entering"],
+  &[nav-view-direction="forward"] [nav-view="leaving"] {
     z-index: $z-index-view-below;
   }
 
-}
-
-.ios-transition.nav-back {
-  background-color: $ios-transition-container-bg-color;
-
-  .nav-view-add {
-    // set the animation for the entering view
-    @include animation-name( slideInFromLeft33, fadeInFromPartial );
-    z-index: $z-index-view-below;
-  }
-
-  .nav-view-remove {
-    // set the animation for the leaving view
-    @include animation-name( slideOutToRight );
-    z-index: $z-index-view-above;
-  }
-
-}
-
-.ios-transition.nav-enter,
-.ios-transition.nav-exit {
-
-  .nav-view-add {
-    // set the animation for the entering view
-    @include animation-name( fadeIn );
-    @include animation-duration( $ios-transition-view-duration / 2 );
-    z-index: $z-index-view-above;
-  }
-
-  .nav-view-remove {
-    // set the animation for the leaving view
-    @include animation-name( fadeOutToPartial );
-    @include animation-duration( $ios-transition-view-duration / 2 );
-    z-index: $z-index-view-below;
-  }
-
-}
-
-.ios-transition .nav-view-add,
-.ios-transition .nav-view-remove {
-  @include animation-duration( $ios-transition-view-duration );
-  @include animation-timing-function( $ios-transition-view-timing-function );
 }
 
 
@@ -72,239 +40,140 @@ $ios-transition-container-bg-color:         #000 !default;
 // iOS Nav Bar Transitions
 // -------------------------------
 
-.ios-nav-bar .nav-bar-block {
+[nav-bar-transition="ios"] {
 
   .title,
   .buttons,
   .back-text {
-    @include transition-duration( $ios-transition-view-duration );
-    @include transition-timing-function( $ios-transition-view-timing-function );
-    -webkit-transition-property: opacity, -webkit-transform, transition;
-            transition-property: opacity, transform, -webkit-transform;
+    @include transition-duration( $ios-transition-duration );
+    @include transition-timing-function( $ios-transition-timing-function );
+    -webkit-transition-property: opacity, -webkit-transform;
+            transition-property: opacity, transform;
+  }
+
+  [nav-bar="active"],
+  [nav-bar="entering"] {
+    z-index: $z-index-bar-above;
+
+   .bar {
+      background: transparent;
+    }
+  }
+
+  [nav-bar="cached"] {
+    display: block;
+
+    .header-item {
+      display: none;
+    }
   }
 
 }
 
 
 
-// Android Transitions
+// Android View Transitions
 // -------------------------------
 
-$android-transition-view-duration:              300ms !default;
-$android-transition-view-timing-function:       cubic-bezier(0.4, 0.6, 0.2, 1) !default;
-$android-view-slide-start-y:                    20%;
+$android-transition-duration-entering:       250ms !default;
+$android-transition-duration-leaving:        160ms !default;
+$android-transition-timing-entering:         cubic-bezier(0.4, 0.6, 0.2, 1) !default;
+$android-transition-timing-leaving:          cubic-bezier(0.4, 0, 1, 1) !default;
 
-.android-transition.nav-forward {
 
-  .nav-view-entering,
-  .nav-bar-entering {
-    // where the entering view will be immediately before the transition
-    @include translate3d(0, $android-view-slide-start-y, 0);
+[nav-view-transition="android"] {
+
+  [nav-view="entering"],
+  [nav-view="leaving"] {
+    @include transition-duration( $android-transition-duration-entering );
+    @include transition-timing-function( $android-transition-timing-entering );
+    -webkit-transition-property: opacity, -webkit-transform;
+            transition-property: opacity, transform;
   }
 
-  .nav-view-entering.nav-view,
-  .nav-bar-entering.nav-bar {
-    // where the entering view will be immediately after the transition
-    @include translate3d(0, 0, 0);
+  [nav-view="leaving"] {
+    @include transition-duration( $android-transition-duration-leaving );
+    @include transition-timing-function( $android-transition-timing-leaving );
   }
 
-  .nav-view-add,
-  .nav-bar-add {
-    // set the animation for the entering view
-    @include animation-name( androidViewSlideIn, fadeIn );
-    @include animation-duration( $android-transition-view-duration );
-    @include animation-timing-function( $android-transition-view-timing-function );
-  }
-  .nav-view-add {
+  [nav-view="active"],
+  &[nav-view-direction="forward"] [nav-view="entering"],
+  &[nav-view-direction="back"] [nav-view="leaving"] {
     z-index: $z-index-view-above;
   }
-  .nav-bar-add {
+
+  &[nav-view-direction="back"] [nav-view="entering"],
+  &[nav-view-direction="forward"] [nav-view="leaving"] {
+    z-index: $z-index-view-below;
+  }
+
+  .tabs-top > .view-container > [history-cursor="after-root"] {
+    z-index: $z-index-tabs + 1;
+  }
+
+  [history-cursor="after-root"] > .has-tabs-top {
+    top: $bar-height;
+  }
+
+  .tabs-top.tabs-striped > .view-container {
+    position: static;
+  }
+
+}
+
+
+
+// Android Nav Bar Transitions
+// -------------------------------
+
+[nav-bar-transition="android"] {
+
+  [nav-bar="entering"],
+  [nav-bar="leaving"] {
+    @include transition-duration( $android-transition-duration-entering );
+    @include transition-timing-function( $android-transition-timing-entering );
+    -webkit-transition-property: opacity, -webkit-transform;
+            transition-property: opacity, transform;
+  }
+
+  [nav-bar="leaving"] {
+    @include transition-duration( $android-transition-duration-leaving );
+    @include transition-timing-function( $android-transition-timing-leaving );
+  }
+
+  [nav-bar="cached"] {
+    display: none;
+  }
+
+  [nav-bar="active"],
+  &[nav-bar-direction="forward"] [nav-bar="entering"],
+  &[nav-bar-direction="back"] [nav-bar="leaving"] {
     z-index: $z-index-bar-above;
   }
 
-  .nav-view-remove,
-  .nav-bar-remove {
-    // set the animation for the leaving view
-    @include translate3d(0, 0, 0);
-    @include animation-name( fadeOutToPartial );
-    @include animation-duration( $android-transition-view-duration );
-    @include animation-timing-function( $android-transition-view-timing-function );
-  }
-  .nav-view-remove {
-    z-index: $z-index-view-below;
-  }
-
 }
 
-.android-transition.nav-back {
 
-  .nav-view-entering,
-  .nav-view-entering.nav-view,
-  .nav-bar-entering,
-  .nav-bar-entering.nav-bar {
-    // where the entering view will be immediately before the transition
-    // where the entering view will be immediately after the transition
-    @include translate3d(0, 0, 0);
-  }
 
-  .nav-view-entering,
-  .nav-view-entering.nav-view {
-    z-index: $z-index-view-below;
-  }
-
-  .nav-view-remove,
-  .nav-bar-remove {
-    // set the animation for the leaving view
-    @include animation-name( androidViewSlideOut, fadeOut );
-    @include animation-duration( $android-transition-view-duration );
-    @include animation-timing-function( $android-transition-view-timing-function );
-  }
-
-  .nav-view-remove {
-    z-index: $z-index-view-above;
-  }
-
-  .nav-bar-remove {
-    z-index: $z-index-bar-above;
-  }
-
-}
-
-// Android View Slide In From Bottom Keyframes
+// Transition Settings
 // -------------------------------
 
-@-webkit-keyframes androidViewSlideIn {
-  from { -webkit-transform: translate3d(0, $android-view-slide-start-y, 0); }
-  to   { -webkit-transform: translate3d(0, 0, 0); }
-}
-@keyframes androidViewSlideIn {
-  from { transform: translate3d(0, $android-view-slide-start-y, 0); }
-  to   { transform: translate3d(0, 0, 0); }
+[nav-view="cached"],
+[nav-bar="cached"] {
+  display: none;
 }
 
-// Android View Slide Out To Bottom Keyframes
-// -------------------------------
-
-@-webkit-keyframes androidViewSlideOut {
-  from { -webkit-transform: translate3d(0, 0, 0); }
-  to   { -webkit-transform: translate3d(0, $android-view-slide-start-y, 0); }
-}
-@keyframes androidViewSlideOut {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(0, $android-view-slide-start-y, 0); }
-}
-
-.android-transition.nav-enter,
-.android-transition.nav-exit {
-
-  .nav-view-entering,
-  .nav-view-leaving {
-    @include translate3d(0, 0, 0);
-  }
-
-  .nav-view-add {
-    // set the animation for the entering view
-    @include animation-name( fadeIn );
-    @include animation-duration( $android-transition-view-duration / 2 );
-    @include animation-timing-function( $android-transition-view-timing-function );
-    z-index: $z-index-view-above;
-  }
-
-  .nav-view-remove {
-    // set the animation for the leaving view
-    @include animation-name( fadeOutToPartial );
-    @include animation-duration( $android-transition-view-duration / 2 );
-    @include animation-timing-function( $android-transition-view-timing-function );
-    z-index: $z-index-view-below;
-  }
-
-}
-
-.android-transition {
-  .nav-bar-entering, // entering: before animate
-  .nav-bar-active.nav-bar-leaving // leaving: after animate
-  {
-    opacity: 0;
-  }
-
-  .nav-bar-entering.nav-bar, // entering: during and after animate
-  .nav-bar-active.nav-bar-leaving.ng-animate // leaving: before and during animate
-  {
-    opacity: 1;
-  }
-}
-
-
-
-// Intermediate Settings Between Steps Of A Transition
-// -------------------------------
-// These prevent flickers as elements are added and removed,
-// holds their correct opacity between setting final states
-
-.nav-view-entering, // entering: before animate
-.nav-view-active.nav-view-leaving // leaving: after animate
-{
+[nav-view="stage"] {
   opacity: 0;
+  @include transition-duration( 0 );
 }
 
-.nav-view-entering.nav-view, // entering: during and after animate
-.nav-view-active.nav-view-leaving.ng-animate // leaving: before and during animate
-{
-  opacity: 1;
+[nav-bar="stage"] {
+  .title,
+  .buttons,
+  .back-text {
+    opacity: 0;
+    @include transition-duration(0s);
+  }
 }
 
-
-
-
-// Transition Defaults (no animation)
-// -------------------------------
-
-.nav-view-add,
-.nav-bar-add {
-  @include animation-name( fadeIn );
-}
-
-.nav-view-remove,
-.nav-bar-remove {
-  @include animation-name( fadeOut );
-}
-
-.nav-view-add,
-.nav-view-remove,
-.nav-bar-add,
-.nav-bar-remove,
-.nav-swap .nav-view-entering {
-  opacity: 1;
-  @include animation-duration( 0 );
-}
-
-// required for Android
-.ng-animate .pane {
-  position: absolute;
-}
-
-.pane {
-  @include animation-fill-mode( both );
-}
-
-
-
-// Slide up from the bottom, used for modals
-// -------------------------------
-
-.slide-in-up {
-  @include translate3d(0, 100%, 0);
-}
-.slide-in-up.ng-enter,
-.slide-in-up > .ng-enter {
-  @include transition(all cubic-bezier(.1, .7, .1, 1) 400ms);
-}
-.slide-in-up.ng-enter-active,
-.slide-in-up > .ng-enter-active {
-  @include translate3d(0, 0, 0);
-}
-
-.slide-in-up.ng-leave,
-.slide-in-up > .ng-leave {
-  @include transition(all ease-in-out 250ms);
-}

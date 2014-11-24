@@ -207,6 +207,7 @@
 
     &.back-button {
       display: block;
+      margin-right: 5px;
       padding: 0;
       opacity: 0.8;
       white-space: nowrap;
@@ -225,9 +226,7 @@
   }
 
   .button-bar + .button,
-  .button + .button-bar,
-  .back-button + .buttons,
-  .buttons + .back-button {
+  .button + .button-bar {
     margin-left: 5px;
   }
 
@@ -239,6 +238,12 @@
   }
   .buttons span {
     display: inline-block;
+  }
+  .buttons-left span {
+    margin-right: 5px;
+  }
+  .buttons-right span {
+    margin-left: 5px;
   }
 
   // Place the last button in a bar on the right of the bar
@@ -351,37 +356,12 @@
   position: absolute;
   top: 0;
   right: 0;
-  bottom: 0;
   left: 0;
   pointer-events: none;
   z-index: $z-index-bar;
 }
 
-.nav-bar-block-active {
-  z-index: $z-index-bar-above;
-
-  .bar {
-    background: red;
-    background: transparent;
-  }
-}
-
-.nav-bar-container .nav-bar-block .nav-bar-stage {
-  .title,
-  .buttons {
-    opacity: 0;
-  }
-}
-
-.nav-bar-container .nav-bar-block .nav-bar-stage,
-.nav-bar-container .nav-bar-block .nav-bar-no-transition {
-  .title,
-  .buttons,
-  .back-text {
-    @include transition-duration(0s);
-  }
-}
-
+.bar .back-button.back-disabled,
 .bar .back-button.hide,
 .bar .buttons .hide {
   display: none;

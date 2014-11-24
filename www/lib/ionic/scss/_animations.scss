@@ -1,0 +1,20 @@
+
+// Slide up from the bottom, used for modals
+// -------------------------------
+
+.slide-in-up {
+  @include translate3d(0, 100%, 0);
+}
+.slide-in-up.ng-enter,
+.slide-in-up > .ng-enter {
+  @include transition(all cubic-bezier(.1, .7, .1, 1) 400ms);
+}
+.slide-in-up.ng-enter-active,
+.slide-in-up > .ng-enter-active {
+  @include translate3d(0, 0, 0);
+}
+
+.slide-in-up.ng-leave,
+.slide-in-up > .ng-leave {
+  @include transition(all ease-in-out 250ms);
+}

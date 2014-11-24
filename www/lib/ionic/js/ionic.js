@@ -27,28 +27,28 @@ window.ionic.version = '1.0.0-beta.13';
 
   function domReady() {
     isDomReady = true;
-    for(var x=0; x<readyCallbacks.length; x++) {
+    for (var x = 0; x < readyCallbacks.length; x++) {
       ionic.requestAnimationFrame(readyCallbacks[x]);
     }
     readyCallbacks = [];
     document.removeEventListener('DOMContentLoaded', domReady);
   }
-  if (!isDomReady){
+  if (!isDomReady) {
     document.addEventListener('DOMContentLoaded', domReady);
   }
-  
+
 
   // From the man himself, Mr. Paul Irish.
   // The requestAnimationFrame polyfill
   // Put it on window just to preserve its context
   // without having to use .call
-  window._rAF = (function(){
-    return  window.requestAnimationFrame       ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame    ||
-            function( callback ){
-              window.setTimeout(callback, 16);
-            };
+  window._rAF = (function() {
+    return window.requestAnimationFrame       ||
+           window.webkitRequestAnimationFrame ||
+           window.mozRequestAnimationFrame    ||
+           function(callback) {
+             window.setTimeout(callback, 16);
+           };
   })();
 
   var cancelAnimationFrame = window.cancelAnimationFrame ||
@@ -135,7 +135,7 @@ window.ionic.version = '1.0.0-beta.13';
      * @param {function} callback The function to be called.
      */
     ready: function(cb) {
-      if(isDomReady) {
+      if (isDomReady) {
         ionic.requestAnimationFrame(cb);
       } else {
         readyCallbacks.push(cb);
@@ -157,12 +157,12 @@ window.ionic.version = '1.0.0-beta.13';
      *   - `{number}` `height` The height of the textNode.
      */
     getTextBounds: function(textNode) {
-      if(document.createRange) {
+      if (document.createRange) {
         var range = document.createRange();
         range.selectNodeContents(textNode);
-        if(range.getBoundingClientRect) {
+        if (range.getBoundingClientRect) {
           var rect = range.getBoundingClientRect();
-          if(rect) {
+          if (rect) {
             var sx = window.scrollX;
             var sy = window.scrollY;
 
@@ -191,13 +191,13 @@ window.ionic.version = '1.0.0-beta.13';
      * @returns {number} The index, or -1, of a child with nodeName matching type.
      */
     getChildIndex: function(element, type) {
-      if(type) {
+      if (type) {
         var ch = element.parentNode.children;
         var c;
-        for(var i = 0, k = 0, j = ch.length; i < j; i++) {
+        for (var i = 0, k = 0, j = ch.length; i < j; i++) {
           c = ch[i];
-          if(c.nodeName && c.nodeName.toLowerCase() == type) {
-            if(c == element) {
+          if (c.nodeName && c.nodeName.toLowerCase() == type) {
+            if (c == element) {
               return k;
             }
             k++;
@@ -233,8 +233,8 @@ window.ionic.version = '1.0.0-beta.13';
      */
     getParentWithClass: function(e, className, depth) {
       depth = depth || 10;
-      while(e.parentNode && depth--) {
-        if(e.parentNode.classList && e.parentNode.classList.contains(className)) {
+      while (e.parentNode && depth--) {
+        if (e.parentNode.classList && e.parentNode.classList.contains(className)) {
           return e.parentNode;
         }
         e = e.parentNode;
@@ -251,8 +251,8 @@ window.ionic.version = '1.0.0-beta.13';
      */
     getParentOrSelfWithClass: function(e, className, depth) {
       depth = depth || 10;
-      while(e && depth--) {
-        if(e.classList && e.classList.contains(className)) {
+      while (e && depth--) {
+        if (e.classList && e.classList.contains(className)) {
           return e;
         }
         e = e.parentNode;
@@ -273,9 +273,51 @@ window.ionic.version = '1.0.0-beta.13';
      * {x1,y1,x2,y2}.
      */
     rectContains: function(x, y, x1, y1, x2, y2) {
-      if(x < x1 || x > x2) return false;
-      if(y < y1 || y > y2) return false;
+      if (x < x1 || x > x2) return false;
+      if (y < y1 || y > y2) return false;
       return true;
+    },
+
+    /**
+     * @ngdoc method
+     * @name ionic.DomUtil#blurAll
+     * @description
+     * Blurs any currently focused input element
+     * @returns {DOMElement} The element blurred or null
+     */
+    blurAll: function() {
+      if (document.activeElement && document.activeElement != document.body) {
+        document.activeElement.blur();
+        return document.activeElement;
+      }
+      return null;
+    },
+
+    cachedAttr: function(ele, key, value) {
+      ele = ele && ele.length && ele[0] || ele;
+      if (ele && ele.setAttribute) {
+        var dataKey = '$attr-' + key;
+        if (arguments.length > 2) {
+          if (ele[dataKey] !== value) {
+            ele.setAttribute(key, value);
+            ele[dataKey] = value;
+          }
+        } else if (typeof ele[dataKey] == 'undefined') {
+          ele[dataKey] = ele.getAttribute(key);
+        }
+        return ele[dataKey];
+      }
+    },
+
+    cachedStyles: function(ele, styles) {
+      ele = ele && ele.length && ele[0] || ele;
+      if (ele && ele.style) {
+        for (var prop in styles) {
+          if (ele['$style-' + prop] !== styles[prop]) {
+            ele.style[prop] = ele['$style-' + prop] = styles[prop];
+          }
+        }
+      }
     }
   };
 
@@ -283,6 +325,7 @@ window.ionic.version = '1.0.0-beta.13';
   ionic.requestAnimationFrame = ionic.DomUtil.requestAnimationFrame;
   ionic.cancelAnimationFrame = ionic.DomUtil.cancelAnimationFrame;
   ionic.animationFrameThrottle = ionic.DomUtil.animationFrameThrottle;
+
 })(window, document, ionic);
 
 /**
@@ -2222,7 +2265,7 @@ window.ionic.version = '1.0.0-beta.13';
     windowLoadListenderAttached = true;
     window.addEventListener("load", onWindowLoad, false);
   }
-
+  
   window.addEventListener("load", onWindowLoad, false);
 
   function onPlatformReady() {
@@ -2879,7 +2922,8 @@ function tapHasPointerMoved(endEvent) {
   }
   var endCoordinates = ionic.tap.pointerCoord(endEvent);
 
-  var hasClassList = !!(endEvent.target.classList && endEvent.target.classList.contains);
+  var hasClassList = !!(endEvent.target.classList && endEvent.target.classList.contains &&
+    typeof endEvent.target.classList.contains === 'function');
   var releaseTolerance = hasClassList && endEvent.target.classList.contains('button') ?
     TAP_RELEASE_BUTTON_TOLERANCE :
     TAP_RELEASE_TOLERANCE;
@@ -2934,38 +2978,38 @@ ionic.DomUtil.ready(function(){
 
       // when an element is touched/clicked, it climbs up a few
       // parents to see if it is an .item or .button element
-      ionic.requestAnimationFrame(function(){
-        if ( ionic.tap.requiresNativeClick(e.target) ) return;
+      ionic.requestAnimationFrame(function() {
+        if (ionic.tap.requiresNativeClick(e.target)) return;
         var ele = e.target;
         var eleToActivate;
 
-        for(var x=0; x<6; x++) {
-          if(!ele || ele.nodeType !== 1) break;
-          if(eleToActivate && ele.classList.contains('item')) {
+        for (var x = 0; x < 6; x++) {
+          if (!ele || ele.nodeType !== 1) break;
+          if (eleToActivate && ele.classList.contains('item')) {
             eleToActivate = ele;
             break;
           }
-          if( ele.tagName == 'A' || ele.tagName == 'BUTTON' || ele.hasAttribute('ng-click') ) {
+          if (ele.tagName == 'A' || ele.tagName == 'BUTTON' || ele.hasAttribute('ng-click')) {
             eleToActivate = ele;
             break;
           }
-          if( ele.classList.contains('button') ) {
+          if (ele.classList.contains('button')) {
             eleToActivate = ele;
             break;
           }
           // no sense climbing past these
-          if(ele.classList.contains('pane') || ele.tagName == 'BODY' || ele.tagName == 'ION-CONTENT'){
+          if (ele.classList.contains('pane') || ele.tagName == 'BODY' || ele.tagName == 'ION-CONTENT') {
             break;
           }
           ele = ele.parentElement;
         }
 
-        if(eleToActivate) {
+        if (eleToActivate) {
           // queue that this element should be set to active
           queueElements[keyId] = eleToActivate;
 
           // in XX milliseconds, set the queued elements to active
-          if(e.type === 'touchstart') {
+          if (e.type === 'touchstart') {
             self._activateTimeout = setTimeout(activateElements, 80);
           } else {
             ionic.requestAnimationFrame(activateElements);
@@ -2995,8 +3039,8 @@ ionic.DomUtil.ready(function(){
 
   function activateElements() {
     // activate all elements in the queue
-    for(var key in queueElements) {
-      if(queueElements[key]) {
+    for (var key in queueElements) {
+      if (queueElements[key]) {
         queueElements[key].classList.add(ACTIVATED_CLASS);
         activeElements[key] = queueElements[key];
       }
@@ -3010,8 +3054,8 @@ ionic.DomUtil.ready(function(){
       return;
     }
 
-    for(var key in activeElements) {
-      if(activeElements[key]) {
+    for (var key in activeElements) {
+      if (activeElements[key]) {
         activeElements[key].classList.remove(ACTIVATED_CLASS);
         delete activeElements[key];
       }
@@ -3255,29 +3299,97 @@ ionic.DomUtil.ready(function(){
 
 function trueFn() { return true; }
 
-ionic.Utils.list = list;
+ionic.Utils.list = wrapList;
 
-function list(initialArray) {
+// Expose previous and next publicly so we can use them
+// without having to instantiate a whole list wrapper.
+ionic.Utils.list.next = listNext;
+ionic.Utils.list.previous = listPrevious;
 
-  var array =  angular.isArray(initialArray) ? initialArray : [];
+// Get the index after the given index.
+// Takes looping and the given filterFn into account.
+function listNext(list, isLooping, index, filterFn) {
+  filterFn = filterFn || trueFn;
+  if (index < 0 || index >= list.length) return -1;
+
+  // Keep adding 1 to index, trying to find an index that passes filterFn.
+  // If we loop through *everything* and get back to our original index, return -1.
+  // We don't use recursion here because Javascript sucks at recursion.
+  var nextIndex = index + 1;
+  while ( nextIndex !== index ) {
+
+    if (nextIndex === list.length) {
+      if (isLooping) nextIndex -= list.length;
+      else break;
+    } else {
+      if (filterFn(list[nextIndex], nextIndex)) {
+        return nextIndex;
+      }
+      nextIndex++;
+    }
+  }
+  return -1;
+}
+
+// Get the index before the given index.
+// Takes looping and the given filterFn into account.
+function listPrevious(list, isLooping, index, filterFn) {
+  filterFn = filterFn || trueFn;
+  if (index < 0 || index >= list.length) return -1;
+
+  // Keep subtracting 1 from index, trying to find an index that passes filterFn.
+  // If we loop through *everything* and get back to our original index, return -1.
+  // We don't use recursion here because Javascript sucks at recursion.
+  var prevIndex = index - 1;
+  while ( prevIndex !== index ) {
+
+    if (prevIndex === -1) {
+      if (isLooping) prevIndex += list.length;
+      else break;
+    } else {
+      if (filterFn(list[prevIndex], prevIndex)) {
+        return prevIndex;
+      }
+      prevIndex--;
+    }
+  }
+  return -1;
+}
+
+
+// initialList may be a nodeList or an list,
+// so we don't expect it to have any list methods
+function wrapList(initialList) {
+
+  var list = initialList || [];
   var self = {};
   var isLooping = false;
 
   // The Basics
   self.items = items;
-  self.add = add;
-  self.remove = remove;
+
+  // add and remove are array-ONLY, if we're given a nodeList
+  // it's immutable
+  if (angular.isArray(list)) {
+    self.add = add;
+    self.remove = remove;
+  }
+
   self.at = at;
   self.count = count;
-  self.indexOf = angular.bind(array, array.indexOf);
+  self.indexOf = indexOf;
   self.isInRange = isInRange;
   self.loop = loop;
 
   // The Crazy Ones
   self.delta = delta;
   self.isRelevant = isRelevant;
-  self.previous = previous;
-  self.next = next;
+  self.previous = function(index, filterFn) {
+    return listPrevious(list, isLooping, index, filterFn);
+  };
+  self.next = function(index, filterFn) {
+    return listNext(list, isLooping, index, filterFn);
+  };
 
   return self;
 
@@ -3285,29 +3397,37 @@ function list(initialArray) {
   // Public methods
   // ***************
   function items() {
-    return array;
+    return list;
   }
   function add(item, index) {
-    if (!self.isInRange(index)) index = array.length;
-    array.splice(index, 0, item);
+    if (!self.isInRange(index)) index = list.length;
+    list.splice(index, 0, item);
+
     return index;
   }
 
   function remove(index) {
     if (!self.isInRange(index)) return;
-    array.splice(index, 1);
+    list.splice(index, 1);
   }
 
   function at(index) {
-    return array[index];
+    return list[index];
   }
 
   function count() {
-    return array.length;
+    return list.length;
+  }
+
+  function indexOf(item) {
+    for (var i = 0, ii = list.length; i < ii; i++) {
+      if (list[i] === item) return i;
+    }
+    return -1;
   }
 
   function isInRange(index) {
-    return index > -1 && index < array.length;
+    return angular.isNumber(index) && index > -1 && index < list.length;
   }
 
   function loop(newIsLooping) {
@@ -3346,56 +3466,6 @@ function list(initialArray) {
       index === self.previous(someIndex) ||
       index === self.next(someIndex)
     );
-  }
-
-  // Get the index after the given index.
-  // Takes looping and the given filterFn into account.
-  function next(index, filterFn) {
-    filterFn = filterFn || trueFn;
-    if (!self.isInRange(index)) return -1;
-
-    // Keep adding 1 to index, trying to find an index that passes filterFn.
-    // If we loop through *everything* and get back to our original index, return -1.
-    // We don't use recursion here because Javascript sucks at recursion.
-    var nextIndex = index + 1;
-    while ( nextIndex !== index ) {
-
-      if (nextIndex === array.length) {
-        if (isLooping) nextIndex -= array.length;
-        else break;
-      } else {
-        if (filterFn(array[nextIndex], nextIndex)) {
-          return nextIndex;
-        }
-        nextIndex++;
-      }
-    }
-    return -1;
-  }
-
-  // Get the index before the given index.
-  // Takes looping and the given filterFn into account.
-  function previous(index, filterFn) {
-    filterFn = filterFn || trueFn;
-    if (!self.isInRange(index)) return -1;
-
-    // Keep subtracting 1 from index, trying to find an index that passes filterFn.
-    // If we loop through *everything* and get back to our original index, return -1.
-    // We don't use recursion here because Javascript sucks at recursion.
-    var prevIndex = index - 1;
-    while ( prevIndex !== index ) {
-
-      if (prevIndex === -1) {
-        if (isLooping) prevIndex += array.length;
-        else break;
-      } else {
-        if (filterFn(array[prevIndex], prevIndex)) {
-          return prevIndex;
-        }
-        prevIndex--;
-      }
-    }
-    return -1;
   }
 
 }
@@ -3547,7 +3617,7 @@ function keyboardNativeShow(e) {
 }
 
 function keyboardBrowserFocusIn(e) {
-  if( !e.target || !ionic.tap.isTextInput(e.target) || ionic.tap.isDateInput(e.target) || !keyboardIsWithinScroll(e.target) ) return;
+  if( !e.target || e.target.readOnly || !ionic.tap.isTextInput(e.target) || ionic.tap.isDateInput(e.target) || !keyboardIsWithinScroll(e.target) ) return;
 
   document.addEventListener('keydown', keyboardOnKeyDown, false);
 
@@ -4883,7 +4953,9 @@ ionic.views.Scroll = ionic.views.View.inherit({
         width = 0;
       }
       if (width !== self.__indicatorX.size) {
-        self.__indicatorX.indicator.style.width = width + 'px';
+        ionic.requestAnimationFrame(function(){
+          self.__indicatorX.indicator.style.width = width + 'px';
+        });
       }
       self.__indicatorX.size = width;
       self.__indicatorX.minScale = self.options.minScrollbarSizeX / width;
@@ -4898,7 +4970,9 @@ ionic.views.Scroll = ionic.views.View.inherit({
         height = 0;
       }
       if (height !== self.__indicatorY.size) {
-        self.__indicatorY.indicator.style.height = height + 'px';
+        ionic.requestAnimationFrame(function(){
+          self.__indicatorY.indicator.style.height = height + 'px';
+        });
       }
       self.__indicatorY.size = height;
       self.__indicatorY.minScale = self.options.minScrollbarSizeY / height;
@@ -6319,16 +6393,16 @@ ionic.scroll = {
       return;
     }
 
-    if(e.target.classList.contains(ITEM_CONTENT_CLASS)) {
+    if (e.target.classList.contains(ITEM_CONTENT_CLASS)) {
       content = e.target;
-    } else if(e.target.classList.contains(ITEM_CLASS)) {
+    } else if (e.target.classList.contains(ITEM_CLASS)) {
       content = e.target.querySelector('.' + ITEM_CONTENT_CLASS);
     } else {
       content = ionic.DomUtil.getParentWithClass(e.target, ITEM_CONTENT_CLASS);
     }
 
     // If we don't have a content area as one of our children (or ourselves), skip
-    if(!content) {
+    if (!content) {
       return;
     }
 
@@ -6340,7 +6414,7 @@ ionic.scroll = {
 
     // Grab the buttons
     buttons = content.parentNode.querySelector('.' + ITEM_OPTIONS_CLASS);
-    if(!buttons) {
+    if (!buttons) {
       return;
     }
     buttons.classList.remove('invisible');
@@ -6359,7 +6433,7 @@ ionic.scroll = {
    * Check if this is the same item that was previously dragged.
    */
   SlideDrag.prototype.isSameItem = function(op) {
-    if(op._lastDrag && this._currentDrag) {
+    if (op._lastDrag && this._currentDrag) {
       return this._currentDrag.content == op._lastDrag.content;
     }
     return false;
@@ -6368,7 +6442,7 @@ ionic.scroll = {
   SlideDrag.prototype.clean = function(e) {
     var lastDrag = this._lastDrag;
 
-    if(!lastDrag) return;
+    if (!lastDrag || !lastDrag.content) return;
 
     lastDrag.content.style[ionic.CSS.TRANSITION] = '';
     lastDrag.content.style[ionic.CSS.TRANSFORM] = '';
@@ -6383,27 +6457,26 @@ ionic.scroll = {
     var buttonsWidth;
 
     // We really aren't dragging
-    if(!this._currentDrag) {
+    if (!this._currentDrag) {
       return;
     }
 
     // Check if we should start dragging. Check if we've dragged past the threshold,
     // or we are starting from the open state.
-    if(!this._isDragging &&
+    if (!this._isDragging &&
         ((Math.abs(e.gesture.deltaX) > this.dragThresholdX) ||
-        (Math.abs(this._currentDrag.startOffsetX) > 0)))
-    {
+        (Math.abs(this._currentDrag.startOffsetX) > 0))) {
       this._isDragging = true;
     }
 
-    if(this._isDragging) {
+    if (this._isDragging) {
       buttonsWidth = this._currentDrag.buttonsWidth;
 
       // Grab the new X point, capping it at zero
       var newX = Math.min(0, this._currentDrag.startOffsetX + e.gesture.deltaX);
 
       // If the new X position is past the buttons, we need to slow down the drag (rubber band style)
-      if(newX < -buttonsWidth) {
+      if (newX < -buttonsWidth) {
         // Calculate the new X position, capped at the top of the buttons
         newX = Math.min(-buttonsWidth, -buttonsWidth + (((e.gesture.deltaX + buttonsWidth) * 0.4)));
       }
@@ -6417,7 +6490,7 @@ ionic.scroll = {
     var _this = this;
 
     // There is no drag, just end immediately
-    if(!this._currentDrag) {
+    if (!this._currentDrag) {
       doneCallback && doneCallback();
       return;
     }
@@ -6428,19 +6501,19 @@ ionic.scroll = {
 
     // Check if the drag didn't clear the buttons mid-point
     // and we aren't moving fast enough to swipe open
-    if(e.gesture.deltaX > -(this._currentDrag.buttonsWidth/2)) {
+    if (e.gesture.deltaX > -(this._currentDrag.buttonsWidth / 2)) {
 
       // If we are going left but too slow, or going right, go back to resting
-      if(e.gesture.direction == "left" && Math.abs(e.gesture.velocityX) < 0.3) {
+      if (e.gesture.direction == "left" && Math.abs(e.gesture.velocityX) < 0.3) {
         restingPoint = 0;
-      } else if(e.gesture.direction == "right") {
+      } else if (e.gesture.direction == "right") {
         restingPoint = 0;
       }
 
     }
 
     ionic.requestAnimationFrame(function() {
-      if(restingPoint === 0) {
+      if (restingPoint === 0) {
         _this._currentDrag.content.style[ionic.CSS.TRANSFORM] = '';
         var buttons = _this._currentDrag.buttons;
         setTimeout(function() {
@@ -6453,12 +6526,11 @@ ionic.scroll = {
 
 
       // Kill the current drag
-      if(_this._lastDrag) {
-        _this._lastDrag.buttons = null;
-        _this._lastDrag.content = null;
+      if (!_this._lastDrag) {
+        _this._lastDrag = {};
       }
-      _this._lastDrag = _this._currentDrag;
-      if(_this._currentDrag) {
+      angular.extend(_this._lastDrag, _this._currentDrag);
+      if (_this._currentDrag) {
         _this._currentDrag.buttons = null;
         _this._currentDrag.content = null;
       }
@@ -6494,7 +6566,7 @@ ionic.scroll = {
       this.scrollView.getValues().top -
       (this._currentDrag.elementHeight / 2) -
       this.listElTrueTop;
-    this.el.style[ionic.CSS.TRANSFORM] = 'translate3d(0, '+y+'px, 0)';
+    this.el.style[ionic.CSS.TRANSFORM] = 'translate3d(0, ' + y + 'px, 0)';
   };
 
   ReorderDrag.prototype.deregister = function() {
@@ -6530,7 +6602,7 @@ ionic.scroll = {
   ReorderDrag.prototype.drag = ionic.animationFrameThrottle(function(e) {
     // We really aren't dragging
     var self = this;
-    if(!this._currentDrag) {
+    if (!this._currentDrag) {
       return;
     }
 
@@ -6545,8 +6617,8 @@ ionic.scroll = {
       scrollY = this.scrollView.getValues().top;
 
       var containerTop = container.offsetTop;
-      var pixelsPastTop = containerTop - pageY + this._currentDrag.elementHeight/2;
-      var pixelsPastBottom = pageY + this._currentDrag.elementHeight/2 - containerTop - container.offsetHeight;
+      var pixelsPastTop = containerTop - pageY + this._currentDrag.elementHeight / 2;
+      var pixelsPastBottom = pageY + this._currentDrag.elementHeight / 2 - containerTop - container.offsetHeight;
 
       if (e.gesture.deltaY < 0 && pixelsPastTop > 0 && scrollY > 0) {
         this.scrollView.scrollBy(null, -pixelsPastTop);
@@ -6568,11 +6640,11 @@ ionic.scroll = {
 
     // Check if we should start dragging. Check if we've dragged past the threshold,
     // or we are starting from the open state.
-    if(!this._isDragging && Math.abs(e.gesture.deltaY) > this.dragThresholdY) {
+    if (!this._isDragging && Math.abs(e.gesture.deltaY) > this.dragThresholdY) {
       this._isDragging = true;
     }
 
-    if(this._isDragging) {
+    if (this._isDragging) {
       this._moveElement(e);
 
       this._currentDrag.currentY = scrollY + pageY - offset;
@@ -6611,7 +6683,7 @@ ionic.scroll = {
   };
 
   ReorderDrag.prototype.end = function(e, doneCallback) {
-    if(!this._currentDrag) {
+    if (!this._currentDrag) {
       doneCallback && doneCallback();
       return;
     }
@@ -6657,7 +6729,7 @@ ionic.scroll = {
 
       ionic.extend(this, opts);
 
-      if(!this.itemHeight && this.listEl) {
+      if (!this.itemHeight && this.listEl) {
         this.itemHeight = this.listEl.children[0] && parseInt(this.listEl.children[0].style.height, 10);
       }
 
@@ -6702,7 +6774,7 @@ ionic.scroll = {
      * of active elements in order to figure out the viewport to render.
      */
     didScroll: function(e) {
-      if(this.isVirtual) {
+      if (this.isVirtual) {
         var itemHeight = this.itemHeight;
 
         // TODO: This would be inaccurate if we are windowed
@@ -6744,8 +6816,8 @@ ionic.scroll = {
     },
 
     didStopScrolling: function(e) {
-      if(this.isVirtual) {
-        for(var i = 0; i < this._virtualItemsToRemove.length; i++) {
+      if (this.isVirtual) {
+        for (var i = 0; i < this._virtualItemsToRemove.length; i++) {
           var el = this._virtualItemsToRemove[i];
           //el.parentNode.removeChild(el);
           this.didHideItem && this.didHideItem(i);
@@ -6759,7 +6831,7 @@ ionic.scroll = {
      * Clear any active drag effects on the list.
      */
     clearDragEffects: function() {
-      if(this._lastDragOp) {
+      if (this._lastDragOp) {
         this._lastDragOp.clean && this._lastDragOp.clean();
         this._lastDragOp.deregister && this._lastDragOp.deregister();
         this._lastDragOp = null;
@@ -6770,7 +6842,7 @@ ionic.scroll = {
       //ionic.views.ListView.__super__._initDrag.call(this);
 
       // Store the last one
-      if(this._lastDragOp) {
+      if (this._lastDragOp) {
         this._lastDragOp.deregister && this._lastDragOp.deregister();
       }
       this._lastDragOp = this._dragOp;
@@ -6780,8 +6852,8 @@ ionic.scroll = {
 
     // Return the list item from the given target
     _getItem: function(target) {
-      while(target) {
-        if(target.classList && target.classList.contains(ITEM_CLASS)) {
+      while (target) {
+        if (target.classList && target.classList.contains(ITEM_CLASS)) {
           return target;
         }
         target = target.parentNode;
@@ -6800,11 +6872,16 @@ ionic.scroll = {
       var lastDragOp = this._lastDragOp;
       var item;
 
+      // If we have an open SlideDrag and we're scrolling the list. Clear it.
+      if (this._didDragUpOrDown && lastDragOp instanceof SlideDrag) {
+          lastDragOp.clean && lastDragOp.clean();
+      }
+
       // Check if this is a reorder drag
-      if(ionic.DomUtil.getParentOrSelfWithClass(e.target, ITEM_REORDER_BTN_CLASS) && (e.gesture.direction == 'up' || e.gesture.direction == 'down')) {
+      if (ionic.DomUtil.getParentOrSelfWithClass(e.target, ITEM_REORDER_BTN_CLASS) && (e.gesture.direction == 'up' || e.gesture.direction == 'down')) {
         item = this._getItem(e.target);
 
-        if(item) {
+        if (item) {
           this._dragOp = new ReorderDrag({
             listEl: this.el,
             el: item,
@@ -6820,11 +6897,11 @@ ionic.scroll = {
       }
 
       // Or check if this is a swipe to the side drag
-      else if(!this._didDragUpOrDown && (e.gesture.direction == 'left' || e.gesture.direction == 'right') && Math.abs(e.gesture.deltaX) > 5) {
+      else if (!this._didDragUpOrDown && (e.gesture.direction == 'left' || e.gesture.direction == 'right') && Math.abs(e.gesture.deltaX) > 5) {
 
         // Make sure this is an item with buttons
         item = this._getItem(e.target);
-        if(item && item.querySelector('.item-options')) {
+        if (item && item.querySelector('.item-options')) {
           this._dragOp = new SlideDrag({ el: this.el, canSwipe: this.canSwipe });
           this._dragOp.start(e);
           e.preventDefault();
@@ -6832,7 +6909,7 @@ ionic.scroll = {
       }
 
       // If we had a last drag operation and this is a new one on a different item, clean that last one
-      if(lastDragOp && this._dragOp && !this._dragOp.isSameItem(lastDragOp) && e.defaultPrevented) {
+      if (lastDragOp && this._dragOp && !this._dragOp.isSameItem(lastDragOp) && e.defaultPrevented) {
         lastDragOp.clean && lastDragOp.clean();
       }
     },
@@ -6843,7 +6920,7 @@ ionic.scroll = {
 
       this._didDragUpOrDown = false;
 
-      if(!this._dragOp) {
+      if (!this._dragOp) {
         //ionic.views.ListView.__super__._handleEndDrag.call(this, e);
         return;
       }
@@ -6859,18 +6936,18 @@ ionic.scroll = {
     _handleDrag: function(e) {
       var _this = this, content, buttons;
 
-      if(Math.abs(e.gesture.deltaY) > 5) {
+      if (Math.abs(e.gesture.deltaY) > 5) {
         this._didDragUpOrDown = true;
       }
 
       // If we get a drag event, make sure we aren't in another drag, then check if we should
       // start one
-      if(!this.isDragging && !this._dragOp) {
+      if (!this.isDragging && !this._dragOp) {
         this._startDrag(e);
       }
 
       // No drag still, pass it up
-      if(!this._dragOp) {
+      if (!this._dragOp) {
         //ionic.views.ListView.__super__._handleDrag.call(this, e);
         return;
       }
