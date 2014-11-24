@@ -1,7 +1,12 @@
-angular.module('frontpage.controllers', [])
+angular.module('frontpage.controllers', ['ionic.services.analytics'])
 
-.controller('MainCtrl', function($scope){
+.controller('MainCtrl', function($scope, $ionicTrack){
   $scope.open = function(url){
+    // Send event to analytics service
+    $ionicTrack.track('open', {
+      url: url
+    });
+
     // open the page in the inAppBrowser plugin. Falls back to a blank page if the plugin isn't installed
     var params = 'location=no,' +
       'enableViewportScale=yes,' +

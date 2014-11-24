@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+
+    <title>Sample UL</title>
+    <link href="../ionic/dist/css/ionic.css" rel="stylesheet">
+    <script src="../ionic/dist/js/ionic.bundle.js"></script>
+
+    <script src="../ionic-service-common/ionicCore.js"></script>
+    <script src="ionic-analytics.js"></script>
+  </head>
+  <body ng-app="myApp" ng-controller="MyCtrl" ion-track-auto>
+    <!--
+      The nav bar that will be updated as we navigate between views.
+    -->
+    <ion-nav-bar class="bar-stable nav-title-slide-ios7">
+      <ion-nav-back-button class="button-icon icon ion-chevron-left">
+        Back
+      </ion-nav-back-button>
+    </ion-nav-bar>
+    <!--
+      The views will be rendered in the <ion-nav-view> directive below
+      Templates are in the /templates folder (but you could also
+      have templates inline in this html file if you'd like).
+    -->
+    <ion-nav-view></ion-nav-view>
+
+    <script id="tabs.html" type="text/ng-template">
+    <!--
+      Create tabs with an icon and label, using the tabs-positive style.
+      Each tab's child <ion-nav-view> directive will have its own
+      navigation history that also transitions its views in and out.
+    -->
+    <ion-tabs class="tabs-icon-top">
+
+
+      <!-- Pets Tab -->
+      <ion-tab title="Dashboard" icon="icon ion-home" href="#/tab/dash">
+        <ion-nav-view name="tab-dash"></ion-nav-view>
+      </ion-tab>
+
+
+      <!-- Adopt Tab -->
+      <ion-tab title="Friends" icon="icon ion-heart" href="#/tab/friends">
+        <ion-nav-view name="tab-friends"></ion-nav-view>
+      </ion-tab>
+
+
+      <!-- About Tab -->
+      <ion-tab title="Account" icon="icon ion-gear-b" href="#/tab/account">
+        <ion-nav-view name="tab-account"></ion-nav-view>
+      </ion-tab>
+
+
+    </ion-tabs>
+    </script>
+    <script id="dash.html" type="text/ng-template">
+      <button class="button button-primary">Tap</button>
+    </script>
+    <script id="friend.html" type="text/ng-template">
+      <button class="button button-primary">Tap</button>
+    </script>
+    <script id="friends.html" type="text/ng-template">
+      <button class="button button-primary">Tap</button>
+    </script>
+    <script id="account.html" type="text/ng-template">
+      <button class="button button-primary">Tap</button>
+    </script>
+
+    <script>
+      angular.module('myApp', ['ionic', 'ionic.services.analytics', 'ionic.services.common'])
+
+      .run(function($ionicPlatform) {
+        $ionicPlatform.ready(function() {
+          // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+          // for form inputs)
+          if(window.cordova && window.cordova.plugins.Keyboard) {
+            cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+          }
+          if(window.StatusBar) {
+            // org.apache.cordova.statusbar required
+            StatusBar.styleDefault();
+          }
+        });
+      })
+
+      .config(function($stateProvider, $urlRouterProvider) {
+
+        // Ionic uses AngularUI Router which uses the concept of states
+        // Learn more here: https://github.com/angular-ui/ui-router
+        // Set up the various states which the app can be in.
+        // Each state's controller can be found in controllers.js
+        $stateProvider
+
+          // setup an abstract state for the tabs directive
+          .state('tab', {
+            url: "/tab",
+            abstract: true,
+            templateUrl: "tabs.html"
+          })
+
+          // Each tab has its own nav history stack:
+
+          .state('tab.dash', {
+            url: '/dash',
+            views: {
+              'tab-dash': {
+                templateUrl: 'dash.html'
+              }
+            }
+          })
+
+          .state('tab.friends', {
+            url: '/friends',
+            views: {
+              'tab-friends': {
+                templateUrl: 'friends.html'
+              }
+            }
+          })
+          .state('tab.friend-detail', {
+            url: '/friend/:friendId',
+            views: {
+              'tab-friends': {
+                templateUrl: 'friend.html'
+              }
+            }
+          })
+
+          .state('tab.account', {
+            url: '/account',
+            views: {
+              'tab-account': {
+                templateUrl: 'account.html'
+              }
+            }
+          })
+
+        // if none of the above states are matched, use this as the fallback
+        $urlRouterProvider.otherwise('/tab/dash');
+
+      })
+
+
+      .config(['$ionicAppProvider', function($ionicAppProvider) {
+        $ionicAppProvider.identify({
+          app_id: 'b8ca7003',
+          api_write_key: 'a0c500211de02a4d7396a973561638a947211d65d1aa5df74cd97328b234421063187c0880bd719cae560d25dcb45079e1585d0fe648df09e5fa82afc348e5eb73880e60e4666ae6cf7b59682b3753d3f7f559d819dac6d592dea9e286f5b28b5701cd7e221d7ab9dca8ab5f16151aca8a93cafb987b6413610b9a5b46bb3ef56e7db34e5a5415cc54f45af092b12f1c'
+        });
+      }])
+
+      .controller('MyCtrl', function($ionicTrack, $scope) {
+        $scope.name = 'Max';
+        $ionicTrack.identify({
+          user_id: '99',
+          name: 'Max Lynch',
+          email: 'max@drifty.com'
+        });
+        $ionicTrack.track('Load').then(function(resp) {
+          console.log(resp);
+        });
+      });
+    </script>
+  </body>
+</html>

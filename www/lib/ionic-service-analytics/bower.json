@@ -1,0 +1,21 @@
+{
+  "name": "ionic-service-analytics",
+  "version": "0.0.1",
+  "homepage": "http://ionic.io",
+  "authors": [
+    "Max Lynch <max@ionicframework.com>"
+  ],
+  "description": "Ionic Mobile Platform Analytics client",
+  "main": "ionicAnalytics.js",
+  "license": "Apache2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "keen-js": "~3.0.8"
+  }
+}
