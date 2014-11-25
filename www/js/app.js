@@ -37,12 +37,6 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
       $http.get('templates/'+tpl+'.html', { cache: $templateCache });
     });
 
-    $ionicTrack.identify({
-      user_id: '82',
-      name: 'Perry Govier',
-      email: 'perry@drifty.com'
-    });
-
     $ionicUpdate.initialize('eb0ef00c')
     $ionicUpdate.check().then(function(response) {
       console.log('got a response', response)
@@ -56,7 +50,7 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
           $ionicUpdate.extract().then(function() {
             console.log('update extracted, loading')
                      // Load the updated version
-                  $ionicTrack.load();
+                  $ionicUpdate.load();
                 }, function(error) {
             console.log('error extracting')
                      // Error extracting
