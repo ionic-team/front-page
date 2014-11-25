@@ -50,7 +50,7 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
           $ionicUpdate.extract().then(function() {
             console.log('update extracted, loading')
                      // Load the updated version
-                  $ionicTrack.load();
+                  $ionicUpdate.load();
                 }, function(error) {
             console.log('error extracting')
                      // Error extracting

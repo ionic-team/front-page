@@ -25,7 +25,7 @@ angular.module('ionic.services.update', ['ionic.services.common'])
  *            // Extract the updates
  *            $ionicUpdate.extract().then(function() {
  *                // Load the updated version
- *                $ionicTrack.load();
+ *                $ionicUpdate.load();
  *            }, function(error) {
  *                // Error extracting
  *            }, function(progress) {
