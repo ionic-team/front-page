@@ -1,0 +1,27 @@
+{
+  "name": "ionic-service-update",
+  "homepage": "http://ionic.io",
+  "authors": [
+    "Max Lynch <max@ionicframework.com>"
+  ],
+  "description": "Ionic Mobile Platform Update client",
+  "main": "ionicUpdate.js",
+  "license": "Apache2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "d86199027f",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "d86199027f7bb10f05567f0395e81e4573cbb44a"
+  },
+  "_source": "https://github.com/driftyco/ionic-service-update.git",
+  "_target": "*",
+  "_originalSource": "https://github.com/driftyco/ionic-service-update.git",
+  "_direct": true
+}

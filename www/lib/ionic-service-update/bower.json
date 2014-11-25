@@ -1,0 +1,18 @@
+{
+  "name": "ionic-service-update",
+  "version": "0.0.1",
+  "homepage": "http://ionic.io",
+  "authors": [
+    "Max Lynch <max@ionicframework.com>"
+  ],
+  "description": "Ionic Mobile Platform Update client",
+  "main": "ionicUpdate.js",
+  "license": "Apache2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

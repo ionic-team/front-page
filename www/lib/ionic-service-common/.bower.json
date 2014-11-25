@@ -1,0 +1,27 @@
+{
+  "name": "ionic-service-common",
+  "homepage": "http://ionic.io",
+  "authors": [
+    "Max Lynch <max@ionicframework.com>"
+  ],
+  "description": "Core features for the Ionic Mobile Platform",
+  "main": "ionicCore.js",
+  "license": "Apache2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "03dba763b4",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "03dba763b4f1709fbb78481298b32b165c46ed43"
+  },
+  "_source": "https://github.com/driftyco/ionic-service-common.git",
+  "_target": "*",
+  "_originalSource": "https://github.com/driftyco/ionic-service-common.git",
+  "_direct": true
+}
