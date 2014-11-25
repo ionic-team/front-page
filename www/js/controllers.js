@@ -20,10 +20,9 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
       iab = null;
     });
   };
-
 })
 
-.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state, $timeout, $ionicScrollDelegate) {
+.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state) {
   $scope.pageName = 'Front Page';
   $scope.posts = RequestCache.get('frontpage/1');
   var currentPage = 1;
@@ -115,7 +114,6 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   $scope.focused= 'centered';
   $scope.searchTerm = '';
   $scope.posts = [];
-  console.log(localStorage.searchCache);
   if(typeof localStorage.searchCache != 'undefined'){
     var sc = JSON.parse(localStorage.searchCache);
     $scope.searchTerm = sc.term;
