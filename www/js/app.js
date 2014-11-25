@@ -37,12 +37,6 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
       $http.get('templates/'+tpl+'.html', { cache: $templateCache });
     });
 
-    $ionicTrack.identify({
-      user_id: '82',
-      name: 'Perry Govier',
-      email: 'perry@drifty.com'
-    });
-
     $ionicUpdate.initialize('eb0ef00c')
     $ionicUpdate.check().then(function(response) {
       console.log('got a response', response)
