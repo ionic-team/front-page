@@ -11,21 +11,17 @@
                 collection-item-height="92"
                 ng-class="post.points > 0?'item-icon-right':''"
                 ng-show="post.title.length"
-                fp-share
-                style="-webkit-calc(100% - 30px);">
-        <div style="display: table-row; height:90px;" ng-click="open(post.url)">
-          <div style="display:table-cell;vertical-align: middle;">
-            <h2>{{post.title}}</h2>
-            <p>
-              <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
-              <span ng-if="post.submitted_on.length">{{post.submitted_on}} &nbsp;</span>
-              <span ng-if="post.submitted_by.length"> {{post.submitted_by}}</span>
-            </p>
-          </div>
-        </div>
+                fp-share style="">
+
         <a ng-if="post.comments != null" class="icon ion-chatbubble light" ng-click="loadComments(post.id)">
-          <span>{{post.comments}}</span>
+          {{post.comments}}
         </a>
+        <h2 ng-click="open(post.url)">{{post.title}}</h2>
+        <p>
+          <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
+          {{post.submitted_on}} &nbsp;
+          {{post.submitted_by}}
+        </p>
       </ion-item>
       <ion-item class="padding text-center" ng-if="error">
         <h3>Request Failed</h3>
