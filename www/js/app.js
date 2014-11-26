@@ -27,16 +27,6 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
       navigator.splashscreen.hide();
     }
 
-    // Lastly, we pre-load templates so page transitions are sexy-smooth
-    var templates = [
-      "tab-feed",
-      "tab-search",
-      "tab-comments"
-    ];
-    templates.forEach(function(tpl){
-      $http.get('templates/'+tpl+'.html', { cache: $templateCache });
-    });
-
     $ionicUpdate.initialize(ionic.Config.app_id)
     $ionicUpdate.check().then(function(response) {
       console.log('got a response', response)

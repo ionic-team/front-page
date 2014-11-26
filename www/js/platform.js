@@ -36,3 +36,30 @@ angular.module('frontpage.directives', [])
       }
     };
   })
+// custom directive to bind to hold events and trigger the sharing plugin
+// expects the parent scope to contain a post item from the HNAPI service
+  .directive('fpShare', function($ionicGesture) {
+    return {
+      restrict :  'A',
+      link : function(scope, elem) {
+        $ionicGesture.on('hold',share , elem);
+
+        function share(){
+          if(typeof window.plugins === 'undefined' || typeof window.plugins.socialsharing === 'undefined'){
+            console.error("Social Sharing Cordova Plugin not found. Disregard if on a desktop browser.");
+            return;
+          }
+          window.plugins
+            .socialsharing
+            .share(null,
+            null,
+            null,
+            scope.$parent.post.url)
+        }
+
+        scope.$on('$destroy',function(){
+          $ionicGesture.off('hold',share , elem);
+        })
+      }
+    }
+  });

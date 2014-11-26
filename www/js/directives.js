@@ -39,19 +39,25 @@ angular.module('frontpage.directives', [])
 .directive('fpShare', function($ionicGesture) {
   return {
     restrict :  'A',
-    link : function(scope, elem, attrs) {
-      $ionicGesture.on('hold', function(){
+    link : function(scope, elem) {
+      $ionicGesture.on('hold',share , elem);
+
+      function share(){
         if(typeof window.plugins === 'undefined' || typeof window.plugins.socialsharing === 'undefined'){
           console.error("Social Sharing Cordova Plugin not found. Disregard if on a desktop browser.");
           return;
         }
         window.plugins
           .socialsharing
-          .share(scope.$parent.post.title+' - Via FrontPage the Ionic Framework Hacker News App',
+          .share(null,
           null,
           null,
           scope.$parent.post.url)
-      }, elem);
+      }
+
+      scope.$on('$destroy',function(){
+        $ionicGesture.off('hold',share , elem);
+      })
     }
   }
 });
