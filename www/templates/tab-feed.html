@@ -9,12 +9,15 @@
                 collection-item-height="92"
                 ng-class="post.points > 0?'item-icon-right':''"
                 ng-show="post.title.length"
-                fp-share style="">
+                fp-share
+                ng-click="open(post.url)">
 
-        <a ng-if="post.comments != null" class="icon ion-chatbubble light" ng-click="loadComments(post.id)">
+        <a ng-if="post.comments != null"
+           class="icon ion-chatbubble light"
+           ng-click="loadComments(post.id); $event.stopPropagation()">
           {{post.comments}}
         </a>
-        <h2 ng-click="open(post.url)">{{post.title}}</h2>
+        <h2>{{post.title}}</h2>
         <p>
           <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
           {{post.submitted_on}} &nbsp;
