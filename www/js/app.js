@@ -37,7 +37,7 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
       $http.get('templates/'+tpl+'.html', { cache: $templateCache });
     });
 
-    $ionicUpdate.initialize('eb0ef00c')
+    $ionicUpdate.initialize(ionic.Config.app_id)
     $ionicUpdate.check().then(function(response) {
       console.log('got a response', response)
       // response will be true/false
@@ -78,14 +78,13 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
 })
 
 .config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider) {
+  $ionicAppProvider.identify({
+    "app_id": ionic.Config.app_id,
+    "api_write_key": ionic.Config.api_write_key
+  })
+
   // Listen to all successful requests, so we can cache some queries
   $httpProvider.interceptors.push('cacheInterceptor');
-
-  // register app with analytics
-  $ionicAppProvider.identify({
-    app_id: '7b04900f',
-    api_write_key: 'a1e784e75da43fd6bd2c6d594ac1133c5ac71ae3bf375278aa9f3c4ff565c1c935dd11ad6c9b2d9fe9895c7c7f57a9c948bddddb3d2b8043491690bbb57cf2601a7a513e1392635c05714df3972a537d5a48fa3c162ca6b7717478c24bba6e8d0316dbbbf13594bfeb78895710e6396601c8238ce0eaa0dfa42c3e247912f6604fab57edd3cf0f3afa6a011a132de67b'
-  });
 
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
