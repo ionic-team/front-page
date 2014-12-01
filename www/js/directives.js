@@ -69,10 +69,6 @@ angular.module('frontpage.directives', [])
           null,
           scope.$parent.post.url)
       }
-
-      scope.$on('$destroy',function(){
-        $ionicGesture.off('hold',share , elem);
-      })
     }
   }
 });

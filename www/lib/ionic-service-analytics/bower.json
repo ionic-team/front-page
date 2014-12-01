@@ -6,7 +6,7 @@
     "Max Lynch <max@ionicframework.com>"
   ],
   "description": "Ionic Mobile Platform Analytics client",
-  "main": "ionicAnalytics.js",
+  "main": "ionic-analytics.js",
   "license": "Apache2",
   "ignore": [
     "**/.*",

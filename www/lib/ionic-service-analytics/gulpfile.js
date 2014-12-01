@@ -8,7 +8,6 @@ var gulp = require('gulp'),
   jshint = require('gulp-jshint'),
   uglify = require('gulp-uglify'),
   rename = require('gulp-rename'),
-  karma = require('karma').server,
   sass = require('gulp-sass'),
   watch = require('gulp-watch');
 

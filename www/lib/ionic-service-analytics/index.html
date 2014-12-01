@@ -57,13 +57,13 @@
     </ion-tabs>
     </script>
     <script id="dash.html" type="text/ng-template">
-      <button class="button button-primary">Tap</button>
+      <button class="button button-primary" ion-track="thisEvent" ion-track-data="{'name': 'thing'}">Tap</button>
     </script>
     <script id="friend.html" type="text/ng-template">
-      <button class="button button-primary">Tap</button>
+      <button class="button button-primary" ion-track="thisEvent" ion-track-data="friend">Tap</button>
     </script>
     <script id="friends.html" type="text/ng-template">
-      <button class="button button-primary">Tap</button>
+      <button class="button button-primary" ion-track="thisEvent" ion-track-data="friend">Tap</button>
     </script>
     <script id="account.html" type="text/ng-template">
       <button class="button button-primary">Tap</button>
@@ -116,7 +116,8 @@
             url: '/friends',
             views: {
               'tab-friends': {
-                templateUrl: 'friends.html'
+                templateUrl: 'friends.html',
+                controller: 'FriendCtrl'
               }
             }
           })
@@ -143,7 +144,6 @@
 
       })
 
-
       .config(['$ionicAppProvider', function($ionicAppProvider) {
         $ionicAppProvider.identify({
           app_id: 'b8ca7003',
@@ -158,9 +158,11 @@
           name: 'Max Lynch',
           email: 'max@drifty.com'
         });
-        $ionicTrack.track('Load').then(function(resp) {
-          console.log(resp);
-        });
+      })
+      .controller('FriendCtrl', function($scope) {
+        $scope.friend = {
+          name: 'Max'
+        };
       });
     </script>
   </body>

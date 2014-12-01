@@ -5,8 +5,15 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
 // 'frontpage.services' is found in services.js
-angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'frontpage.services', 'frontpage.directives',
-                             'ionic.services.analytics', 'ionic.services.update'
+angular.module('frontpage', [
+  'ngAnimate',
+  'ionic',
+  'frontpage.controllers',
+  'frontpage.services',
+  'frontpage.directives',
+  'ionic.services.analytics',
+  'ionic.services.update',
+  'cfp.loadingBar'
 ])
 
 .run(function($ionicPlatform, $templateCache, $http, $ionicTrack, $ionicUpdate) {
@@ -66,7 +73,9 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
      })
   });
 })
-
+  .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
+    cfpLoadingBarProvider.includeSpinner = false;
+  }])
 .config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider) {
   $ionicAppProvider.identify({
     "app_id": ionic.Config.app_id,

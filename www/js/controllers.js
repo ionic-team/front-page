@@ -20,9 +20,10 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
       iab = null;
     });
   };
+
 })
 
-.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state) {
+.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state, cfpLoadingBar, $timeout) {
   $scope.pageName = 'Front Page';
   $scope.posts = RequestCache.get('frontpage/1');
   var currentPage = 1;
@@ -36,16 +37,25 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   };
   $scope.refresh();
   $scope.loadMoreData = function(){
+    cfpLoadingBar.start();
     currentPage++;
     HNAPI.frontpage(currentPage).then(function(posts){
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
       $scope.error = false;
-    }, function(){$scope.error = true;});
+      $timeout(cfpLoadingBar.complete,300);
+    }, function(){
+      $scope.error = true;
+      cfpLoadingBar.complete();
+    });
   };
   $scope.loadComments = function(storyID){
     $state.go('tab.front-page-comments',{storyID:storyID});
-  }
+  };
+  //make sure we always clear any existing loading bars
+  $scope.$on('$ionicView.beforeLeave', function(){
+    cfpLoadingBar.complete();
+  });
 })
 
 .controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state) {
@@ -85,19 +95,13 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
     $timeout(function() {
       $scope.comments = comments;
     },350);
-  },$scope.requestFail);
-
-  $timeout(function(){
-    if($scope.comments < 1)$scope.requestFail();
-  }, 10000);
-
-  $scope.requestFail = function(){
+  },function(){
     console.log('request failed');
     $scope.comments = [];
-    $scope.requestFailed = true;
-    if($scope.loading === false)return;
+    $scope.problem = true;
     $scope.loading = false;
-  };
+  });
+
   $scope.trust = function(comment){
     return $sce.trustAsHtml(comment);
   };

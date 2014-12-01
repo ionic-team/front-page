@@ -286,13 +286,6 @@ ion-nav-view{
 }
 
 .platform-android{
-  .ionic-body, .tab-item,
-  h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6,
-  p, span, .ion-chatbubble.light span,
-  input, button, select, textarea{
-    font-family: Roboto, Helvetica, Arial, "Lucida Grande", sans-serif;
-    font-weight: 500;
-  }
   .scroll-content{
     overflow: hidden;
   }
@@ -309,5 +302,46 @@ ion-nav-view{
   .item.comment p, .item.comment i, .item.comment .text{
     -webkit-transition: none; /* For Safari 3.1 to 6.0 */
     transition: none;
+  }
+}
+
+#loading-bar{
+  -webkit-transition: 350ms linear all;
+  transition: 350ms linear all;
+
+  &.ng-enter,
+  &.ng-leave.ng-leave-active{
+    opacity: 0;
+  }
+  &.ng-enter.ng-enter-active,
+  &.ng-leave{
+    opacity: 1;
+  }
+  .x-bar {
+    -webkit-transition: width 350ms;
+    transition: width 350ms;
+
+    background: $energized;
+    position: fixed;
+    z-index: 10002;
+    bottom: 48px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    border-bottom-right-radius: 1px;
+    border-top-right-radius: 1px;
+    .peg {
+      position: absolute;
+      width: 70px;
+      right: 0;
+      top: 0;
+      height: 2px;
+      opacity: .45;
+//      -ms-box-shadow: $energized 2px 0 6px 2px;
+//      -webkit-box-shadow: $energized 2px 0 6px 2px;
+//      box-shadow: $energized 2px 0 6px 2px;
+      -webkit-border-radius: 100%;
+      border-radius: 100%;
+    }
   }
 }

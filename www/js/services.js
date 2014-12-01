@@ -6,7 +6,8 @@ angular.module('frontpage.services', [])
 
 .factory('HNAPI', function($rootScope, $http, $q) {
   // define the API in just one place so it's easy to update
-  var apiURL = 'http://hn-api.ionic.io/';
+  var apiURL = 'http://hn-api.ionic.io/',
+      config = {timeout: 10000};
 
   function validateResponse(result){
     return !(typeof result.data != 'array' && typeof result.data != 'object');
@@ -21,45 +22,44 @@ angular.module('frontpage.services', [])
     // get all recent posts
     frontpage: function(page) {
       var q = $q.defer();
-      $http.get(apiURL+'frontpage/'+page)
+      $http.get(apiURL+'frontpage/'+page, config)
         .then(function(result){
           return !validateResponse(result)? q.reject(new Error('Invalid Response')):q.resolve(result.data);
         },function(err){
-          console.log('Search Failed');
+          console.log('frontpage/'+page+' Failed');
           q.reject(err);
         });
       return q.promise;
     },
     newest: function(page) {
       var q = $q.defer();
-      $http.get(apiURL+'new/'+page)
+      $http.get(apiURL+'new/'+page, config)
         .then(function(result){
           return !validateResponse(result)? q.reject(new Error('Invalid Response')):q.resolve(result.data);
-        },function(err){
-          console.log('Search Failed');
+        },function(err) {
+          console.log('newest/' + page + ' Failed');
           q.reject(err);
         });
       return q.promise;
     },
     comments: function(postID) {
       var q = $q.defer();
-      $http.get(apiURL+'comments/'+postID)
+      $http.get(apiURL+'comments/'+postID, config)
         .then(function(result){
           return !validateResponse(result)? q.reject(new Error('Invalid Response')):q.resolve(result.data);
         },function(err){
-          console.log('Search Failed');
+          console.log('comments/'+postID+' Failed');
           q.reject(err);
         });
       return q.promise;
     },
     search: function(searchTerm) {
-      // call
       var q = $q.defer();
-      $http.get(apiURL+'search?&q='+searchTerm)
+      $http.get(apiURL+'search?&q='+searchTerm, config)
            .then(function(result){
             return !validateResponse(result)? q.reject(new Error('Invalid Response')):q.resolve(result.data);
            },function(err){
-             console.log('Search Failed');
+             console.log('search/'+searchTerm+' Failed');
              q.reject(err);
           });
       return q.promise;
