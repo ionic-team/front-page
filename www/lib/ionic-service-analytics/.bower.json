@@ -17,11 +17,11 @@
   "devDependencies": {
     "keen-js": "~3.0.8"
   },
-  "_release": "d3ffabe5de",
+  "_release": "45756659fe",
   "_resolution": {
     "type": "branch",
     "branch": "master",
-    "commit": "d3ffabe5dead3753dee04ef7fc8f98a734d23366"
+    "commit": "45756659febea5f1e31c2b5ba3df7327f1d3ec49"
   },
   "_source": "https://github.com/driftyco/ionic-service-analytics.git",
   "_target": "*",
