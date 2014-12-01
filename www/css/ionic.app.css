@@ -6986,3 +6986,21 @@ ion-infinite-scroll .scroll-infinite-content {
 
 ion-nav-view {
   background-color: white; }
+
+.platform-android .ionic-body, .platform-android .tab-item, .platform-android h1, .platform-android h2, .platform-android h3, .platform-android h4, .platform-android h5, .platform-android h6, .platform-android .h1, .platform-android .h2, .platform-android .h3, .platform-android .h4, .platform-android .h5, .platform-android .h6, .platform-android p, .platform-android span, .platform-android .ion-chatbubble.light span, .platform-android input, .platform-android button, .platform-android select, .platform-android textarea {
+  font-family: Roboto, Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 500; }
+.platform-android .scroll-content {
+  overflow: hidden; }
+.platform-android .back-button:not(.ng-hide) + div + .title {
+  margin-left: -15px; }
+.platform-android .item.comment p.timestamp {
+  float: none;
+  position: absolute;
+  right: 0;
+  width: 200px;
+  text-align: right; }
+.platform-android .item.comment p, .platform-android .item.comment i, .platform-android .item.comment .text {
+  -webkit-transition: none;
+  /* For Safari 3.1 to 6.0 */
+  transition: none; }

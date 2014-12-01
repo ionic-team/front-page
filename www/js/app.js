@@ -87,7 +87,12 @@ angular.module('frontpage', ['ngAnimate', 'ionic', 'frontpage.controllers', 'fro
     .state('tab', {
       url: "/tab",
       abstract: true,
-      templateUrl: "templates/tabs.html"
+      templateUrl: function() {
+        if (ionic.Platform.isAndroid()) {
+          return "templates/tabs-android.html";
+        }
+        return "templates/tabs.html";
+      }
     })
 
     // Each tab has its own nav history stack:

@@ -14,19 +14,34 @@ angular.module('frontpage.directives', [])
       submit: '&',
       clear: '&'
     },
-    template:
-      '<form class="bar bar-header bar-energized item-input-inset" ng-submit="submit()">' +
-        '<div class="item-input-wrapper energized-bg" ng-class="focused" ng-click="focus()">' +
-          '<i class="icon ion-ios7-search placeholder-icon"></i>' +
+    template:function(){
+      if(ionic.Platform.isAndroid()){
+        return '<form class="bar bar-header bar-energized item-input-inset" ng-submit="submit()">' +
+          '<div class="item-input-wrapper light-bg" ng-class="focused" ng-click="focus()">' +
+          '<i class="icon ion-ios7-search-strong placeholder-icon"></i>' +
           '<input type="search"' +
-            'id="searchInput"' +
-            'placeholder="Search"' +
-            'ng-model="model"' +
-            'ng-focus="focused = \'text-left\'"' +
-            'ng-blur="focused = model.length?\'left\':\'centered\'">' +
+          'id="searchInput"' +
+          'placeholder="Search HN"' +
+          'ng-model="model"' +
+          'ng-focus="focused = \'text-left\'"' +
+          'ng-blur="focused = model.length?\'left\':\'centered\'">' +
           '</div>' +
           '<i class="icon ion-ios7-close dark" ng-show="model.length" ng-click="clear()"></i>' +
-      '</form>',
+          '</form>'
+      }
+      return '<form class="bar bar-header bar-energized item-input-inset" ng-submit="submit()">' +
+        '<div class="item-input-wrapper energized-bg" ng-class="focused" ng-click="focus()">' +
+        '<i class="icon ion-ios7-search placeholder-icon"></i>' +
+        '<input type="search"' +
+        'id="searchInput"' +
+        'placeholder="Search"' +
+        'ng-model="model"' +
+        'ng-focus="focused = \'text-left\'"' +
+        'ng-blur="focused = model.length?\'left\':\'centered\'">' +
+        '</div>' +
+        '<i class="icon ion-ios7-close dark" ng-show="model.length" ng-click="clear()"></i>' +
+        '</form>'
+    },
     link: function(scope, elem, attrs, $document){
       scope.focus = function(){
         document.getElementById('searchInput').focus()
