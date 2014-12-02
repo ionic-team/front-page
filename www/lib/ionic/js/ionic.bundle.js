@@ -3302,183 +3302,6 @@ ionic.DomUtil.ready(function(){
 
 })(window.ionic);
 
-(function() {
-
-function trueFn() { return true; }
-
-ionic.Utils.list = wrapList;
-
-// Expose previous and next publicly so we can use them
-// without having to instantiate a whole list wrapper.
-ionic.Utils.list.next = listNext;
-ionic.Utils.list.previous = listPrevious;
-
-// Get the index after the given index.
-// Takes looping and the given filterFn into account.
-function listNext(list, isLooping, index, filterFn) {
-  filterFn = filterFn || trueFn;
-  if (index < 0 || index >= list.length) return -1;
-
-  // Keep adding 1 to index, trying to find an index that passes filterFn.
-  // If we loop through *everything* and get back to our original index, return -1.
-  // We don't use recursion here because Javascript sucks at recursion.
-  var nextIndex = index + 1;
-  while ( nextIndex !== index ) {
-
-    if (nextIndex === list.length) {
-      if (isLooping) nextIndex -= list.length;
-      else break;
-    } else {
-      if (filterFn(list[nextIndex], nextIndex)) {
-        return nextIndex;
-      }
-      nextIndex++;
-    }
-  }
-  return -1;
-}
-
-// Get the index before the given index.
-// Takes looping and the given filterFn into account.
-function listPrevious(list, isLooping, index, filterFn) {
-  filterFn = filterFn || trueFn;
-  if (index < 0 || index >= list.length) return -1;
-
-  // Keep subtracting 1 from index, trying to find an index that passes filterFn.
-  // If we loop through *everything* and get back to our original index, return -1.
-  // We don't use recursion here because Javascript sucks at recursion.
-  var prevIndex = index - 1;
-  while ( prevIndex !== index ) {
-
-    if (prevIndex === -1) {
-      if (isLooping) prevIndex += list.length;
-      else break;
-    } else {
-      if (filterFn(list[prevIndex], prevIndex)) {
-        return prevIndex;
-      }
-      prevIndex--;
-    }
-  }
-  return -1;
-}
-
-
-// initialList may be a nodeList or an list,
-// so we don't expect it to have any list methods
-function wrapList(initialList) {
-
-  var list = initialList || [];
-  var self = {};
-  var isLooping = false;
-
-  // The Basics
-  self.items = items;
-
-  // add and remove are array-ONLY, if we're given a nodeList
-  // it's immutable
-  if (angular.isArray(list)) {
-    self.add = add;
-    self.remove = remove;
-  }
-
-  self.at = at;
-  self.count = count;
-  self.indexOf = indexOf;
-  self.isInRange = isInRange;
-  self.loop = loop;
-
-  // The Crazy Ones
-  self.delta = delta;
-  self.isRelevant = isRelevant;
-  self.previous = function(index, filterFn) {
-    return listPrevious(list, isLooping, index, filterFn);
-  };
-  self.next = function(index, filterFn) {
-    return listNext(list, isLooping, index, filterFn);
-  };
-
-  return self;
-
-  // ***************
-  // Public methods
-  // ***************
-  function items() {
-    return list;
-  }
-  function add(item, index) {
-    if (!self.isInRange(index)) index = list.length;
-    list.splice(index, 0, item);
-
-    return index;
-  }
-
-  function remove(index) {
-    if (!self.isInRange(index)) return;
-    list.splice(index, 1);
-  }
-
-  function at(index) {
-    return list[index];
-  }
-
-  function count() {
-    return list.length;
-  }
-
-  function indexOf(item) {
-    for (var i = 0, ii = list.length; i < ii; i++) {
-      if (list[i] === item) return i;
-    }
-    return -1;
-  }
-
-  function isInRange(index) {
-    return angular.isNumber(index) && index > -1 && index < list.length;
-  }
-
-  function loop(newIsLooping) {
-    if (arguments.length) {
-      isLooping = !!newIsLooping;
-    }
-    return isLooping;
-  }
-
-  function delta(fromIndex, toIndex) {
-    var difference = toIndex - fromIndex;
-    if (!isLooping) return difference;
-
-    // Is looping on? Then check for the looped difference.
-    // For example, going from the first item to the last item
-    // is actually a change of -1.
-    var loopedDifference = 0;
-    if (toIndex > fromIndex) {
-      loopedDifference = toIndex - fromIndex - self.count();
-    } else {
-      loopedDifference = self.count() - fromIndex + toIndex;
-    }
-
-    if (Math.abs(loopedDifference) < Math.abs(difference)) {
-      return loopedDifference;
-    }
-    return difference;
-  }
-
-  // Returns whether an index is 'relevant' to some index.
-  // Will return true if the index is equal to `someIndex`, the index
-  // previous of that index, or the index next of that index.
-  function isRelevant(index, someIndex) {
-    return self.isInRange(index) && (
-      index === someIndex ||
-      index === self.previous(someIndex) ||
-      index === self.next(someIndex)
-    );
-  }
-
-}
-
-})();
-
 /**
  * @ngdoc page
  * @name keyboard
@@ -4838,8 +4661,8 @@ ionic.views.Scroll = ionic.views.View.inherit({
 
           self.hintResize();
           self.scrollBy(
-            e.wheelDeltaX/self.options.wheelDampen,
-            -e.wheelDeltaY/self.options.wheelDampen
+            (e.wheelDeltaX || e.deltaX || 0) / self.options.wheelDampen,
+            (-e.wheelDeltaY || e.deltaY || 0) / self.options.wheelDampen
           );
 
           self.__fadeScrollbars('in');
@@ -4854,6 +4677,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
       document.addEventListener("mousemove", self.mouseMove, false);
       document.addEventListener("mouseup", self.mouseUp, false);
       document.addEventListener('mousewheel', self.mouseWheel, false);
+      document.addEventListener('wheel', self.mouseWheel, false);
     }
   },
 
@@ -4880,6 +4704,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
     document.removeEventListener("mousemove", self.mouseMove);
     document.removeEventListener("mouseup", self.mouseUp);
     document.removeEventListener('mousewheel', self.mouseWheel);
+    document.removeEventListener('wheel', self.mouseWheel);
 
     container.removeEventListener('scrollChildIntoView', self.scrollChildIntoView);
     container.removeEventListener('resetScrollView', self.resetScrollView);
@@ -4978,7 +4803,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
       }
       if (height !== self.__indicatorY.size) {
         ionic.requestAnimationFrame(function(){
-          self.__indicatorY.indicator.style.height = height + 'px';
+          self.__indicatorY && (self.__indicatorY.indicator.style.height = height + 'px');
         });
       }
       self.__indicatorY.size = height;
@@ -7236,7 +7061,7 @@ ionic.scroll = {
  */
 
 /**
- * @license AngularJS v1.3.3
+ * @license AngularJS v1.3.4
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -7291,7 +7116,7 @@ function minErr(module, ErrorConstructor) {
       return match;
     });
 
-    message = message + '\nhttp://errors.angularjs.org/1.3.3/' +
+    message = message + '\nhttp://errors.angularjs.org/1.3.4/' +
       (module ? module + '/' : '') + code;
     for (i = 2; i < arguments.length; i++) {
       message = message + (i == 2 ? '?' : '&') + 'p' + (i - 2) + '=' +
@@ -7663,7 +7488,7 @@ function int(str) {
 
 
 function inherit(parent, extra) {
-  return extend(new (extend(function() {}, {prototype:parent}))(), extra);
+  return extend(Object.create(parent), extra);
 }
 
 /**
@@ -7926,7 +7751,7 @@ function makeMap(str) {
 
 
 function nodeName_(element) {
-  return lowercase(element.nodeName || element[0].nodeName);
+  return lowercase(element.nodeName || (element[0] && element[0].nodeName));
 }
 
 function includes(array, obj) {
@@ -8632,8 +8457,8 @@ function angularInit(element, bootstrap) {
  * @param {Object=} config an object for defining configuration options for the application. The
  *     following keys are supported:
  *
- *     - `strictDi`: disable automatic function annotation for the application. This is meant to
- *       assist in finding bugs which break minified code.
+ * * `strictDi` - disable automatic function annotation for the application. This is meant to
+ *   assist in finding bugs which break minified code. Defaults to `false`.
  *
  * @returns {auto.$injector} Returns the newly created injector for this app.
  */
@@ -9337,11 +9162,11 @@ function toDebugString(obj) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
-  full: '1.3.3',    // all of these placeholder strings will be replaced by grunt's
+  full: '1.3.4',    // all of these placeholder strings will be replaced by grunt's
   major: 1,    // package task
   minor: 3,
-  dot: 3,
-  codeName: 'undersea-arithmetic'
+  dot: 4,
+  codeName: 'highfalutin-petroglyph'
 };
 
 
@@ -9564,10 +9389,12 @@ function publishExternalAPI(angular) {
  *   `'ngModel'`).
  * - `injector()` - retrieves the injector of the current element or its parent.
  * - `scope()` - retrieves the {@link ng.$rootScope.Scope scope} of the current
- *   element or its parent.
+ *   element or its parent. Requires {@link guide/production#disabling-debug-data Debug Data} to
+ *   be enabled.
  * - `isolateScope()` - retrieves an isolate {@link ng.$rootScope.Scope scope} if one is attached directly to the
  *   current element. This getter should be used only on elements that contain a directive which starts a new isolate
  *   scope. Calling `scope()` on this element always returns the original non-isolate scope.
+ *   Requires {@link guide/production#disabling-debug-data Debug Data} to be enabled.
  * - `inheritedData()` - same as `data()`, but walks up the DOM until a value is found or the top
  *   parent element is reached.
  *
@@ -10562,9 +10389,10 @@ HashMap.prototype = {
  * Creates an injector object that can be used for retrieving services as well as for
  * dependency injection (see {@link guide/di dependency injection}).
  *
-
  * @param {Array.<string|Function>} modules A list of module functions or their aliases. See
- *        {@link angular.module}. The `ng` module must be explicitly added.
+ *     {@link angular.module}. The `ng` module must be explicitly added.
+ * @param {boolean=} [strictDi=false] Whether the injector should be in strict mode, which
+ *     disallows argument name annotation inference.
  * @returns {injector} Injector object. See {@link auto.$injector $injector}.
  *
  * @example
@@ -10710,8 +10538,10 @@ function annotate(fn, strictDi, name) {
  * ## Inference
  *
  * In JavaScript calling `toString()` on a function returns the function definition. The definition
- * can then be parsed and the function arguments can be extracted. *NOTE:* This does not work with
- * minification, and obfuscation tools since these tools change the argument names.
+ * can then be parsed and the function arguments can be extracted. This method of discovering
+ * annotations is disallowed when the injector is in strict mode.
+ * *NOTE:* This does not work with minification, and obfuscation tools since these tools change the
+ * argument names.
  *
  * ## `$inject` Annotation
  * By adding an `$inject` property onto a function the injection parameters can be specified.
@@ -10796,6 +10626,8 @@ function annotate(fn, strictDi, name) {
  *   expect(injector.annotate(MyController)).toEqual(['$scope', '$route']);
  * ```
  *
+ * You can disallow this method by using strict injection mode.
+ *
  * This method does not work with code minification / obfuscation. For this reason the following
  * annotation strategies are supported.
  *
@@ -10847,6 +10679,8 @@ function annotate(fn, strictDi, name) {
  *
  * @param {Function|Array.<string|Function>} fn Function for which dependent service names need to
  * be retrieved as described above.
+ *
+ * @param {boolean=} [strictDi=false] Disallow argument name annotation inference.
  *
  * @returns {Array.<string>} The names of the services which the function requires.
  */
@@ -11367,14 +11201,11 @@ function createInjector(modulesToLoad, strictDi) {
     }
 
     function instantiate(Type, locals, serviceName) {
-      var Constructor = function() {},
-          instance, returnedValue;
-
       // Check if Type is annotated and use just the given function at n-1 as parameter
       // e.g. someModule.factory('greeter', ['$window', function(renamed$window) {}]);
-      Constructor.prototype = (isArray(Type) ? Type[Type.length - 1] : Type).prototype;
-      instance = new Constructor();
-      returnedValue = invoke(Type, instance, locals, serviceName);
+      // Object creation: http://jsperf.com/create-constructor/2
+      var instance = Object.create((isArray(Type) ? Type[Type.length - 1] : Type).prototype);
+      var returnedValue = invoke(Type, instance, locals, serviceName);
 
       return isObject(returnedValue) || isFunction(returnedValue) ? returnedValue : instance;
     }
@@ -12210,7 +12041,7 @@ function Browser(window, document, $log, $sniffer) {
       // IE<10 from getting into redirect loop when in LocationHashbangInHtml5Url mode.
       // See https://github.com/angular/angular.js/commit/ffb2701
       if (lastBrowserUrl === url && (!$sniffer.history || sameState)) {
-        return;
+        return self;
       }
       var sameBase = lastBrowserUrl && stripHash(lastBrowserUrl) === stripHash(url);
       lastBrowserUrl = url;
@@ -15122,10 +14953,10 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
         var childBoundTranscludeFn = boundTranscludeFn;
         if (scope.$$destroyed) return;
         if (linkQueue) {
-          linkQueue.push(scope);
-          linkQueue.push(node);
-          linkQueue.push(rootElement);
-          linkQueue.push(childBoundTranscludeFn);
+          linkQueue.push(scope,
+                         node,
+                         rootElement,
+                         childBoundTranscludeFn);
         } else {
           if (afterTemplateNodeLinkFn.transcludeOnThisElement) {
             childBoundTranscludeFn = createBoundTranscludeFn(scope, afterTemplateNodeLinkFn.transclude, boundTranscludeFn);
@@ -15594,10 +15425,10 @@ function $ControllerProvider() {
         //
         // This feature is not intended for use by applications, and is thus not documented
         // publicly.
-        var Constructor = function() {};
-        Constructor.prototype = (isArray(expression) ?
+        // Object creation: http://jsperf.com/create-constructor/2
+        var controllerPrototype = (isArray(expression) ?
           expression[expression.length - 1] : expression).prototype;
-        instance = new Constructor();
+        instance = Object.create(controllerPrototype);
 
         if (identifier) {
           addIdentifier(locals, identifier, instance, constructor || expression.name);
@@ -15738,7 +15569,7 @@ function defaultHttpResponseTransform(data, headers) {
  * @returns {Object} Parsed headers as key value object
  */
 function parseHeaders(headers) {
-  var parsed = {}, key, val, i;
+  var parsed = createMap(), key, val, i;
 
   if (!headers) return parsed;
 
@@ -15775,7 +15606,11 @@ function headersGetter(headers) {
     if (!headersObj) headersObj =  parseHeaders(headers);
 
     if (name) {
-      return headersObj[lowercase(name)] || null;
+      var value = headersObj[lowercase(name)];
+      if (value === void 0) {
+        value = null;
+      }
+      return value;
     }
 
     return headersObj;
@@ -15824,6 +15659,11 @@ function $HttpProvider() {
    *
    * Object containing default values for all {@link ng.$http $http} requests.
    *
+   * - **`defaults.cache`** - {Object} - an object built with {@link ng.$cacheFactory `$cacheFactory`}
+   * that will provide the cache for all requests who set their `cache` property to `true`.
+   * If you set the `default.cache = false` then only requests that specify their own custom
+   * cache object will be cached. See {@link $http#caching $http Caching} for more information.
+   *
    * - **`defaults.xsrfCookieName`** - {string} - Name of cookie containing the XSRF token.
    * Defaults value is `'XSRF-TOKEN'`.
    *
@@ -15837,6 +15677,7 @@ function $HttpProvider() {
    *     - **`defaults.headers.post`**
    *     - **`defaults.headers.put`**
    *     - **`defaults.headers.patch`**
+   *
    **/
   var defaults = this.defaults = {
     // transform incoming response data
@@ -16051,6 +15892,21 @@ function $HttpProvider() {
      * In addition, you can supply a `headers` property in the config object passed when
      * calling `$http(config)`, which overrides the defaults without changing them globally.
      *
+     * To explicitly remove a header automatically added via $httpProvider.defaults.headers on a per request basis,
+     * Use the `headers` property, setting the desired header to `undefined`. For example:
+     *
+     * ```js
+     * var req = {
+     *  method: 'POST',
+     *  url: 'http://example.com',
+     *  headers: {
+     *    'Content-Type': undefined
+     *  },
+     *  data: { test: 'test' },
+     * }
+     *
+     * $http(req).success(function(){...}).error(function(){...});
+     * ```
      *
      * ## Transforming Requests and Responses
      *
@@ -16429,6 +16285,10 @@ function $HttpProvider() {
         transformResponse: defaults.transformResponse
       };
       var headers = mergeHeaders(requestConfig);
+
+      if (!angular.isObject(requestConfig)) {
+        throw minErr('$http')('badreq', 'Http request configuration must be an object.  Received: {0}', requestConfig);
+      }
 
       extend(config, requestConfig);
       config.headers = headers;
@@ -17924,6 +17784,13 @@ var locationPrototype = {
    * Return full url representation with all segments encoded according to rules specified in
    * [RFC 3986](http://www.ietf.org/rfc/rfc3986.txt).
    *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var absUrl = $location.absUrl();
+   * // => "http://example.com/#/some/path?foo=bar&baz=xoxo"
+   * ```
+   *
    * @return {string} full url
    */
   absUrl: locationGetter('$$absUrl'),
@@ -17939,6 +17806,13 @@ var locationPrototype = {
    *
    * Change path, search and hash, when called with parameter and return `$location`.
    *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var url = $location.url();
+   * // => "/some/path?foo=bar&baz=xoxo"
+   * ```
+   *
    * @param {string=} url New url without base prefix (e.g. `/path?a=b#hash`)
    * @return {string} url
    */
@@ -17947,8 +17821,8 @@ var locationPrototype = {
       return this.$$url;
 
     var match = PATH_MATCH.exec(url);
-    if (match[1]) this.path(decodeURIComponent(match[1]));
-    if (match[2] || match[1]) this.search(match[3] || '');
+    if (match[1] || url === '') this.path(decodeURIComponent(match[1]));
+    if (match[2] || match[1] || url === '') this.search(match[3] || '');
     this.hash(match[5] || '');
 
     return this;
@@ -17963,6 +17837,13 @@ var locationPrototype = {
    *
    * Return protocol of current url.
    *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var protocol = $location.protocol();
+   * // => "http"
+   * ```
+   *
    * @return {string} protocol of current url
    */
   protocol: locationGetter('$$protocol'),
@@ -17976,6 +17857,13 @@ var locationPrototype = {
    *
    * Return host of current url.
    *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var host = $location.host();
+   * // => "example.com"
+   * ```
+   *
    * @return {string} host of current url.
    */
   host: locationGetter('$$host'),
@@ -17988,6 +17876,13 @@ var locationPrototype = {
    * This method is getter only.
    *
    * Return port of current url.
+   *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var port = $location.port();
+   * // => 80
+   * ```
    *
    * @return {Number} port
    */
@@ -18006,6 +17901,13 @@ var locationPrototype = {
    *
    * Note: Path should always begin with forward slash (/), this method will add the forward slash
    * if it is missing.
+   *
+   *
+   * ```js
+   * // given url http://example.com/#/some/path?foo=bar&baz=xoxo
+   * var path = $location.path();
+   * // => "/some/path"
+   * ```
    *
    * @param {(string|number)=} path New path
    * @return {string} path
@@ -18032,10 +17934,9 @@ var locationPrototype = {
    * var searchObject = $location.search();
    * // => {foo: 'bar', baz: 'xoxo'}
    *
-   *
    * // set foo to 'yipee'
    * $location.search('foo', 'yipee');
-   * // => $location
+   * // $location.search() => {foo: 'yipee', baz: 'xoxo'}
    * ```
    *
    * @param {string|Object.<string>|Object.<Array.<string>>} search New search params - string or
@@ -18104,6 +18005,13 @@ var locationPrototype = {
    * Return hash fragment when called without any parameter.
    *
    * Change hash fragment when called with parameter and return `$location`.
+   *
+   *
+   * ```js
+   * // given url http://example.com/some/path?foo=bar&baz=xoxo#hashValue
+   * var hash = $location.hash();
+   * // => "hashValue"
+   * ```
    *
    * @param {(string|number)=} hash New hash fragment
    * @return {string} hash
@@ -23836,7 +23744,7 @@ function filterFilter() {
  *
  * @param {number} amount Input to filter.
  * @param {string=} symbol Currency symbol or identifier to be displayed.
- * @param {number=} fractionSize Number of decimal places to round the amount to.
+ * @param {number=} fractionSize Number of decimal places to round the amount to, defaults to default max fraction size for current locale
  * @returns {string} Formatted number.
  *
  *
@@ -23886,8 +23794,7 @@ function currencyFilter($locale) {
     }
 
     if (isUndefined(fractionSize)) {
-      // TODO: read the default value from the locale file
-      fractionSize = 2;
+      fractionSize = formats.PATTERNS[1].maxFrac;
     }
 
     // if null or undefined pass it through
@@ -24039,9 +23946,9 @@ function formatNumber(number, pattern, groupSep, decimalSep, fractionSize) {
     }
   }
 
-  parts.push(isNegative ? pattern.negPre : pattern.posPre);
-  parts.push(formatedText);
-  parts.push(isNegative ? pattern.negSuf : pattern.posSuf);
+  parts.push(isNegative ? pattern.negPre : pattern.posPre,
+             formatedText,
+             isNegative ? pattern.negSuf : pattern.posSuf);
   return parts.join('');
 }
 
@@ -25621,9 +25528,7 @@ var formDirectiveFactory = function(isNgForm) {
                   controller.$setSubmitted();
                 });
 
-                event.preventDefault
-                  ? event.preventDefault()
-                  : event.returnValue = false; // IE
+                event.preventDefault();
               };
 
               addEventListenerFn(formElement[0], 'submit', handleFormSubmission);
@@ -25710,7 +25615,8 @@ var inputType = {
    * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
-   *    maxlength.
+   *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of
+   *    any length.
    * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
    *    that contains the regular expression body that will be converted to a regular expression
    *    as in the ngPattern directive.
@@ -26258,7 +26164,8 @@ var inputType = {
    * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
-   *    maxlength.
+   *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of
+   *    any length.
    * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
    *    that contains the regular expression body that will be converted to a regular expression
    *    as in the ngPattern directive.
@@ -26345,7 +26252,8 @@ var inputType = {
    * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
-   *    maxlength.
+   *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of
+   *    any length.
    * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
    *    that contains the regular expression body that will be converted to a regular expression
    *    as in the ngPattern directive.
@@ -26433,7 +26341,8 @@ var inputType = {
    * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
    *    minlength.
    * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
-   *    maxlength.
+   *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of
+   *    any length.
    * @param {string=} pattern Similar to `ngPattern` except that the attribute value is the actual string
    *    that contains the regular expression body that will be converted to a regular expression
    *    as in the ngPattern directive.
@@ -26704,7 +26613,7 @@ function baseInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   element.on('change', listener);
 
   ctrl.$render = function() {
-    element.val(ctrl.$isEmpty(ctrl.$modelValue) ? '' : ctrl.$viewValue);
+    element.val(ctrl.$isEmpty(ctrl.$viewValue) ? '' : ctrl.$viewValue);
   };
 }
 
@@ -26814,10 +26723,10 @@ function createDateInputType(type, regexp, parseDate, format) {
     });
 
     ctrl.$formatters.push(function(value) {
-      if (!ctrl.$isEmpty(value)) {
-        if (!isDate(value)) {
-          throw $ngModelMinErr('datefmt', 'Expected `{0}` to be a date', value);
-        }
+      if (value && !isDate(value)) {
+        throw $ngModelMinErr('datefmt', 'Expected `{0}` to be a date', value);
+      }
+      if (isValidDate(value)) {
         previousDate = value;
         if (previousDate && timezone === 'UTC') {
           var timezoneOffset = 60000 * previousDate.getTimezoneOffset();
@@ -26826,14 +26735,14 @@ function createDateInputType(type, regexp, parseDate, format) {
         return $filter('date')(value, format, timezone);
       } else {
         previousDate = null;
+        return '';
       }
-      return '';
     });
 
     if (isDefined(attr.min) || attr.ngMin) {
       var minVal;
       ctrl.$validators.min = function(value) {
-        return ctrl.$isEmpty(value) || isUndefined(minVal) || parseDate(value) >= minVal;
+        return !isValidDate(value) || isUndefined(minVal) || parseDate(value) >= minVal;
       };
       attr.$observe('min', function(val) {
         minVal = parseObservedDateValue(val);
@@ -26844,18 +26753,18 @@ function createDateInputType(type, regexp, parseDate, format) {
     if (isDefined(attr.max) || attr.ngMax) {
       var maxVal;
       ctrl.$validators.max = function(value) {
-        return ctrl.$isEmpty(value) || isUndefined(maxVal) || parseDate(value) <= maxVal;
+        return !isValidDate(value) || isUndefined(maxVal) || parseDate(value) <= maxVal;
       };
       attr.$observe('max', function(val) {
         maxVal = parseObservedDateValue(val);
         ctrl.$validate();
       });
     }
-    // Override the standard $isEmpty to detect invalid dates as well
-    ctrl.$isEmpty = function(value) {
+
+    function isValidDate(value) {
       // Invalid Date: getTime() returns NaN
-      return !value || (value.getTime && value.getTime() !== value.getTime());
-    };
+      return value && !(value.getTime && value.getTime() !== value.getTime());
+    }
 
     function parseObservedDateValue(val) {
       return isDefined(val) ? (isDate(val) ? val : parseDate(val)) : undefined;
@@ -26939,7 +26848,8 @@ function urlInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   stringBasedInputType(ctrl);
 
   ctrl.$$parserName = 'url';
-  ctrl.$validators.url = function(value) {
+  ctrl.$validators.url = function(modelValue, viewValue) {
+    var value = modelValue || viewValue;
     return ctrl.$isEmpty(value) || URL_REGEXP.test(value);
   };
 }
@@ -26951,7 +26861,8 @@ function emailInputType(scope, element, attr, ctrl, $sniffer, $browser) {
   stringBasedInputType(ctrl);
 
   ctrl.$$parserName = 'email';
-  ctrl.$validators.email = function(value) {
+  ctrl.$validators.email = function(modelValue, viewValue) {
+    var value = modelValue || viewValue;
     return ctrl.$isEmpty(value) || EMAIL_REGEXP.test(value);
   };
 }
@@ -27005,9 +26916,11 @@ function checkboxInputType(scope, element, attr, ctrl, $sniffer, $browser, $filt
     element[0].checked = ctrl.$viewValue;
   };
 
-  // Override the standard `$isEmpty` because an empty checkbox is never equal to the trueValue
+  // Override the standard `$isEmpty` because the $viewValue of an empty checkbox is always set to `false`
+  // This is because of the parser below, which compares the `$modelValue` with `trueValue` to convert
+  // it to a boolean.
   ctrl.$isEmpty = function(value) {
-    return value !== trueValue;
+    return value === false;
   };
 
   ctrl.$formatters.push(function(value) {
@@ -27039,7 +26952,8 @@ function checkboxInputType(scope, element, attr, ctrl, $sniffer, $browser, $filt
  * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
  *    minlength.
  * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
- *    maxlength.
+ *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of any
+ *    length.
  * @param {string=} ngPattern Sets `pattern` validation error key if the value does not match the
  *    RegExp pattern expression. Expected value is `/regexp/` for inline patterns or `regexp` for
  *    patterns defined as scope expressions.
@@ -27071,7 +26985,8 @@ function checkboxInputType(scope, element, attr, ctrl, $sniffer, $browser, $filt
  * @param {number=} ngMinlength Sets `minlength` validation error key if the value is shorter than
  *    minlength.
  * @param {number=} ngMaxlength Sets `maxlength` validation error key if the value is longer than
- *    maxlength.
+ *    maxlength. Setting the attribute to a negative or non-numeric value, allows view values of any
+ *    length.
  * @param {string=} ngPattern Sets `pattern` validation error key if the value does not match the
  *    RegExp pattern expression. Expected value is `/regexp/` for inline patterns or `regexp` for
  *    patterns defined as scope expressions.
@@ -27287,13 +27202,18 @@ is set to `true`. The parse error is stored in `ngModel.$error.parse`.
  *
  * @description
  *
- * `NgModelController` provides API for the `ng-model` directive. The controller contains
- * services for data-binding, validation, CSS updates, and value formatting and parsing. It
- * purposefully does not contain any logic which deals with DOM rendering or listening to
- * DOM events. Such DOM related logic should be provided by other directives which make use of
- * `NgModelController` for data-binding.
+ * `NgModelController` provides API for the {@link ngModel `ngModel`} directive.
+ * The controller contains services for data-binding, validation, CSS updates, and value formatting
+ * and parsing. It purposefully does not contain any logic which deals with DOM rendering or
+ * listening to DOM events.
+ * Such DOM related logic should be provided by other directives which make use of
+ * `NgModelController` for data-binding to control elements.
+ * Angular provides this DOM logic for most {@link input `input`} elements.
+ * At the end of this page you can find a {@link ngModel.NgModelController#custom-control-example
+ * custom control example} that uses `ngModelController` to bind to `contenteditable` elements.
  *
- * ## Custom Control Example
+ * @example
+ * ### Custom Control Example
  * This example shows how to use `NgModelController` with a custom control to achieve
  * data-binding. Notice how different directives (`contenteditable`, `ng-model`, and `required`)
  * collaborate together to achieve the desired result.
@@ -27390,6 +27310,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     function($scope, $exceptionHandler, $attr, $element, $parse, $animate, $timeout, $rootScope, $q, $interpolate) {
   this.$viewValue = Number.NaN;
   this.$modelValue = Number.NaN;
+  this.$$rawModelValue = undefined; // stores the parsed modelValue / model set from scope regardless of validity.
   this.$validators = {};
   this.$asyncValidators = {};
   this.$parsers = [];
@@ -27408,32 +27329,33 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
 
   var parsedNgModel = $parse($attr.ngModel),
+      parsedNgModelAssign = parsedNgModel.assign,
+      ngModelGet = parsedNgModel,
+      ngModelSet = parsedNgModelAssign,
       pendingDebounce = null,
       ctrl = this;
 
-  var ngModelGet = function ngModelGet() {
-    var modelValue = parsedNgModel($scope);
-    if (ctrl.$options && ctrl.$options.getterSetter && isFunction(modelValue)) {
-      modelValue = modelValue();
-    }
-    return modelValue;
-  };
-
-  var ngModelSet = function ngModelSet(newValue) {
-    var getterSetter;
-    if (ctrl.$options && ctrl.$options.getterSetter &&
-        isFunction(getterSetter = parsedNgModel($scope))) {
-
-      getterSetter(ctrl.$modelValue);
-    } else {
-      parsedNgModel.assign($scope, ctrl.$modelValue);
-    }
-  };
-
   this.$$setOptions = function(options) {
     ctrl.$options = options;
+    if (options && options.getterSetter) {
+      var invokeModelGetter = $parse($attr.ngModel + '()'),
+          invokeModelSetter = $parse($attr.ngModel + '($$$p)');
 
-    if (!parsedNgModel.assign && (!options || !options.getterSetter)) {
+      ngModelGet = function($scope) {
+        var modelValue = parsedNgModel($scope);
+        if (isFunction(modelValue)) {
+          modelValue = invokeModelGetter($scope);
+        }
+        return modelValue;
+      };
+      ngModelSet = function($scope, newValue) {
+        if (isFunction(parsedNgModel($scope))) {
+          invokeModelSetter($scope, {$$$p: ctrl.$modelValue});
+        } else {
+          parsedNgModelAssign($scope, ctrl.$modelValue);
+        }
+      };
+    } else if (!parsedNgModel.assign) {
       throw $ngModelMinErr('nonassign', "Expression '{0}' is non-assignable. Element: {1}",
           $attr.ngModel, startingTag($element));
     }
@@ -27466,17 +27388,18 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @name ngModel.NgModelController#$isEmpty
    *
    * @description
-   * This is called when we need to determine if the value of the input is empty.
+   * This is called when we need to determine if the value of an input is empty.
    *
    * For instance, the required directive does this to work out if the input has data or not.
+   *
    * The default `$isEmpty` function checks whether the value is `undefined`, `''`, `null` or `NaN`.
    *
    * You can override this for input directives whose concept of being empty is different to the
    * default. The `checkboxInputType` directive does this because in its case a value of `false`
    * implies empty.
    *
-   * @param {*} value Model value to check.
-   * @returns {boolean} True if `value` is empty.
+   * @param {*} value The value of the input to check for emptiness.
+   * @returns {boolean} True if `value` is "empty".
    */
   this.$isEmpty = function(value) {
     return isUndefined(value) || value === '' || value === null || value !== value;
@@ -27527,9 +27450,9 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @description
    * Sets the control to its pristine state.
    *
-   * This method can be called to remove the 'ng-dirty' class and set the control to its pristine
-   * state (ng-pristine class). A model is considered to be pristine when the model has not been changed
-   * from when first compiled within then form.
+   * This method can be called to remove the `ng-dirty` class and set the control to its pristine
+   * state (`ng-pristine` class). A model is considered to be pristine when the control
+   * has not been changed from when first compiled.
    */
   this.$setPristine = function() {
     ctrl.$dirty = false;
@@ -27540,13 +27463,32 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
   /**
    * @ngdoc method
+   * @name ngModel.NgModelController#$setDirty
+   *
+   * @description
+   * Sets the control to its dirty state.
+   *
+   * This method can be called to remove the `ng-pristine` class and set the control to its dirty
+   * state (`ng-dirty` class). A model is considered to be dirty when the control has been changed
+   * from when first compiled.
+   */
+  this.$setDirty = function() {
+    ctrl.$dirty = true;
+    ctrl.$pristine = false;
+    $animate.removeClass($element, PRISTINE_CLASS);
+    $animate.addClass($element, DIRTY_CLASS);
+    parentForm.$setDirty();
+  };
+
+  /**
+   * @ngdoc method
    * @name ngModel.NgModelController#$setUntouched
    *
    * @description
    * Sets the control to its untouched state.
    *
-   * This method can be called to remove the 'ng-touched' class and set the control to its
-   * untouched state (ng-untouched class). Upon compilation, a model is set as untouched
+   * This method can be called to remove the `ng-touched` class and set the control to its
+   * untouched state (`ng-untouched` class). Upon compilation, a model is set as untouched
    * by default, however this function can be used to restore that state if the model has
    * already been touched by the user.
    */
@@ -27563,10 +27505,9 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @description
    * Sets the control to its touched state.
    *
-   * This method can be called to remove the 'ng-untouched' class and set the control to its
-   * touched state (ng-touched class). A model is considered to be touched when the user has
-   * first interacted (focussed) on the model input element and then shifted focus away (blurred)
-   * from the input element.
+   * This method can be called to remove the `ng-untouched` class and set the control to its
+   * touched state (`ng-touched` class). A model is considered to be touched when the user has
+   * first focused the control element and then shifted focus away from the control (blur event).
    */
   this.$setTouched = function() {
     ctrl.$touched = true;
@@ -27644,14 +27585,51 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
    * @name ngModel.NgModelController#$validate
    *
    * @description
-   * Runs each of the registered validators (first synchronous validators and then asynchronous validators).
+   * Runs each of the registered validators (first synchronous validators and then
+   * asynchronous validators).
+   * If the validity changes to invalid, the model will be set to `undefined`,
+   * unless {@link ngModelOptions `ngModelOptions.allowInvalid`} is `true`.
+   * If the validity changes to valid, it will set the model to the last available valid
+   * modelValue, i.e. either the last parsed value or the last value set from the scope.
    */
   this.$validate = function() {
     // ignore $validate before model is initialized
     if (isNumber(ctrl.$modelValue) && isNaN(ctrl.$modelValue)) {
       return;
     }
-    this.$$parseAndValidate();
+
+    var viewValue = ctrl.$$lastCommittedViewValue;
+    // Note: we use the $$rawModelValue as $modelValue might have been
+    // set to undefined during a view -> model update that found validation
+    // errors. We can't parse the view here, since that could change
+    // the model although neither viewValue nor the model on the scope changed
+    var modelValue = ctrl.$$rawModelValue;
+
+    // Check if the there's a parse error, so we don't unset it accidentially
+    var parserName = ctrl.$$parserName || 'parse';
+    var parserValid = ctrl.$error[parserName] ? false : undefined;
+
+    var prevValid = ctrl.$valid;
+    var prevModelValue = ctrl.$modelValue;
+
+    var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
+
+    ctrl.$$runValidators(parserValid, modelValue, viewValue, function(allValid) {
+      // If there was no change in validity, don't update the model
+      // This prevents changing an invalid modelValue to undefined
+      if (!allowInvalid && prevValid !== allValid) {
+        // Note: Don't check ctrl.$valid here, as we could have
+        // external validators (e.g. calculated on the server),
+        // that just call $setValidity and need the model value
+        // to calculate their validity.
+        ctrl.$modelValue = allValid ? modelValue : undefined;
+
+        if (ctrl.$modelValue !== prevModelValue) {
+          ctrl.$$writeModelToScope();
+        }
+      }
+    });
+
   };
 
   this.$$runValidators = function(parseValid, modelValue, viewValue, doneCallback) {
@@ -27770,11 +27748,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
 
     // change to dirty
     if (ctrl.$pristine) {
-      ctrl.$dirty = true;
-      ctrl.$pristine = false;
-      $animate.removeClass($element, PRISTINE_CLASS);
-      $animate.addClass($element, DIRTY_CLASS);
-      parentForm.$setDirty();
+      this.$setDirty();
     }
     this.$$parseAndValidate();
   };
@@ -27795,10 +27769,11 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
     }
     if (isNumber(ctrl.$modelValue) && isNaN(ctrl.$modelValue)) {
       // ctrl.$modelValue has not been touched yet...
-      ctrl.$modelValue = ngModelGet();
+      ctrl.$modelValue = ngModelGet($scope);
     }
     var prevModelValue = ctrl.$modelValue;
     var allowInvalid = ctrl.$options && ctrl.$options.allowInvalid;
+    ctrl.$$rawModelValue = modelValue;
     if (allowInvalid) {
       ctrl.$modelValue = modelValue;
       writeToModelIfNeeded();
@@ -27822,7 +27797,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
   };
 
   this.$$writeModelToScope = function() {
-    ngModelSet(ctrl.$modelValue);
+    ngModelSet($scope, ctrl.$modelValue);
     forEach(ctrl.$viewChangeListeners, function(listener) {
       try {
         listener();
@@ -27918,12 +27893,12 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
   //       ng-change executes in apply phase
   // 4. view should be changed back to 'a'
   $scope.$watch(function ngModelWatch() {
-    var modelValue = ngModelGet();
+    var modelValue = ngModelGet($scope);
 
     // if scope model value and ngModel value are out of sync
     // TODO(perf): why not move this to the action fn?
     if (modelValue !== ctrl.$modelValue) {
-      ctrl.$modelValue = modelValue;
+      ctrl.$modelValue = ctrl.$$rawModelValue = modelValue;
 
       var formatters = ctrl.$formatters,
           idx = formatters.length;
@@ -28108,7 +28083,7 @@ var NgModelController = ['$scope', '$exceptionHandler', '$attrs', '$element', '$
      </file>
  * </example>
  */
-var ngModelDirective = function() {
+var ngModelDirective = ['$rootScope', function($rootScope) {
   return {
     restrict: 'A',
     require: ['ngModel', '^?form', '^?ngModelOptions'],
@@ -28152,15 +28127,17 @@ var ngModelDirective = function() {
           element.on('blur', function(ev) {
             if (modelCtrl.$touched) return;
 
-            scope.$apply(function() {
-              modelCtrl.$setTouched();
-            });
+            if ($rootScope.$$phase) {
+              scope.$evalAsync(modelCtrl.$setTouched);
+            } else {
+              scope.$apply(modelCtrl.$setTouched);
+            }
           });
         }
       };
     }
   };
-};
+}];
 
 
 /**
@@ -28249,8 +28226,8 @@ var requiredDirective = function() {
       if (!ctrl) return;
       attr.required = true; // force truthy in case we are on non input element
 
-      ctrl.$validators.required = function(value) {
-        return !attr.required || !ctrl.$isEmpty(value);
+      ctrl.$validators.required = function(modelValue, viewValue) {
+        return !attr.required || !ctrl.$isEmpty(viewValue);
       };
 
       attr.$observe('required', function() {
@@ -28299,13 +28276,14 @@ var maxlengthDirective = function() {
     link: function(scope, elm, attr, ctrl) {
       if (!ctrl) return;
 
-      var maxlength = 0;
+      var maxlength = -1;
       attr.$observe('maxlength', function(value) {
-        maxlength = int(value) || 0;
+        var intVal = int(value);
+        maxlength = isNaN(intVal) ? -1 : intVal;
         ctrl.$validate();
       });
       ctrl.$validators.maxlength = function(modelValue, viewValue) {
-        return ctrl.$isEmpty(modelValue) || viewValue.length <= maxlength;
+        return (maxlength < 0) || ctrl.$isEmpty(modelValue) || (viewValue.length <= maxlength);
       };
     }
   };
@@ -28324,7 +28302,7 @@ var minlengthDirective = function() {
         ctrl.$validate();
       });
       ctrl.$validators.minlength = function(modelValue, viewValue) {
-        return ctrl.$isEmpty(modelValue) || viewValue.length >= minlength;
+        return ctrl.$isEmpty(viewValue) || viewValue.length >= minlength;
       };
     }
   };
@@ -28952,12 +28930,11 @@ var ngBindTemplateDirective = ['$interpolate', '$compile', function($interpolate
  * @name ngBindHtml
  *
  * @description
- * Creates a binding that will innerHTML the result of evaluating the `expression` into the current
- * element in a secure way.  By default, the innerHTML-ed content will be sanitized using the {@link
- * ngSanitize.$sanitize $sanitize} service.  To utilize this functionality, ensure that `$sanitize`
- * is available, for example, by including {@link ngSanitize} in your module's dependencies (not in
- * core Angular). In order to use {@link ngSanitize} in your module's dependencies, you need to
- * include "angular-sanitize.js" in your application.
+ * Evaluates the expression and inserts the resulting HTML into the element in a secure way. By default,
+ * the resulting HTML content will be sanitized using the {@link ngSanitize.$sanitize $sanitize} service.
+ * To utilize this functionality, ensure that `$sanitize` is available, for example, by including {@link
+ * ngSanitize} in your module's dependencies (not in core Angular). In order to use {@link ngSanitize}
+ * in your module's dependencies, you need to include "angular-sanitize.js" in your application.
  *
  * You may also bypass sanitization for values you know are safe. To do so, bind to
  * an explicitly trusted value via {@link ng.$sce#trustAsHtml $sce.trustAsHtml}.  See the example
@@ -31021,7 +30998,9 @@ var ngNonBindableDirective = ngDirective({ terminal: true, priority: 1000 });
     </example>
  */
 var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interpolate) {
-  var BRACE = /{}/g;
+  var BRACE = /{}/g,
+      IS_WHEN = /^when(Minus)?(.+)$/;
+
   return {
     restrict: 'EA',
     link: function(scope, element, attr) {
@@ -31032,34 +31011,44 @@ var ngPluralizeDirective = ['$locale', '$interpolate', function($locale, $interp
           whensExpFns = {},
           startSymbol = $interpolate.startSymbol(),
           endSymbol = $interpolate.endSymbol(),
-          isWhen = /^when(Minus)?(.+)$/;
+          braceReplacement = startSymbol + numberExp + '-' + offset + endSymbol,
+          watchRemover = angular.noop,
+          lastCount;
 
       forEach(attr, function(expression, attributeName) {
-        if (isWhen.test(attributeName)) {
-          whens[lowercase(attributeName.replace('when', '').replace('Minus', '-'))] =
-            element.attr(attr.$attr[attributeName]);
+        var tmpMatch = IS_WHEN.exec(attributeName);
+        if (tmpMatch) {
+          var whenKey = (tmpMatch[1] ? '-' : '') + lowercase(tmpMatch[2]);
+          whens[whenKey] = element.attr(attr.$attr[attributeName]);
         }
       });
       forEach(whens, function(expression, key) {
-        whensExpFns[key] =
-          $interpolate(expression.replace(BRACE, startSymbol + numberExp + '-' +
-            offset + endSymbol));
+        whensExpFns[key] = $interpolate(expression.replace(BRACE, braceReplacement));
+
       });
 
-      scope.$watch(function ngPluralizeWatch() {
-        var value = parseFloat(scope.$eval(numberExp));
+      scope.$watch(numberExp, function ngPluralizeWatchAction(newVal) {
+        var count = parseFloat(newVal);
+        var countIsNaN = isNaN(count);
 
-        if (!isNaN(value)) {
-          //if explicit number rule such as 1, 2, 3... is defined, just use it. Otherwise,
-          //check it against pluralization rules in $locale service
-          if (!(value in whens)) value = $locale.pluralCat(value - offset);
-           return whensExpFns[value](scope);
-        } else {
-          return '';
+        if (!countIsNaN && !(count in whens)) {
+          // If an explicit number rule such as 1, 2, 3... is defined, just use it.
+          // Otherwise, check it against pluralization rules in $locale service.
+          count = $locale.pluralCat(count - offset);
         }
-      }, function ngPluralizeWatchAction(newVal) {
-        element.text(newVal);
+
+        // If both `count` and `lastCount` are NaN, we don't need to re-register a watch.
+        // In JS `NaN !== NaN`, so we have to exlicitly check.
+        if ((count !== lastCount) && !(countIsNaN && isNaN(lastCount))) {
+          watchRemover();
+          watchRemover = scope.$watch(whensExpFns[count], updateElementText);
+          lastCount = count;
+        }
       });
+
+      function updateElementText(newText) {
+        element.text(newText || '');
+      }
     }
   };
 }];
@@ -31541,17 +31530,17 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
  *
  * ### Overriding `.ng-hide`
  *
- * By default, the `.ng-hide` class will style the element with `display:none!important`. If you wish to change
+ * By default, the `.ng-hide` class will style the element with `display: none!important`. If you wish to change
  * the hide behavior with ngShow/ngHide then this can be achieved by restating the styles for the `.ng-hide`
  * class in CSS:
  *
  * ```css
  * .ng-hide {
  *   /&#42; this is just another form of hiding an element &#42;/
- *   display:block!important;
- *   position:absolute;
- *   top:-9999px;
- *   left:-9999px;
+ *   display: block!important;
+ *   position: absolute;
+ *   top: -9999px;
+ *   left: -9999px;
  * }
  * ```
  *
@@ -31571,13 +31560,13 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
  * .my-element.ng-hide-add, .my-element.ng-hide-remove {
  *   /&#42; this is required as of 1.3x to properly
  *      apply all styling in a show/hide animation &#42;/
- *   transition:0s linear all;
+ *   transition: 0s linear all;
  * }
  *
  * .my-element.ng-hide-add-active,
  * .my-element.ng-hide-remove-active {
  *   /&#42; the transition is defined in the active class &#42;/
- *   transition:1s linear all;
+ *   transition: 1s linear all;
  * }
  *
  * .my-element.ng-hide-add { ... }
@@ -31619,29 +31608,29 @@ var NG_HIDE_IN_PROGRESS_CLASS = 'ng-hide-animate';
     </file>
     <file name="animations.css">
       .animate-show {
-        line-height:20px;
-        opacity:1;
-        padding:10px;
-        border:1px solid black;
-        background:white;
+        line-height: 20px;
+        opacity: 1;
+        padding: 10px;
+        border: 1px solid black;
+        background: white;
       }
 
       .animate-show.ng-hide-add.ng-hide-add-active,
       .animate-show.ng-hide-remove.ng-hide-remove-active {
-        -webkit-transition:all linear 0.5s;
-        transition:all linear 0.5s;
+        -webkit-transition: all linear 0.5s;
+        transition: all linear 0.5s;
       }
 
       .animate-show.ng-hide {
-        line-height:0;
-        opacity:0;
-        padding:0 10px;
+        line-height: 0;
+        opacity: 0;
+        padding: 0 10px;
       }
 
       .check-element {
-        padding:10px;
-        border:1px solid black;
-        background:white;
+        padding: 10px;
+        border: 1px solid black;
+        background: white;
       }
     </file>
     <file name="protractor.js" type="protractor">
@@ -31715,17 +31704,17 @@ var ngShowDirective = ['$animate', function($animate) {
  *
  * ### Overriding `.ng-hide`
  *
- * By default, the `.ng-hide` class will style the element with `display:none!important`. If you wish to change
+ * By default, the `.ng-hide` class will style the element with `display: none!important`. If you wish to change
  * the hide behavior with ngShow/ngHide then this can be achieved by restating the styles for the `.ng-hide`
  * class in CSS:
  *
  * ```css
  * .ng-hide {
  *   /&#42; this is just another form of hiding an element &#42;/
- *   display:block!important;
- *   position:absolute;
- *   top:-9999px;
- *   left:-9999px;
+ *   display: block!important;
+ *   position: absolute;
+ *   top: -9999px;
+ *   left: -9999px;
  * }
  * ```
  *
@@ -31742,7 +31731,7 @@ var ngShowDirective = ['$animate', function($animate) {
  * //a working example can be found at the bottom of this page
  * //
  * .my-element.ng-hide-add, .my-element.ng-hide-remove {
- *   transition:0.5s linear all;
+ *   transition: 0.5s linear all;
  * }
  *
  * .my-element.ng-hide-add { ... }
@@ -31784,25 +31773,25 @@ var ngShowDirective = ['$animate', function($animate) {
     </file>
     <file name="animations.css">
       .animate-hide {
-        -webkit-transition:all linear 0.5s;
-        transition:all linear 0.5s;
-        line-height:20px;
-        opacity:1;
-        padding:10px;
-        border:1px solid black;
-        background:white;
+        -webkit-transition: all linear 0.5s;
+        transition: all linear 0.5s;
+        line-height: 20px;
+        opacity: 1;
+        padding: 10px;
+        border: 1px solid black;
+        background: white;
       }
 
       .animate-hide.ng-hide {
-        line-height:0;
-        opacity:0;
-        padding:0 10px;
+        line-height: 0;
+        opacity: 0;
+        padding: 0 10px;
       }
 
       .check-element {
-        padding:10px;
-        border:1px solid black;
-        background:white;
+        padding: 10px;
+        border: 1px solid black;
+        background: white;
       }
     </file>
     <file name="protractor.js" type="protractor">
@@ -32994,7 +32983,7 @@ var styleDirective = valueFn({
  */
 
 /**
- * @license AngularJS v1.3.3
+ * @license AngularJS v1.3.4
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -33240,7 +33229,7 @@ var styleDirective = valueFn({
  * You then configure `$animate` to enforce this prefix:
  *
  * ```js
- * $animateProvider.classNamePrefix(/animate-/);
+ * $animateProvider.classNameFilter(/animate-/);
  * ```
  * </div>
  *
@@ -33971,9 +33960,9 @@ angular.module('ngAnimate', ['ng'])
          * | 3. $animate waits for the next digest to start the animation                                                      | class="my-animation ng-animate"                          |
          * | 4. the .ng-leave class is added to the element                                                                    | class="my-animation ng-animate ng-leave"                 |
          * | 5. $animate scans the element styles to get the CSS transition/animation duration and delay                       | class="my-animation ng-animate ng-leave"                 |
-         * | 6. $animate blocks all CSS transitions on the element to ensure the .ng-leave class styling is applied right away | class="my-animation ng-animate ng-leave”                 |
+         * | 6. $animate blocks all CSS transitions on the element to ensure the .ng-leave class styling is applied right away | class="my-animation ng-animate ng-leave"                 |
          * | 7. $animate waits for a single animation frame (this performs a reflow)                                           | class="my-animation ng-animate ng-leave"                 |
-         * | 8. $animate removes the CSS transition block placed on the element                                                | class="my-animation ng-animate ng-leave”                 |
+         * | 8. $animate removes the CSS transition block placed on the element                                                | class="my-animation ng-animate ng-leave"                 |
          * | 9. the .ng-leave-active class is added (this triggers the CSS transition/animation)                               | class="my-animation ng-animate ng-leave ng-leave-active" |
          * | 10. $animate waits for the animation to complete (via events and timeout)                                         | class="my-animation ng-animate ng-leave ng-leave-active" |
          * | 11. The animation ends and all generated CSS classes are removed from the element                                 | class="my-animation"                                     |
@@ -34017,9 +34006,9 @@ angular.module('ngAnimate', ['ng'])
          * | 4. $animate runs the JavaScript-defined animations detected on the element                                       | class="my-animation ng-animate"                        |
          * | 5. the .ng-move class is added to the element                                                                    | class="my-animation ng-animate ng-move"                |
          * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                      | class="my-animation ng-animate ng-move"                |
-         * | 7. $animate blocks all CSS transitions on the element to ensure the .ng-move class styling is applied right away | class="my-animation ng-animate ng-move”                |
+         * | 7. $animate blocks all CSS transitions on the element to ensure the .ng-move class styling is applied right away | class="my-animation ng-animate ng-move"                |
          * | 8. $animate waits for a single animation frame (this performs a reflow)                                          | class="my-animation ng-animate ng-move"                |
-         * | 9. $animate removes the CSS transition block placed on the element                                               | class="my-animation ng-animate ng-move”                |
+         * | 9. $animate removes the CSS transition block placed on the element                                               | class="my-animation ng-animate ng-move"                |
          * | 10. the .ng-move-active class is added (this triggers the CSS transition/animation)                              | class="my-animation ng-animate ng-move ng-move-active" |
          * | 11. $animate waits for the animation to complete (via events and timeout)                                        | class="my-animation ng-animate ng-move ng-move-active" |
          * | 12. The animation ends and all generated CSS classes are removed from the element                                | class="my-animation"                                   |
@@ -34064,8 +34053,8 @@ angular.module('ngAnimate', ['ng'])
          * | 3. the .super-add class is added to the element                                                    | class="my-animation ng-animate super-add"                        |
          * | 4. $animate waits for a single animation frame (this performs a reflow)                            | class="my-animation ng-animate super-add"                        |
          * | 5. the .super and .super-add-active classes are added (this triggers the CSS transition/animation) | class="my-animation ng-animate super super-add super-add-active" |
-         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay        | class="my-animation ng-animate super-add"                        |
-         * | 7. $animate waits for the animation to complete (via events and timeout)                           | class="my-animation super super-add super-add-active"            |
+         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay        | class="my-animation ng-animate super super-add super-add-active" |
+         * | 7. $animate waits for the animation to complete (via events and timeout)                           | class="my-animation ng-animate super super-add super-add-active" |
          * | 8. The animation ends and all generated CSS classes are removed from the element                   | class="my-animation super"                                       |
          * | 9. The super class is kept on the element                                                          | class="my-animation super"                                       |
          * | 10. The returned promise is resolved.                                                              | class="my-animation super"                                       |
@@ -34098,7 +34087,7 @@ angular.module('ngAnimate', ['ng'])
          * | 3. the .super-remove class is added to the element                                                               | class="my-animation super ng-animate super-remove"               |
          * | 4. $animate waits for a single animation frame (this performs a reflow)                                          | class="my-animation super ng-animate super-remove"               |
          * | 5. the .super-remove-active classes are added and .super is removed (this triggers the CSS transition/animation) | class="my-animation ng-animate super-remove super-remove-active" |
-         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                      | class="my-animation super ng-animate super-remove"               |
+         * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                      | class="my-animation ng-animate super-remove super-remove-active" |
          * | 7. $animate waits for the animation to complete (via events and timeout)                                         | class="my-animation ng-animate super-remove super-remove-active" |
          * | 8. The animation ends and all generated CSS classes are removed from the element                                 | class="my-animation"                                             |
          * | 9. The returned promise is resolved.                                                                             | class="my-animation"                                             |
@@ -34123,11 +34112,11 @@ angular.module('ngAnimate', ['ng'])
          *
          * | Animation Step                                                                                                                       | What the element class attribute looks like                                          |
          * |--------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-         * | 1. $animate.removeClass(element, ‘on’, ‘off’) is called                                                                              | class="my-animation super off”                                                       |
-         * | 2. $animate runs the JavaScript-defined animations detected on the element                                                           | class="my-animation super ng-animate off”                                            |
-         * | 3. the .on-add and .off-remove classes are added to the element                                                                      | class="my-animation ng-animate on-add off-remove off”                                |
-         * | 4. $animate waits for a single animation frame (this performs a reflow)                                                              | class="my-animation ng-animate on-add off-remove off”                                |
-         * | 5. the .on, .on-add-active and .off-remove-active classes are added and .off is removed (this triggers the CSS transition/animation) | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active” |
+         * | 1. $animate.setClass(element, 'on', 'off') is called                                                                                 | class="my-animation off"                                                             |
+         * | 2. $animate runs the JavaScript-defined animations detected on the element                                                           | class="my-animation ng-animate off"                                                  |
+         * | 3. the .on-add and .off-remove classes are added to the element                                                                      | class="my-animation ng-animate on-add off-remove off"                                |
+         * | 4. $animate waits for a single animation frame (this performs a reflow)                                                              | class="my-animation ng-animate on-add off-remove off"                                |
+         * | 5. the .on, .on-add-active and .off-remove-active classes are added and .off is removed (this triggers the CSS transition/animation) | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active" |
          * | 6. $animate scans the element styles to get the CSS transition/animation duration and delay                                          | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active" |
          * | 7. $animate waits for the animation to complete (via events and timeout)                                                             | class="my-animation ng-animate on on-add on-add-active off-remove off-remove-active" |
          * | 8. The animation ends and all generated CSS classes are removed from the element                                                     | class="my-animation on"                                                              |
@@ -35138,7 +35127,7 @@ angular.module('ngAnimate', ['ng'])
  */
 
 /**
- * @license AngularJS v1.3.3
+ * @license AngularJS v1.3.4
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -35800,13 +35789,13 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
     function addLink(url, text) {
       html.push('<a ');
       if (angular.isDefined(target)) {
-        html.push('target="');
-        html.push(target);
-        html.push('" ');
+        html.push('target="',
+                  target,
+                  '" ');
       }
-      html.push('href="');
-      html.push(url);
-      html.push('">');
+      html.push('href="',
+                url.replace('"', '&quot;'),
+                '">');
       addText(text);
       html.push('</a>');
     }
@@ -39418,8 +39407,12 @@ IonicModule
       ionic.offGesture(dragEndGesture, 'dragend', handleDragEnd);
     });
 
+    var isDragging = false;
     element.on('touchmove pointermove mousemove', function(ev) {
-      if (dragState && dragState.dragging) ev.preventDefault();
+      if (isDragging) ev.preventDefault();
+    });
+    element.on('touchend mouseup mouseleave', function(ev) {
+      isDragging = false;
     });
 
     var dragState;
@@ -39443,7 +39436,9 @@ IonicModule
         handleDragEnd(ev);
         return;
       }
-      dragState.dragging = true;
+      if (Math.abs(deltaX) > Math.abs(deltaY) * 2) {
+        isDragging = true;
+      }
 
       var percent = getDragPercent(ev.gesture.center.pageX);
       opts.onDrag(percent);
@@ -39713,6 +39708,7 @@ function($document, $ionicBody, $timeout) {
           cb.classList.remove(CSS_HIDE);
         } else {
           $ionicBody.append(cb);
+          isAttached = true;
         }
       });
 
@@ -40241,28 +40237,6 @@ function delegateService(methodNames) {
   function trueFn() { return true; }
 
   return ['$log', function($log) {
-    var delegate = this;
-
-    var instances = this._instances = [];
-    this._registerInstance = function(instance, handle, filterFn) {
-      instance.$$delegateHandle = handle;
-      instance.$$filterFn = filterFn || trueFn;
-      instances.push(instance);
-
-      return function deregister() {
-        var index = instances.indexOf(instance);
-        if (index !== -1) {
-          instances.splice(index, 1);
-        }
-      };
-    };
-
-    this.$getByHandle = function(handle) {
-      if (!handle) {
-        return delegate;
-      }
-      return new InstanceForHandle(handle);
-    };
 
     /*
      * Creates a new object that will have all the methodNames given,
@@ -40280,68 +40254,76 @@ function delegateService(methodNames) {
      * that will only try to fetch the controller with given handle
      * once the methods are actually called.
      */
-    function InstanceForHandle(handle) {
+    function DelegateInstance(instances, handle) {
+      this._instances = instances;
       this.handle = handle;
     }
-
     methodNames.forEach(function(methodName) {
-      InstanceForHandle.prototype[methodName] = function() {
+      DelegateInstance.prototype[methodName] = instanceMethodCaller(methodName);
+    });
+
+
+    /**
+     * The delegate service (eg $ionicNavBarDelegate) is just an instance
+     * with a non-defined handle, a couple extra methods for registering
+     * and narrowing down to a specific handle.
+     */
+    function DelegateService() {
+      this._instances = [];
+    }
+    DelegateService.prototype = DelegateInstance.prototype;
+    DelegateService.prototype._registerInstance = function(instance, handle, filterFn) {
+      var instances = this._instances;
+      instance.$$delegateHandle = handle;
+      instance.$$filterFn = filterFn || trueFn;
+      instances.push(instance);
+
+      return function deregister() {
+        var index = instances.indexOf(instance);
+        if (index !== -1) {
+          instances.splice(index, 1);
+        }
+      };
+    };
+    DelegateService.prototype.$getByHandle = function(handle) {
+      return new DelegateInstance(this._instances, handle);
+    };
+
+    return new DelegateService();
+
+    function instanceMethodCaller(methodName) {
+      return function caller() {
         var handle = this.handle;
         var args = arguments;
-        var matchingInstancesFound = 0;
-        var finalResult;
-        var result;
+        var foundInstancesCount = 0;
+        var returnValue;
 
-        //This logic is repeated below; we could factor some of it out to a function
-        //but don't because it lets this method be more performant (one loop versus 2)
-        instances.forEach(function(instance) {
-          if (instance.$$delegateHandle === handle && instance.$$filterFn(instance)) {
-            matchingInstancesFound++;
-            result = instance[methodName].apply(instance, args);
+        this._instances.forEach(function(instance) {
+          if ((!handle || handle == instance.$$delegateHandle) && instance.$$filterFn(instance)) {
+            foundInstancesCount++;
+            var ret = instance[methodName].apply(instance, args);
             //Only return the value from the first call
-            if (matchingInstancesFound === 1) {
-              finalResult = result;
+            if (foundInstancesCount === 1) {
+              returnValue = ret;
             }
           }
         });
 
-        if (!matchingInstancesFound) {
+        if (!foundInstancesCount && handle) {
           return $log.warn(
-            'Delegate for handle "' + this.handle + '" could not find a ' +
-            'corresponding element with delegate-handle="' + this.handle + '"! ' +
+            'Delegate for handle "' + handle + '" could not find a ' +
+            'corresponding element with delegate-handle="' + handle + '"! ' +
             methodName + '() was not called!\n' +
             'Possible cause: If you are calling ' + methodName + '() immediately, and ' +
-            'your element with delegate-handle="' + this.handle + '" is a child of your ' +
+            'your element with delegate-handle="' + handle + '" is a child of your ' +
             'controller, then your element may not be compiled yet. Put a $timeout ' +
             'around your call to ' + methodName + '() and try again.'
           );
         }
-
-        return finalResult;
+        return returnValue;
       };
+    }
 
-      delegate[methodName] = function() {
-        var args = arguments;
-        var matchingInstancesFound = 0;
-        var finalResult;
-        var result;
-
-        //This logic is repeated above
-        instances.forEach(function(instance, index) {
-          if (instance.$$filterFn(instance)) {
-            matchingInstancesFound++;
-            result = instance[methodName].apply(instance, args);
-            //Only return the value from the first call
-            if (matchingInstancesFound === 1) {
-              finalResult = result;
-            }
-          }
-        });
-
-        return finalResult;
-      };
-
-    });
   }];
 }
 
@@ -40406,9 +40388,10 @@ IonicModule
   '$state',
   '$location',
   '$window',
+  '$timeout',
   '$ionicViewSwitcher',
   '$ionicNavViewDelegate',
-function($rootScope, $state, $location, $window, $ionicViewSwitcher, $ionicNavViewDelegate) {
+function($rootScope, $state, $location, $window, $timeout, $ionicViewSwitcher, $ionicNavViewDelegate) {
 
   // history actions while navigating views
   var ACTION_INITIAL_VIEW = 'initialView';
@@ -40425,7 +40408,7 @@ function($rootScope, $state, $location, $window, $ionicViewSwitcher, $ionicNavVi
   var DIRECTION_NONE = 'none';
 
   var stateChangeCounter = 0;
-  var lastStateId, nextViewOptions, forcedNav;
+  var lastStateId, nextViewOptions, nextViewExpireTimer, forcedNav;
 
   var viewHistory = {
     histories: { root: { historyId: 'root', parentHistoryId: null, stack: [], cursor: -1 } },
@@ -40513,7 +40496,7 @@ function($rootScope, $state, $location, $window, $ionicViewSwitcher, $ionicNavVi
       // nothing found keep climbing up
       parentScope = parentScope.$parent;
     }
-    // no history for for the parent, use the root
+    // no history for the parent, use the root
     return { historyId: 'root', scope: $rootScope };
   }
 
@@ -40749,6 +40732,7 @@ function($rootScope, $state, $location, $window, $ionicViewSwitcher, $ionicNavVi
         hist.stack.push(viewHistory.views[viewId]);
       }
 
+      $timeout.cancel(nextViewExpireTimer);
       if (nextViewOptions) {
         if (nextViewOptions.disableAnimate) direction = DIRECTION_NONE;
         if (nextViewOptions.disableBack) viewHistory.views[viewId].backViewId = null;
@@ -41012,11 +40996,17 @@ function($rootScope, $state, $location, $window, $ionicViewSwitcher, $ionicNavVi
      */
     nextViewOptions: function(opts) {
       if (arguments.length) {
+        $timeout.cancel(nextViewExpireTimer);
         if (opts === null) {
           nextViewOptions = opts;
         } else {
           nextViewOptions = nextViewOptions || {};
           extend(nextViewOptions, opts);
+          if (nextViewOptions.expire) {
+            nextViewExpireTimer = $timeout(function(){
+              nextViewOptions = null;
+            }, nextViewOptions.expire);
+          }
         }
       }
       return nextViewOptions;
@@ -41027,14 +41017,21 @@ function($rootScope, $state, $location, $window, $ionicViewSwitcher, $ionicNavVi
     },
 
     isActiveScope: function(scope) {
-      if (!scope || scope.$$disconnected) return false;
+      if (!scope) return false;
 
+      var climbScope = scope;
       var currentHistoryId = this.currentHistoryId();
-      if (currentHistoryId) {
-        return currentHistoryId == (isDefined(scope.$historyId) ? scope.$historyId : 'root');
+      while (climbScope) {
+        if (climbScope.$$disconnected) {
+          return false;
+        }
+        if (currentHistoryId && currentHistoryId == climbScope.$historyId) {
+          return true;
+        }
+        climbScope = climbScope.$parent;
       }
 
-      return true;
+      return currentHistoryId ? currentHistoryId == 'root' : true;
     }
 
   };
@@ -41344,6 +41341,9 @@ IonicModule
       text: PLATFORM,
       previousTitleText: PLATFORM
     },
+    form: {
+      checkbox: PLATFORM
+    },
     tabs: {
       style: PLATFORM,
       position: PLATFORM
@@ -41377,6 +41377,10 @@ IonicModule
       icon: 'ion-ios7-arrow-back',
       text: 'Back',
       previousTitleText: true
+    },
+
+    form: {
+      checkbox: 'circle'
     },
 
     tabs: {
@@ -41416,6 +41420,10 @@ IonicModule
       icon: 'ion-android-arrow-back',
       text: false,
       previousTitleText: false
+    },
+
+    form: {
+      checkbox: 'square'
     },
 
     tabs: {
@@ -44075,6 +44083,9 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
           var enteringData = getTransitionData(viewLocals, enteringEle, registerData.direction, enteringView);
           var transitionFn = $ionicConfig.transitions.views[enteringData.transition];
 
+          // disconnect the leaving scope before reconnecting or creating a scope for the entering view
+          leavingEle && ionic.Utils.disconnectScope(leavingEle.scope());
+
           if (alreadyInDom) {
             // it was already found in the DOM, just reconnect the scope
             ionic.Utils.reconnectScope(enteringEle.scope());
@@ -44137,8 +44148,7 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
           if (viewTransition.shouldAnimate) {
             // 2) attach transitionend events (and fallback timer)
             enteringEle.on(TRANSITIONEND_EVENT, transitionComplete);
-            leavingEle && leavingEle.on(TRANSITIONEND_EVENT, transitionComplete);
-            enteringEle.data(DATA_FALLBACK_TIMER, $timeout(transitionComplete, 750));
+            enteringEle.data(DATA_FALLBACK_TIMER, $timeout(transitionComplete, 1000));
           }
 
           // 3) stage entering element, opacity 0, no transition duration
@@ -44177,8 +44187,8 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
             transitionComplete.x = true;
 
             enteringEle.off(TRANSITIONEND_EVENT, transitionComplete);
-            leavingEle && leavingEle.off(TRANSITIONEND_EVENT, transitionComplete);
             $timeout.cancel(enteringEle.data(DATA_FALLBACK_TIMER));
+            leavingEle && $timeout.cancel(leavingEle.data(DATA_FALLBACK_TIMER));
 
             // 8) emit that the views have finished transitioning
             // each parent nav-view will update which views are active and cached
@@ -44253,8 +44263,6 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
           }
 
           destroyViewEle(removableEle);
-
-          ionic.Utils.disconnectScope(leavingEle && leavingEle.scope());
 
           if (enteringEle.data(DATA_NO_CACHE)) {
             enteringEle.data(DATA_DESTROY_ELE, true);
@@ -44386,6 +44394,8 @@ function($scope, $element, $attrs, $q, $ionicConfig, $ionicHistory) {
   var titleCss = '';
   var isBackEnabled = false;
   var isBackShown = true;
+  var isNavBackShown = true;
+  var isBackElementShown = false;
   var titleTextWidth = 0;
 
 
@@ -44404,27 +44414,42 @@ function($scope, $element, $attrs, $q, $ionicConfig, $ionicHistory) {
   };
 
 
-  self.enableBack = function(shouldEnable) {
+  self.enableBack = function(shouldEnable, disableReset) {
     // whether or not the back button show be visible, according
     // to the navigation and history
-    if (arguments.length && shouldEnable !== isBackEnabled) {
-      var backBtnEle = getEle(BACK_BUTTON);
-      backBtnEle && backBtnEle.classList[ shouldEnable ? 'remove' : 'add' ]('back-disabled');
+    if (arguments.length) {
       isBackEnabled = shouldEnable;
+      if (!disableReset) self.updateBackButton();
     }
     return isBackEnabled;
   };
 
 
-  self.showBack = function(shouldShow) {
+  self.showBack = function(shouldShow, disableReset) {
     // different from enableBack() because this will always have the back
     // visually hidden if false, even if the history says it should show
-    if (arguments.length && shouldShow !== isBackShown) {
-      var backBtnEle = getEle(BACK_BUTTON);
-      backBtnEle && backBtnEle.classList[ shouldShow ? 'remove' : 'add' ](HIDE);
+    if (arguments.length) {
       isBackShown = shouldShow;
+      if (!disableReset) self.updateBackButton();
     }
     return isBackShown;
+  };
+
+
+  self.showNavBack = function(shouldShow) {
+    // different from showBack() because this is for the entire nav bar's
+    // setting for all of it's child headers. For internal use.
+    isNavBackShown = shouldShow;
+    self.updateBackButton();
+  };
+
+
+  self.updateBackButton = function() {
+    if ( (isBackShown && isNavBackShown && isBackEnabled) !== isBackElementShown) {
+      isBackElementShown = isBackShown && isNavBackShown && isBackEnabled;
+      var backBtnEle = getEle(BACK_BUTTON);
+      backBtnEle && backBtnEle.classList[ isBackElementShown ? 'remove' : 'add' ](HIDE);
+    }
   };
 
 
@@ -44834,7 +44859,7 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
   var PRIMARY_BUTTONS = 'primaryButtons';
   var SECONDARY_BUTTONS = 'secondaryButtons';
   var BACK_BUTTON = 'backButton';
-  var BUTTON_TYPES = 'primaryButtons secondaryButtons leftButtons rightButtons'.split(' ');
+  var ITEM_TYPES = 'primaryButtons secondaryButtons leftButtons rightButtons title'.split(' ');
 
   var self = this;
   var headerBars = [];
@@ -44870,7 +44895,7 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
     if (isDefined($attrs.noTapScroll)) headerBarEle.attr('no-tap-scroll', $attrs.noTapScroll);
     var titleEle = jqLite('<div class="title title-' + alignTitle + '">');
     var navEle = {};
-    var lastViewBtnsEle = {};
+    var lastViewItemEle = {};
     var leftButtonsEle, rightButtonsEle;
 
     //navEle[BACK_BUTTON] = self.createBackButtonElement(headerBarEle);
@@ -44880,11 +44905,11 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
     // append title in the header, this is the rock to where buttons append
     headerBarEle.append(titleEle);
 
-    forEach(BUTTON_TYPES, function(buttonType) {
+    forEach(ITEM_TYPES, function(itemType) {
       // create default button elements
-      navEle[buttonType] = createNavElement(buttonType);
+      navEle[itemType] = createNavElement(itemType);
       // append and position buttons
-      positionButtons(navEle[buttonType], buttonType);
+      positionItem(navEle[itemType], itemType);
     });
 
     // add header-item to the root children
@@ -44900,39 +44925,38 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
 
     var headerBarInstance = {
       isActive: isActive,
-      enableBack: function(shouldEnable) {
-        headerBarCtrl.enableBack(shouldEnable);
-      },
-      showBack: function(shouldShow) {
-        headerBarCtrl.showBack(shouldShow);
-      },
       title: function(newTitleText) {
         headerBarCtrl.title(newTitleText);
       },
-      setButtons: function(viewBtnsEle, side) {
-        // first make sure any exiting view buttons have been removed
-        headerBarInstance.removeButtons(side);
+      setItem: function(navBarItemEle, itemType) {
+        // first make sure any exiting nav bar item has been removed
+        headerBarInstance.removeItem(itemType);
 
-        if (viewBtnsEle) {
-          // there's a view button for this side
-          positionButtons(viewBtnsEle, side);
-
-          // make sure the default button on this side is hidden
-          if (navEle[side]) {
-            navEle[side].addClass(CSS_HIDE);
+        if (navBarItemEle) {
+          if (itemType === 'title') {
+            // clear out the text based title
+            headerBarInstance.title("");
           }
-          lastViewBtnsEle[side] = viewBtnsEle;
 
-        } else if (navEle[side]) {
+          // there's a custom nav bar item
+          positionItem(navBarItemEle, itemType);
+
+          if (navEle[itemType]) {
+            // make sure the default on this itemType is hidden
+            navEle[itemType].addClass(CSS_HIDE);
+          }
+          lastViewItemEle[itemType] = navBarItemEle;
+
+        } else if (navEle[itemType]) {
           // there's a default button for this side and no view button
-          navEle[side].removeClass(CSS_HIDE);
+          navEle[itemType].removeClass(CSS_HIDE);
         }
       },
-      removeButtons: function(side) {
-        if (lastViewBtnsEle[side]) {
-          lastViewBtnsEle[side].scope().$destroy();
-          lastViewBtnsEle[side].remove();
-          lastViewBtnsEle[side] = null;
+      removeItem: function(itemType) {
+        if (lastViewItemEle[itemType]) {
+          lastViewItemEle[itemType].scope().$destroy();
+          lastViewItemEle[itemType].remove();
+          lastViewItemEle[itemType] = null;
         }
       },
       containerEle: function() {
@@ -44942,8 +44966,8 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
         return headerBarEle;
       },
       afterLeave: function() {
-        forEach(BUTTON_TYPES, function(buttonType) {
-          headerBarInstance.removeButtons(buttonType);
+        forEach(ITEM_TYPES, function(itemType) {
+          headerBarInstance.removeItem(itemType);
         });
         headerBarCtrl.resetBackButton();
       },
@@ -44951,8 +44975,8 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
         return headerBarCtrl;
       },
       destroy: function() {
-        forEach(BUTTON_TYPES, function(buttonType) {
-          headerBarInstance.removeButtons(buttonType);
+        forEach(ITEM_TYPES, function(itemType) {
+          headerBarInstance.removeItem(itemType);
         });
         containerEle.scope().$destroy();
         for (var n in navEle) {
@@ -44970,23 +44994,25 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
       }
     };
 
-    function positionButtons(btnsEle, buttonType) {
-      if (!btnsEle) return;
+    function positionItem(ele, itemType) {
+      if (!ele) return;
 
-      var appendToRight = (buttonType == 'rightButtons') ||
-                          (buttonType == SECONDARY_BUTTONS && $ionicConfig.navBar.positionSecondaryButtons() != 'left') ||
-                          (buttonType == PRIMARY_BUTTONS && $ionicConfig.navBar.positionPrimaryButtons() == 'right');
+      if (itemType === 'title') {
+        // title element
+        titleEle.append(ele);
 
-      if (appendToRight) {
+      } else if (itemType == 'rightButtons' ||
+                (itemType == SECONDARY_BUTTONS && $ionicConfig.navBar.positionSecondaryButtons() != 'left') ||
+                (itemType == PRIMARY_BUTTONS && $ionicConfig.navBar.positionPrimaryButtons() == 'right')) {
         // right side
         if (!rightButtonsEle) {
           rightButtonsEle = jqLite('<div class="buttons buttons-right">');
           headerBarEle.append(rightButtonsEle);
         }
-        if (buttonType == SECONDARY_BUTTONS) {
-          rightButtonsEle.append(btnsEle);
+        if (itemType == SECONDARY_BUTTONS) {
+          rightButtonsEle.append(ele);
         } else {
-          rightButtonsEle.prepend(btnsEle);
+          rightButtonsEle.prepend(ele);
         }
 
       } else {
@@ -44999,10 +45025,10 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
             headerBarEle.prepend(leftButtonsEle);
           }
         }
-        if (buttonType == SECONDARY_BUTTONS) {
-          leftButtonsEle.append(btnsEle);
+        if (itemType == SECONDARY_BUTTONS) {
+          leftButtonsEle.append(ele);
         } else {
-          leftButtonsEle.prepend(btnsEle);
+          leftButtonsEle.prepend(ele);
         }
       }
 
@@ -45033,20 +45059,22 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
     self.enable(showNavBar);
     var enteringHeaderBar = self.isInitialized ? getOffScreenHeaderBar() : getOnScreenHeaderBar();
     var leavingHeaderBar = self.isInitialized ? getOnScreenHeaderBar() : null;
+    var enteringHeaderCtrl = enteringHeaderBar.controller();
 
     // update if the entering header should show the back button or not
-    self.enableBackButton(viewData.enableBack, enteringHeaderBar);
-    self.showBackButton(viewData.showBack, enteringHeaderBar);
+    enteringHeaderCtrl.enableBack(viewData.enableBack, true);
+    enteringHeaderCtrl.showBack(viewData.showBack, true);
+    enteringHeaderCtrl.updateBackButton();
 
     // update the entering header bar's title
     self.title(viewData.title, enteringHeaderBar);
 
     self.showBar(showNavBar);
 
-    // update the buttons, depending if the view has their own or not
-    if (viewData.buttons) {
-      forEach(BUTTON_TYPES, function(buttonType) {
-        enteringHeaderBar.setButtons(viewData.buttons[buttonType], buttonType);
+    // update the nav bar items, depending if the view has their own or not
+    if (viewData.navBarItems) {
+      forEach(ITEM_TYPES, function(itemType) {
+        enteringHeaderBar.setItem(viewData.navBarItems[itemType], itemType);
       });
     }
 
@@ -45153,17 +45181,31 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
   };
 
 
-  self.enableBackButton = function(shouldEnable, headerBar) {
-    headerBar = headerBar || getOnScreenHeaderBar();
-    headerBar && headerBar.enableBack(shouldEnable);
+  /**
+   * @ngdoc method
+   * @name $ionicNavBar#showBackButton
+   * @description Show/hide the nav bar back button when there is a
+   * back view. If the back button is not possible, for example, the
+   * first view in the stack, then this will not force the back button
+   * to show.
+   */
+  self.showBackButton = function(shouldShow) {
+    for (var x = 0; x < headerBars.length; x++) {
+      headerBars[x].controller().showNavBack(!!shouldShow);
+    }
+    $scope.$isBackButtonShown = !!shouldShow;
+    return $scope.$isBackButtonShown;
   };
 
 
-  self.showBackButton = function(shouldShow, headerBar) {
-    headerBar = headerBar || getOnScreenHeaderBar();
-    headerBar && headerBar.showBack(shouldShow);
-    $scope.$isBackButtonShown = !!shouldShow;
-    return !!shouldShow;
+  /**
+   * @ngdoc method
+   * @name $ionicNavBar#showActiveBackButton
+   * @description Show/hide only the active header bar's back button.
+   */
+  self.showActiveBackButton = function(shouldShow) {
+    var headerBar = getOnScreenHeaderBar();
+    headerBar && headerBar.controller().showBack(shouldShow);
   };
 
 
@@ -45277,6 +45319,7 @@ function($scope, $element, $attrs, $compile, $controller, $ionicNavBarDelegate, 
   var activeEleId;
   var navViewAttr = $ionicViewSwitcher.navViewAttr;
 
+  self.scope = $scope;
 
   self.init = function() {
     var navViewName = $attrs.name || '';
@@ -45455,15 +45498,29 @@ function($scope, $element, $attrs, $compile, $controller, $ionicNavBarDelegate, 
   };
 
 
+  /**
+   * @ngdoc method
+   * @name $ionicNavView#enableBackButton
+   * @description Enable/disable if the back button can be shown or not. For
+   * example, the very first view in the navigation stack would not have a
+   * back view, so the back button would be disabled.
+   */
   self.enableBackButton = function(shouldEnable) {
     var associatedNavBarCtrl = getAssociatedNavBarCtrl();
     associatedNavBarCtrl && associatedNavBarCtrl.enableBackButton(shouldEnable);
   };
 
 
+  /**
+   * @ngdoc method
+   * @name $ionicNavView#showBackButton
+   * @description Show/hide the nav bar active back button. If the back button
+   * is not possible this will not force the back button to show. The
+   * `enableBackButton()` method handles if a back button is even possible or not.
+   */
   self.showBackButton = function(shouldShow) {
     var associatedNavBarCtrl = getAssociatedNavBarCtrl();
-    associatedNavBarCtrl && associatedNavBarCtrl.showBackButton(shouldShow);
+    associatedNavBarCtrl && associatedNavBarCtrl.showActiveBackButton(shouldShow);
   };
 
 
@@ -46129,72 +46186,56 @@ IonicModule
 .controller('$ionSlideBox', [
   '$scope',
   '$element',
-  '$$ionicAttachDrag',
-  '$interval',
-  '$rootScope',
-  '$timeout',
   '$log',
-function(scope, element, $$ionicAttachDrag, $interval, $rootScope, $timeout, $log) {
+  '$document',
+  '$$q',
+  '$timeout',
+  '$interval',
+  '$$ionicAttachDrag',
+  '$rootScope',
+function(scope, element, $log, $document, $$q, $timeout, $interval, $$ionicAttachDrag, $rootScope) {
   var self = this;
-
-  var relevantSlides = {
-    previous: null,
-    selected: null,
-    next: null
-  };
-  var oldRelevantSlides = relevantSlides;
-
-  // This is a live nodeList that is updated whenever child ion-slides
-  // are added or removed
-  var slideNodes = element[0].getElementsByTagName('ion-slide');
-  var slideList = ionic.Utils.list(slideNodes);
-
-  var slidesParent = angular.element(element[0].querySelector('.slider-slides'));
-
-  // Successful slide requires velocity to be greater than this amount
+  var SLIDE_TRANSITION_DURATION = 250;
   var SLIDE_SUCCESS_VELOCITY = (1 / 4); // pixels / ms
-  var SLIDE_TRANSITION_DURATION = 250; //ms
 
-  $$ionicAttachDrag(scope, element, {
-    getDistance: function() { return slidesParent.prop('offsetWidth'); },
+  var container = jqLite(element[0].querySelector('.slider-slides'));
+
+  // Live-updated list of slides
+  var slideNodes = container[0].getElementsByTagName('ion-slide');
+
+  // If we're already sliding and a new selection is triggered, add it to the queue,
+  // to be taken off once the current slide animation is done
+  var slideQueue = [];
+
+  // Whether we're currently sliding through the slideQueue
+  var isSliding = false;
+
+  var slideCount = 0;
+  var selectedIndex = -1;
+  var isLoop = false;
+
+  self.element = element;
+
+  self.autoPlay = autoPlay;
+  self.count = count;
+  self.enableSlide = enableSlide;
+  self.isValidIndex = isValidIndex;
+  self.loop = loop;
+  self.next = next;
+  self.onAddSlide = onAddSlide;
+  self.onRemoveSlide = onRemoveSlide;
+  self.previous = previous;
+  self.select = select;
+  self.selected = selected;
+
+  $$ionicAttachDrag(scope, container, {
+    getDistance: function () { return container.prop('offsetWidth'); },
     onDragStart: onDragStart,
     onDrag: onDrag,
     onDragEnd: onDragEnd
   });
 
-  // At the very end of every digest, check if slides changed
-  // This is because our nodes won't be added until after data has been processed
-  // (eg you add a slide to data with ng-if, then the ng-if processes and the element
-  // now exists)
-  $rootScope.$watch(function() {
-    if (!checkSlidesChanged.queued) {
-      $rootScope.$$postDigest(checkSlidesChanged);
-    }
-    return true;
-  });
-
-  self.element = element;
-  self.isRelevant = isRelevant;
-  self.previous = previous;
-  self.next = next;
-
-  // Methods calling straight back to Utils.list
-  self.at = at;
-  self.count = slideList.count;
-  self.indexOf = indexOf;
-  self.isInRange = slideList.isInRange;
-  self.loop = slideList.loop;
-  self.delta = slideList.delta;
-
-  self.enableSlide = enableSlide;
-  self.autoPlay = autoPlay;
-  self.selected = selected;
-  self.select = select;
-  self.onDragStart = onDragStart;
-  self.onDrag = onDrag;
-  self.onDragEnd = onDragEnd;
-
-  // DEPRECATED, as of v1.0.0-beta14 -------
+  /****** DEPRECATED, as of v1.0.0-beta14 ********/
   self.update = deprecated.method(
     '$ionicSlideBoxDelegate.update() has been deprecated! Slidebox updates on its own now.',
     $log.warn,
@@ -46211,14 +46252,14 @@ function(scope, element, $$ionicAttachDrag, $interval, $rootScope, $timeout, $lo
      self.select
   );
   self.slidesCount = deprecated.method(
-     '$ionicSlideBoxDelegate.slidesCount has been deprecated! Use self.slidesCount() instead.',
+     '$ionicSlideBoxDelegate.slidesCount() has been deprecated! Use self.count() instead.',
      $log.warn,
      self.count
   );
   self.stop = deprecated.method(
     '$ionicSlideBoxDelegate.stop() has been deprecated! Use $ionicSlideBoxDelegate.autoPlay(0) to stop instead.',
     $log.warn,
-    function() {
+    function stopDeprecated() {
       self._stoppedInterval = self.autoPlayInterval;
       self.autoPlay(0);
     }
@@ -46226,54 +46267,14 @@ function(scope, element, $$ionicAttachDrag, $interval, $rootScope, $timeout, $lo
   self.start = deprecated.method(
     '$ionicSlideBoxDelegate.start() has been deprecated! Use $ionicSlideBoxDelegate.autoPlay(newInterval) to start instead.',
     $log.warn,
-    function() {
+    function startDeprecated() {
       self.autoPlay(self._stoppedInterval);
     }
   );
-  // END DEPRECATED -------
 
-
-  // ***
-  // Public Methods
-  // ***
-  function at(index) {
-    return jqLite( slideList.at(index) ).controller('ionSlide');
-  }
-
-  function indexOf(slide) {
-    return slide && slideList.indexOf(slide.node) || -1;
-  }
-
-
-  // Gets whether the given index is relevant to selected
-  // That is, whether the given index is previous, selected, or next
-  function isRelevant(index) {
-    return slideList.isRelevant(index, scope.selectedIndex);
-  }
-
-  // Gets the index to the previous of the given slide, default scope.selectedIndex
-  function previous(index) {
-    index = arguments.length ? index : scope.selectedIndex;
-    // If we only have two slides and loop is enabled, we cannot have a previous
-    // because previous === next. In this case, return -1.
-    if (self.loop() && self.count() === 2) {
-      return -1;
-    }
-    return slideList.previous(index);
-  }
-
-  // Gets the index to the next of the given slide, default scope.selectedIndex
-  function next(index) {
-    index = arguments.length ? index : scope.selectedIndex;
-    return slideList.next(index);
-  }
-
-  function enableSlide(isEnabled) {
-    if (arguments.length) {
-      self.dragDisabled = !isEnabled;
-    }
-    return !!self.dragDisabled;
-  }
+  /***************************
+   * Public Methods
+   ***************************/
 
   function autoPlay(newInterval) {
     self.autoPlayInterval = newInterval;
@@ -46286,272 +46287,292 @@ function(scope, element, $$ionicAttachDrag, $interval, $rootScope, $timeout, $lo
     }
   }
 
-  function selected() {
-    return self.isInRange(scope.selectedIndex) ? scope.selectedIndex : -1;
+  function count() {
+    return slideCount;
   }
 
-  /*
-   * Select and change slides
-   */
-  function select(newIndex, transitionDuration, force) {
-    if (!self.isInRange(newIndex)) return;
+  function enableSlide(enable) {
+    if (arguments.length) self.dragDisabled = !enable;
+    return !self.dragDisabled;
+  }
 
-    scope.selectedIndex = newIndex;
+  function isValidIndex(index) {
+    return index > -1 && index < self.count();
+  }
 
-    oldRelevantSlides = relevantSlides;
-    relevantSlides = {
-      previous: self.at(self.previous()),
-      selected: self.at(newIndex),
-      next: self.at(self.next())
-    };
+  function loop(loopValue) {
+    if (arguments.length) isLoop = !!loopValue;
+    return isLoop;
+  }
 
-    if (!force &&
-        oldRelevantSlides.next === relevantSlides.next &&
-        oldRelevantSlides.previous === relevantSlides.previous &&
-        oldRelevantSlides.selected === relevantSlides.selected) {
-      // do nothing;
-      return;
+  // gives the next index relative to the given index (default selectedIndex)
+  function next(index) {
+    index = arguments.length ? index : selectedIndex;
+    var nextIndex = index + 1;
+    if (nextIndex >= self.count()) {
+      // We can only have a next if there's more than one item
+      if (isLoop && self.count() > 1) return 0;
+      return -1;
     }
+    return nextIndex;
+  }
 
+  // Called by ionSlide directive
+  function onAddSlide() {
+    slideCount++;
+    // If we're waiting for a certain slide to be added so we can select it,
+    // or we just have selectedIndex at -1, go ahead and select.
+    if ((!angular.isNumber(scope.selected) || scope.selected < self.count()) &&
+        !self.isValidIndex(selectedIndex)) {
+      enqueueSelect(self.isValidIndex(scope.selected) ? scope.selected : 0);
 
-    slidesParent.css(
-      ionic.CSS.TRANSITION_DURATION,
-      (transitionDuration || SLIDE_TRANSITION_DURATION) + 'ms'
-    );
-
-    var delta = self.delta(scope.selectedIndex, newIndex);
-    if (self.isInRange(scope.selectedIndex) && Math.abs(delta) > 1) {
-      // if the new slide is > 1 away, then it is currently not attached to the DOM.
-      // Attach it in the position from which it will slide in.
-      self.at(newIndex).setState(delta > 1 ? 'next' : 'previous');
-      // Wait one frame so the new slide can 'settle' in its new place and
-      // be ready to properly transition in
-      ionic.requestAnimationFrame(doSelect);
-    } else {
-      doSelect();
+    } else if (self.isValidIndex(selectedIndex)) {
+      // 'Refresh' the selection at end of digest when a new slide is added
+      enqueueSelect(selectedIndex);
     }
+  }
 
-    function doSelect() {
-      // If a new selection has happened before this frame, abort.
-      if (scope.selectedIndex !== newIndex) return;
-      scope.$evalAsync(function() {
-        if (scope.selectedIndex !== newIndex) return;
-        arrangeSlides(newIndex);
+  // Called by ionSlide directive
+  function onRemoveSlide() {
+    slideCount--;
+    if (selectedIndex >= self.count()) {
+      enqueueSelect( Math.max(selectedIndex - 1, 0) );
+
+    } else if (self.isValidIndex(selectedIndex)) {
+      // 'Refresh' the selection at end of digest when a slide is removed
+      enqueueSelect(selectedIndex);
+    }
+  }
+
+  // gives the previous index relative to the given index (default selectedIndex)
+  function previous(index) {
+    index = arguments.length ? index : selectedIndex;
+    var previousIndex = index - 1;
+    if (previousIndex < 0) {
+      // EDGE CASE: If there are only two slides and loop is enabled, we cannot have a previous
+      // because previous === next. Only loop with previous if we have at least 3 slides
+      if (isLoop && slideCount > 2) {
+        return self.count() - 1;
+      }
+      return -1;
+    }
+    return previousIndex;
+  }
+
+  // adds data to the queue for selection.
+  // Index can be either a number or a getter (to be called when starting the slide)
+  function select(newIndex, transitionDuration, isDrag) {
+    slideQueue.unshift([
+      angular.isFunction(newIndex) ? newIndex : function() { return newIndex; },
+      transitionDuration || SLIDE_TRANSITION_DURATION,
+      !!isDrag
+    ]);
+    if (!isSliding) {
+      runSelectQueue();
+    }
+  }
+
+  function selected() {
+    return selectedIndex;
+  }
+
+  /***************************
+   * Private Methods
+   ***************************/
+
+  // If slides are added or removed, we only want to re-set the selected index
+  // once per digest.
+  function enqueueSelect(index) {
+    enqueueSelect.index = index;
+    if (!enqueueSelect.queued) {
+      enqueueSelect.queued = true;
+      scope.$$postDigest(function() {
+        enqueueSelect.queued = false;
+        select(enqueueSelect.index);
       });
     }
   }
 
+  // Recursively takes an item off slideQueue array, selects it,
+  // then repeats until nothing is left in the slideQueue.
+  // Once slideQueue is empty, publishes the select data to scope.
+  function runSelectQueue() {
+    isSliding = slideQueue.length > 0;
+    if (isSliding) {
+      var data = slideQueue.pop();
+      data[0] = data[0](); //index is a getter
+      slideTo.apply(null, data).then(runSelectQueue);
+    } else {
+      // Publish the data to scope once we're all done
+      scope.$evalAsync(function() {
+        scope.selected = selectedIndex;
+        scope.onSlideChanged({
+          $index: selectedIndex, //DEPRECATED $index
+          $slideIndex: selectedIndex
+        });
+      });
+    }
+  }
+
+  function slideTo(newIndex, duration, isDrag) {
+    // Immediately finish invalid selection
+    if (!self.isValidIndex(newIndex)) return $$q.when();
+
+    var deferred = $$q.defer();
+    var delta = getDelta(selectedIndex, newIndex);
+    var width = (slideNodes[selectedIndex] || slideNodes[newIndex] || {}).offsetWidth || 0;
+    var direction;
+    var translatePx;
+
+    element.triggerHandler('$ionSlideBox.slide', newIndex);
+
+    // We're interested in isDrag, because a failed drag is the only case
+    // where we want to run a slide animation yet have no change in selectedIndex
+    if (!isDrag && (delta === 0 || selectedIndex === -1)) {
+      // Instantly slide over if there's no change or we don't already have a selected index
+      finishSliding();
+    } else {
+      // Make sure the newIndex is one of the three displayed slides before
+      // trying to transition to it
+      if (delta < 0) {
+        direction = 'previous';
+        translatePx = width;
+        setDisplayedSlides(newIndex, selectedIndex, self.next());
+      } else if (delta > 0) {
+        direction = 'next';
+        translatePx = -width;
+        setDisplayedSlides(self.previous(), selectedIndex, newIndex);
+      } else {
+        direction = '';
+        translatePx = 0;
+        setDisplayedSlides(self.previous(), selectedIndex, self.next());
+      }
+
+      container.css(ionic.CSS.TRANSITION_DURATION, duration + 'ms');
+      // Wait for transitionDuration css to apply...
+      ionic.requestAnimationFrame(function() {
+        container.css(ionic.CSS.TRANSFORM, 'translate3d(' + translatePx + 'px,0,0)');
+        $timeout(finishSliding, duration, false);
+      });
+    }
+
+    return deferred.promise;
+
+    function finishSliding() {
+      container.css(ionic.CSS.TRANSITION_DURATION, '0ms');
+      // Wait for transitionDuration css to apply...
+      ionic.requestAnimationFrame(function() {
+        setSelectedSlide(newIndex);
+        deferred.resolve();
+      });
+    }
+  }
+
+  function setSelectedSlide(newIndex) {
+    selectedIndex = newIndex;
+    setDisplayedSlides(self.previous(newIndex), newIndex, self.next(newIndex));
+    container.css(ionic.CSS.TRANSFORM, '');
+  }
+
+  /**
+   * setDisplayedSlides: set css to show only the three given slide indexes
+   * note: prev & next could both be -1 if there's only one slide in the slidebox
+   */
+  var currentDisplayed = [];
+  function setDisplayedSlides(previous, selected, next) {
+    var newDisplayed = [
+      previous !== -1 && slideNodes[previous],
+      selected !== -1 && slideNodes[selected],
+      next !== -1 && slideNodes[next]
+    ];
+    var oldSlide;
+
+    // Hide & disconnect the currently displayed slides that aren't part of the new slides.
+    for (var i = 0; i < currentDisplayed.length; i++) {
+      oldSlide = currentDisplayed[i];
+      if (oldSlide && newDisplayed.indexOf(oldSlide) === -1) {
+        oldSlide.removeAttribute('slide-display');
+        ionic.Utils.disconnectScope( jqLite(oldSlide).data('$ionSlideScope') );
+      }
+    }
+
+    setDisplay(newDisplayed[0], 'previous');
+    setDisplay(newDisplayed[1], 'selected');
+    setDisplay(newDisplayed[2], 'next');
+
+    function setDisplay(slide, display) {
+      if (!slide) return;
+      var slideScope = jqLite(slide).data('$ionSlideScope');
+      if (slideScope) {
+        ionic.Utils.reconnectScope(slideScope);
+        // Digest the slide so it updates before being shown
+        if (!$rootScope.$$phase) slideScope.$digest();
+      }
+      slide.setAttribute('slide-display', display);
+    }
+
+    // Save the now displayed slides so we can check next time
+    currentDisplayed = newDisplayed;
+  }
+
+  function getDelta(fromIndex, toIndex) {
+    var difference = toIndex - fromIndex;
+    if (!isLoop) return difference;
+
+    // If looping is on, check for the looped difference.
+    // For example, going from the first item to the last item
+    // is actually a change of -1.
+    var loopedDifference = 0;
+    if (toIndex > fromIndex) {
+      loopedDifference = toIndex - fromIndex - self.count();
+    } else {
+      loopedDifference = self.count() - fromIndex + toIndex;
+    }
+    if (Math.abs(loopedDifference) < Math.abs(difference)) {
+      return loopedDifference;
+    }
+    return difference;
+  }
+
+
+  /********** DRAGGING **********/
+  var dragWidth;
   function onDragStart() {
-    if (self.dragDisabled) return false;
+    if (self.dragDisabled || !self.count()) return false;
+    if (!isSliding) {
+      // Make sure that the correct slides are to the left and right
+      // before we start dragging
+      setSelectedSlide(selectedIndex);
+    }
+    dragWidth = slideNodes[selectedIndex].offsetWidth;
   }
 
   // percent is negative 0-1 for backward slide
   // positive 0-1 for forward slide
   function onDrag(percent) {
-    var target = self.at(percent > 0 ? self.next() : self.previous());
-    var current = self.at(self.selected());
-
-    target && target.transform(percent);
-    current && current.transform(percent);
+    // Only follow user's finger if we aren't currently sliding
+    if (!isSliding) {
+      container.css(ionic.CSS.TRANSFORM, 'translate3d(' + (-percent * dragWidth) + 'px,0,0)');
+    }
   }
 
   function onDragEnd(percent, velocity) {
-    var nextIndex = -1;
-    if (Math.abs(percent) > 0.5 || velocity > SLIDE_SUCCESS_VELOCITY) {
-      nextIndex = percent > 0 ? self.next() : self.previous();
+    var isSuccess = Math.abs(percent) > 0.5 || velocity > SLIDE_SUCCESS_VELOCITY;
+
+    if (isSuccess) {
+      var distanceRemaining = (1 - Math.abs(percent)) * dragWidth;
+      var transitionDuration = Math.min((distanceRemaining / velocity) - 34, SLIDE_TRANSITION_DURATION);
+
+      self.select(function getIndex() {
+        // This will be called once this dragend is reached in the select queue.
+        var nextIndex = percent > 0 ? self.next() : self.previous();
+        return self.isValidIndex(nextIndex) ? nextIndex : selectedIndex;
+      }, transitionDuration, true);
+
+    } else if (!isSliding) {
+      // If the drag failed, then just slide back to current slide being the center.
+      slideTo(selectedIndex, SLIDE_TRANSITION_DURATION, true);
     }
-
-    // Select a new slide if it's avaiable
-    if (self.isInRange(nextIndex)) {
-      var distanceRemaining = (1 - Math.abs(percent)) * slidesParent.prop('offsetWidth');
-      var transitionDuration = Math.min(
-        distanceRemaining / velocity * 1.25,
-        SLIDE_TRANSITION_DURATION
-      );
-      self.select(nextIndex, transitionDuration);
-    } else {
-      self.select(scope.selectedIndex, 0, true);
-    }
-  }
-
-  // ***
-  // Private Methods
-  // ***
-
-  function checkSlidesChanged() {
-    checkSlidesChanged.queued = false;
-
-    // If one of the child nodes was destroyed but not yet removed
-    // from the DOM, we'll enqueue a new digest to re-check
-    // once the element is actually removed.
-    var slideScope;
-    for (var i = 0; i < slideNodes.length; i++) {
-      if ( (slideScope = angular.element(slideNodes[i]).scope()) && slideScope.$$destroyed) {
-        $timeout(angular.noop);
-        break;
-      }
-    }
-
-    if (!relevantSlides.selected) {
-      if (!angular.isNumber(scope.selectedIndex) || scope.selectedIndex === -1) {
-        self.select(0);
-      } else if (self.isInRange(scope.selectedIndex)) {
-        // If we are waiting for a certain scope.selectedIndex that isn't yet selected, select it now.
-        self.select(scope.selectedIndex);
-      }
-
-    } else if (relevantSlides.selected !== self.at(scope.selectedIndex) ||
-               relevantSlides.next !== self.next() ||
-               relevantSlides.previous !== self.previous()) {
-      // If the next, previous, or selected item has been moved or removed,
-      // find what to reselect.
-      var newIndex = self.indexOf(relevantSlides.selected);
-      if (newIndex === -1) {
-        // If the selected slide was removed, try to select the nearest available slide
-        self.select(scope.selectedIndex > 0 ? scope.selectedIndex - 1 : scope.selectedIndex);
-      } else {
-        // Else, reselect the selected slide.
-        self.select(newIndex);
-      }
-    }
-
-  }
-
-  function arrangeSlides() {
-    relevantSlides.previous && relevantSlides.previous.setState('previous');
-    relevantSlides.selected && relevantSlides.selected.setState('selected');
-    relevantSlides.next && relevantSlides.next.setState('next');
-
-    if (oldRelevantSlides) {
-      var oldShown = oldRelevantSlides.selected;
-      var delta = self.delta(self.indexOf(oldRelevantSlides.selected), self.indexOf(relevantSlides.selected));
-      if (Math.abs(delta) > 1) {
-        // If we're changing by more than one slide, we need to manually transition
-        // the current slide out and then put it into its new state.
-        oldShown.setState(delta > 1 ? 'previous' : 'next').then(function() {
-          oldShown.setState(
-            relevantSlides.previous === oldShown ?  'previous' :
-            relevantSlides.next === oldShown ? 'next' :
-            'detached'
-          );
-        });
-      } else {
-        detachIfUnused(oldRelevantSlides.selected);
-      }
-      //Additionally, we need to detach both of the old slides.
-      detachIfUnused(oldRelevantSlides.previous);
-      detachIfUnused(oldRelevantSlides.next);
-    }
-
-    function detachIfUnused(oldSlide) {
-      if (oldSlide && oldSlide !== relevantSlides.previous &&
-          oldSlide !== relevantSlides.selected &&
-          oldSlide !== relevantSlides.next) {
-        oldSlide.setState('detached');
-      }
-    }
-  }
-
-}]);
-
-IonicModule
-.controller('$ionSlide', [
-  '$scope',
-  '$element',
-  '$q',
-function(scope, element, $q) {
-  var self = this;
-
-  element.on(ionic.CSS.TRANSITIONEND, onTransitionEnd);
-
-  self.scope = scope;
-  self.element = element;
-  self.node = element[0];
-
-  self.transform = transform;
-
-  self.state = '';
-  self.setState = setState;
-
-  self.setState('detached');
-
-  // ***
-  // Public Methods
-  // ***
-
-  var isTransforming;
-  // percent is negative 0-1 for dragging left
-  // percent is positive 0-1 for dragging right
-  function transform(percent) {
-    if (!isTransforming) {
-      self.element.addClass('no-animate');
-      isTransforming = true;
-    }
-
-    var startPercent = self.state === 'previous' ? -1 :
-      self.state === 'next' ? 1 :
-      0;
-    self.element.css(
-      ionic.CSS.TRANSFORM,
-      'translate3d(' + (100 * (startPercent - percent)) + '%, 0, 0)'
-    );
-  }
-
-  function setState(newState) {
-    if (newState !== self.state) {
-      self.state && self.element.attr('slide-previous-state', self.state);
-      self.element.attr('slide-state', newState);
-    }
-    self.element.css(ionic.CSS.TRANSFORM, '');
-    self.element.removeClass('no-animate');
-    isTransforming = false;
-
-    self.previousState = self.state;
-    self.state = newState;
-
-    switch(newState) {
-      case 'detached':
-        detachSlide();
-        break;
-      case 'previous':
-      case 'next':
-      case 'selected':
-        attachSlide();
-        break;
-    }
-
-    return getTransitionPromise();
-  }
-
-  // ***
-  // Private Methods
-  // ***
-
-  function attachSlide() {
-    ionic.Utils.reconnectScope(scope);
-  }
-
-  function detachSlide() {
-    ionic.Utils.disconnectScope(scope);
-  }
-
-  var transitionDeferred;
-  function getTransitionPromise() {
-    // If we aren't transitioning to or from selected, there's no transition, so instantly resolve.
-    if (self.previousState !== 'selected' && self.state !== 'selected') {
-      return $q.when();
-    }
-
-    // Interrupt current promise if a new state was set.
-    transitionDeferred && transitionDeferred.reject();
-    transitionDeferred = $q.defer();
-
-    return transitionDeferred.promise;
-  }
-
-  function onTransitionEnd(ev) {
-    if (ev.target !== element[0]) return; //don't let the event bubble up from children
-    transitionDeferred && transitionDeferred.resolve();
   }
 
 }]);
@@ -46685,14 +46706,16 @@ IonicModule
   '$element',
   '$attrs',
   '$compile',
+  '$rootScope',
   '$ionicViewSwitcher',
-function($scope, $element, $attrs, $compile, $ionicViewSwitcher) {
+function($scope, $element, $attrs, $compile, $rootScope, $ionicViewSwitcher) {
   var self = this;
   var navElementHtml = {};
   var navViewCtrl;
   var navBarDelegateHandle;
   var hasViewHeaderBar;
   var deregisters = [];
+  var viewTitle;
 
   var deregIonNavBarInit = $scope.$on('ionNavBar.init', function(ev, delegateHandle){
     // this view has its own ion-nav-bar, remember the navBarDelegateHandle for this view
@@ -46722,11 +46745,12 @@ function($scope, $element, $attrs, $compile, $ionicViewSwitcher) {
     if (transData && !transData.viewNotified) {
       transData.viewNotified = true;
 
-      var viewTitle = isDefined($attrs.viewTitle) ? $attrs.viewTitle : $attrs.title;
+      if (!$rootScope.$$phase) $scope.$digest();
+      viewTitle = isDefined($attrs.viewTitle) ? $attrs.viewTitle : $attrs.title;
 
-      var buttons = {};
+      var navBarItems = {};
       for (var n in navElementHtml) {
-        buttons[n] = generateButton(navElementHtml[n]);
+        navBarItems[n] = generateNavBarItem(navElementHtml[n]);
       }
 
       navViewCtrl.beforeEnter({
@@ -46737,7 +46761,7 @@ function($scope, $element, $attrs, $compile, $ionicViewSwitcher) {
         shouldAnimate: transData.shouldAnimate,
         enableBack: transData.enableBack,
         showBack: !attrTrue('hideBackButton'),
-        buttons: buttons,
+        navBarItems: navBarItems,
         navBarDelegate: navBarDelegateHandle || null,
         showNavBar: !attrTrue('hideNavBar'),
         hasHeaderBar: !!hasViewHeaderBar
@@ -46754,9 +46778,8 @@ function($scope, $element, $attrs, $compile, $ionicViewSwitcher) {
     // but also deregister the observe before it leaves
     var viewTitleAttr = isDefined($attrs.viewTitle) && 'viewTitle' || isDefined($attrs.title) && 'title';
     if (viewTitleAttr) {
-      deregisters.push($attrs.$observe(viewTitleAttr, function(val) {
-        navViewCtrl.title(val);
-      }));
+      titleUpdate($attrs[viewTitleAttr]);
+      deregisters.push($attrs.$observe(viewTitleAttr, titleUpdate));
     }
 
     if (isDefined($attrs.hideBackButton)) {
@@ -46773,6 +46796,14 @@ function($scope, $element, $attrs, $compile, $ionicViewSwitcher) {
   }
 
 
+  function titleUpdate(newTitle) {
+    if (isDefined(newTitle) && newTitle !== viewTitle) {
+      viewTitle = newTitle;
+      navViewCtrl.title(viewTitle);
+    }
+  }
+
+
   function deregisterFns() {
     // remove all existing $attrs.$observe's
     for (var x = 0; x < deregisters.length; x++) {
@@ -46782,7 +46813,7 @@ function($scope, $element, $attrs, $compile, $ionicViewSwitcher) {
   }
 
 
-  function generateButton(html) {
+  function generateNavBarItem(html) {
     if (html) {
       // every time a view enters we need to recreate its view buttons if they exist
       return $compile(html)($scope.$new());
@@ -46872,7 +46903,7 @@ IonicModule
  */
 
 IonicModule
-.directive('ionCheckbox', function() {
+.directive('ionCheckbox', ['$ionicConfig', function($ionicConfig) {
   return {
     restrict: 'E',
     replace: true,
@@ -46902,10 +46933,11 @@ IonicModule
           input.attr(name, value);
         }
       });
+      var checkboxWrapper = element[0].querySelector('.checkbox');
+      checkboxWrapper.classList.add('checkbox-' + $ionicConfig.form.checkbox());
     }
-
   };
-});
+}]);
 
 /**
  * @ngdoc directive
@@ -47052,9 +47084,11 @@ function($collectionRepeatManager, $collectionDataSource, $parse) {
     transclude: 'element',
     terminal: true,
     $$tlb: true,
-    require: '^$ionicScroll',
+    require: ['^$ionicScroll', '^?ionNavView'],
     controller: [function(){}],
-    link: function($scope, $element, $attr, scrollCtrl, $transclude) {
+    link: function($scope, $element, $attr, ctrls, $transclude) {
+      var scrollCtrl = ctrls[0];
+      var navViewCtrl = ctrls[1];
       var wrap = jqLite('<div style="position:relative;">');
       $element.parent()[0].insertBefore(wrap[0], $element[0]);
       wrap.append($element);
@@ -47077,16 +47111,16 @@ function($collectionRepeatManager, $collectionDataSource, $parse) {
       var heightGetter = function(scope, locals) {
         var result = heightParsed(scope, locals);
         if (isString(result) && result.indexOf('%') > -1) {
-          return Math.floor(parseInt(result, 10) / 100 * scrollView.__clientHeight);
+          return Math.floor(parseInt(result) / 100 * scrollView.__clientHeight);
         }
-        return result;
+        return parseInt(result);
       };
       var widthGetter = function(scope, locals) {
         var result = widthParsed(scope, locals);
         if (isString(result) && result.indexOf('%') > -1) {
-          return Math.floor(parseInt(result, 10) / 100 * scrollView.__clientWidth);
+          return Math.floor(parseInt(result) / 100 * scrollView.__clientWidth);
         }
-        return result;
+        return parseInt(result);
       };
 
       var match = $attr.collectionRepeat.match(/^\s*([\s\S]+?)\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?\s*$/);
@@ -47114,7 +47148,8 @@ function($collectionRepeatManager, $collectionDataSource, $parse) {
         scrollView: scrollCtrl.scrollView,
       });
 
-      $scope.$watchCollection(listExpr, function(value) {
+      var listExprParsed = $parse(listExpr);
+      $scope.$watchCollection(listExprParsed, function(value) {
         if (value && !angular.isArray(value)) {
           throw new Error("collection-repeat expects an array to repeat over, but instead got '" + typeof value + "'.");
         }
@@ -47153,17 +47188,31 @@ function($collectionRepeatManager, $collectionDataSource, $parse) {
         dataSource.setData(value, beforeSiblings, afterSiblings);
         collectionRepeatManager.resize();
       }
+
+      var requiresRerender;
       function rerenderOnResize() {
-        rerender($scope.$eval(listExpr));
+        rerender(listExprParsed($scope));
+        requiresRerender = (!scrollViewContent.clientWidth && !scrollViewContent.clientHeight);
+      }
+
+      function viewEnter() {
+        if (requiresRerender) {
+          rerenderOnResize();
+        }
       }
 
       scrollCtrl.$element.on('scroll.resize', rerenderOnResize);
       ionic.on('resize', rerenderOnResize, window);
+      var deregisterViewListener;
+      if (navViewCtrl) {
+        deregisterViewListener = navViewCtrl.scope.$on('$ionicView.afterEnter', viewEnter);
+      }
 
       $scope.$on('$destroy', function() {
         collectionRepeatManager.destroy();
         dataSource.destroy();
         ionic.off('resize', rerenderOnResize, window);
+        (deregisterViewListener || angular.noop)();
       });
     }
   };
@@ -48600,7 +48649,8 @@ IonicModule
         if (sideMenuCtrl) {
           $ionicHistory.nextViewOptions({
             historyRoot: true,
-            disableAnimate: true
+            disableAnimate: true,
+            expire: 300
           });
           sideMenuCtrl.close();
         }
@@ -48754,7 +48804,7 @@ IonicModule
         buttonEle.setAttribute('ng-click', '$ionicGoBack($event)');
       }
 
-      buttonEle.className = 'button back-button back-disabled buttons ' + (tElement.attr('class') || '');
+      buttonEle.className = 'button back-button hide buttons ' + (tElement.attr('class') || '');
       buttonEle.innerHTML = tElement.html() || '';
 
       var childNode;
@@ -48907,8 +48957,10 @@ IonicModule
  * @parent ionNavView
  *
  * @description
- * Use ionNavButtons to set the buttons on your {@link ionic.directive:ionNavBar}
- * from within an {@link ionic.directive:ionView}.
+ * Use nav buttons to set the buttons on your {@link ionic.directive:ionNavBar}
+ * from within an {@link ionic.directive:ionView}. This gives each individual
+ * view the ability to specify which buttons should show in the nav bar, and
+ * overriding any default buttons already placed in the nav bar.
  *
  * Any buttons you declare will be placed onto the navbar's corresponding side. Primary
  * buttons generally map to the left side of the header, and secondary buttons are
@@ -48923,6 +48975,9 @@ IonicModule
  * always be on an exact side, both `left` and `right` sides are still available. For
  * example, a toggle button for a left side menu should be on the left side, in this case
  * we'd recommend uses `side="left"` so it's always on the left, no matter what platform.
+ *
+ * Note that `ion-nav-buttons` must be an immediate descendant of the `ion-view` or
+ * `ion-nav-bar` element (basically don't wrap it in another div).
  *
  * @usage
  * ```html
@@ -49012,6 +49067,78 @@ IonicModule
       $element.bind('click', function() {
         $ionicViewSwitcher.nextDirection($attr.navDirection);
       });
+    }
+  };
+}]);
+
+/**
+ * @ngdoc directive
+ * @name ionNavTitle
+ * @module ionic
+ * @restrict E
+ * @parent ionNavView
+ *
+ * @description
+ * Use the nav title directive to set custom HTML as the {@link ionic.directive:ionNavBar}
+ * title, from within an {@link ionic.directive:ionView}. This gives each
+ * view the ability to specify its own custom title, such as an image or any HTML,
+ * rather than being text-only. Alternatively, text-only titles can be updated using the
+ * `view-title` {@link ionic.directive:ionView} attribute.
+ *
+ * Note that `ion-nav-title` must be an immediate descendant of the `ion-view` or
+ * `ion-nav-bar` element (basically don't wrap it in another div).
+ *
+ * @usage
+ * ```html
+ * <ion-nav-bar>
+ * </ion-nav-bar>
+ * <ion-nav-view>
+ *   <ion-view>
+ *     <ion-nav-title>
+ *       <img src="logo.svg">
+ *     </ion-nav-title>
+ *     <ion-content>
+ *       Some super content here!
+ *     </ion-content>
+ *   </ion-view>
+ * </ion-nav-view>
+ * ```
+ *
+ */
+IonicModule
+.directive('ionNavTitle', ['$document', function($document) {
+  return {
+    require: '^ionNavBar',
+    restrict: 'E',
+    compile: function(tElement, tAttrs) {
+      var navElementType = 'title';
+      var spanEle = $document[0].createElement('span');
+      for (var n in tAttrs.$attr) {
+        spanEle.setAttribute(tAttrs.$attr[n], tAttrs[n]);
+      }
+      spanEle.classList.add('nav-bar-title');
+      spanEle.innerHTML = tElement.html();
+
+      tElement.attr('class', 'hide');
+      tElement.empty();
+
+      return {
+        pre: function($scope, $element, $attrs, navBarCtrl) {
+          // only register the plain HTML, the navBarCtrl takes care of scope/compile/link
+
+          var parentViewCtrl = $element.parent().data('$ionViewController');
+          if (parentViewCtrl) {
+            // if the parent is an ion-view, then these are ion-nav-buttons for JUST this ion-view
+            parentViewCtrl.navElement(navElementType, spanEle.outerHTML);
+
+          } else {
+            // these are buttons for all views that do not have their own ion-nav-buttons
+            navBarCtrl.navElement(navElementType, spanEle.outerHTML);
+          }
+
+          spanEle = null;
+        }
+      };
     }
   };
 }]);
@@ -50019,14 +50146,38 @@ IonicModule
 .directive('ionSlide', ['$timeout', function($timeout) {
   return {
     restrict: 'E',
-    controller: '$ionSlide',
-    require: '^ionSlideBox',
-    scope: true,
+    require: ['^ionSlideBox', '^^?ionSlide'],
+    transclude: true,
+    controller: angular.noop,
     link: postLink
   };
 
-  function postLink(scope, element, attr, slideBoxCtrl) {
+  function postLink(scope, element, attr, ctrls, transclude) {
+    var slideBoxCtrl = ctrls[0];
+    var slideCtrl = ctrls[1];
+
+    if (slideCtrl) {
+      throw new Error('You cannot have an ion-slide within another ion-slide!');
+    }
+
     element.addClass('slider-slide');
+
+    slideBoxCtrl.onAddSlide();
+
+    var childScope = scope.$new();
+    element.data('$ionSlideScope', childScope);
+
+    // Disconnect by default, will be reconnected if shown
+    // ionic.Utils.disconnectScope(childScope);
+
+    transclude(childScope, function(contents) {
+      element.append(contents);
+    });
+
+    scope.$on('$destroy', function() {
+      slideBoxCtrl.onRemoveSlide();
+      element.remove();
+    });
   }
 }]);
 
@@ -50062,17 +50213,22 @@ IonicModule
  *
  * @param {expression=} selected A model bound to the selected slide index.
  * @param {boolean=} loop Whether the slide box should loop. Default false.
- * @param {number=} auto-play If a positive number, then every time the given number of milliseconds have passed, slideBox will go to the next slide. Set to a non-positive number to disable. Default: -1.
- * @param {expression=} on-slide-changed Expression called whenever the slide is changed.  Is passed a '$slideIndex' variable.
+ * @param {number=} auto-play If a positive number, then every time the given number of
+ * milliseconds have passed, slideBox will go to the next slide. Set to a non-positive number
+ * to disable. Default: -1.
+ * @param {expression=} on-slide-changed Expression called when all currently queued slide
+ * animations finish.  Is passed a '$slideIndex' variable.
+ * @param {expression=} on-slide-start Expression called whenever a slide animation starts.
+ * Is passed a '$slideIndex' variable.
  * @param {string=} delegate-handle The handle used to identify this slideBox with
  * {@link ionic.service:$ionicSlideBoxDelegate}.
  */
 IonicModule
 .directive('ionSlideBox', [
   '$ionicSlideBoxDelegate',
-  '$window',
   '$ionicHistory',
-function($ionicSlideBoxDelegate, $window, $ionicHistory) {
+  '$timeout',
+function($ionicSlideBoxDelegate, $ionicHistory, $timeout) {
 
   return {
     restrict: 'E',
@@ -50080,14 +50236,16 @@ function($ionicSlideBoxDelegate, $window, $ionicHistory) {
     require: 'ionSlideBox',
     transclude: true,
     scope: {
-      selectedIndex: '=?selected',
-      onSlideChanged: '&'
+      selected: '=?',
+      onSlideChanged: '&',
+      onSlideStart: '&'
     },
     template: '<div class="slider-slides" ng-transclude></div>',
     compile: compile
   };
 
   function compile(element, attr) {
+    element.addClass('slider');
     // DEPRECATED attr.doesContinue
     isDefined(attr.doesContinue) && attr.$set('loop', attr.doesContinue);
 
@@ -50095,7 +50253,6 @@ function($ionicSlideBoxDelegate, $window, $ionicHistory) {
   }
 
   function postLink(scope, element, attr, slideBoxCtrl) {
-    element.addClass('slider');
 
     var deregister = $ionicSlideBoxDelegate._registerInstance(
       slideBoxCtrl, attr.delegateHandle, function() {
@@ -50103,42 +50260,30 @@ function($ionicSlideBoxDelegate, $window, $ionicHistory) {
       }
     );
 
+    listenForSlide();
     watchSelected();
     isDefined(attr.loop) && watchLoop();
     isDefined(attr.autoPlay) && watchAutoPlay();
 
-    var throttledReposition = ionic.animationFrameThrottle(repositionSlideBox);
-    throttledReposition();
-    angular.element($window).on('resize', throttledReposition);
-
-    scope.$on('$destroy', function() {
-      deregister();
-      angular.element($window).off('resize', throttledReposition);
-    });
+    scope.$on('$destroy', deregister);
 
     // ***
     // Methods
     // ***
 
-    // There is no way to make the slidebox stretch to a large enough size
-    // when its children are all position: absolute elements.
-    // We just make it so the slidebox is *always* as large as its offsetParent.
-    function repositionSlideBox() {
-      element.css({
-        width: (element[0].offsetParent || element[0].parentNode || {}).offsetWidth + 'px',
-        height: (element[0].offsetParent || element[0].parentNode || {}).offsetHeight + 'px'
+    function listenForSlide() {
+      element.on('$ionSlideBox.slide', function(ev, index) {
+        scope.onSlideStart({
+          $slideIndex: index
+        });
+        $timeout(angular.noop);
       });
     }
 
     function watchSelected() {
-      scope.$watch('selectedIndex', function selectedAttrWatchAction(newIndex) {
-        if (slideBoxCtrl.isInRange(newIndex)) {
-          scope.onSlideChanged({
-            //DEPRECATED $index
-            $index: newIndex,
-            $slideIndex: newIndex
-          });
-          slideBoxCtrl.select(newIndex);
+      scope.$watch('selected', function(index) {
+        if (slideBoxCtrl.selected() !== index) {
+          slideBoxCtrl.select(index);
         }
       });
     }
@@ -50209,12 +50354,6 @@ function($parse) {
     restrict: 'E',
     require: '^ionSlideBox',
     scope: {},
-    template:
-      '<div class="slider-pager-page" ' +
-           'ng-repeat="i in pages" ' +
-           'ng-class="{active: i === slideBoxCtrl.selected()}" ' +
-           'ng-click="click(i)">' +
-      '</div>',
     link: postLink
   };
 
@@ -50224,27 +50363,75 @@ function($parse) {
       function(scope, locals) {
         slideBoxCtrl.select(locals.$slideIndex);
       };
+    var node = element[0];
 
-    element.addClass('slider-pager');
-    scope.slideBoxCtrl = slideBoxCtrl;
-    scope.pages = [];
+    // Put it outside the slides container it was transcluded into
+    slideBoxCtrl.element.prepend(element);
 
-    scope.click = onPagerClicked;
+
+    element.on('click', onPagerClicked);
     scope.$watch(slideBoxCtrl.count, watchCountAction);
+    scope.$watch(slideBoxCtrl.selected, watchSelectedAction);
 
-    function onPagerClicked(index) {
-      clickFn(scope.$parent, {
-        // DEPRECATED pass in `index` variable
-        index: index,
-        $slideIndex: index,
-      });
+    slideBoxCtrl.element.on('$ionSlideBox.slide', onSlideStart);
+    scope.$on('$destroy', function() {
+      slideBoxCtrl.element.off('$ionSlideBox.slide', onSlideStart);
+    });
+
+    element.addClass('ng-hide');
+    ionic.requestAnimationFrame(function() {
+      element.removeClass('ng-hide').addClass('slider-pager');
+    });
+
+    function onSlideStart(ev, index) {
+      watchSelectedAction(index);
     }
 
-    function watchCountAction(slidesCount) {
-      scope.pages.length = slidesCount;
-      for (var i = 0; i < slidesCount; i++) {
-        scope.pages[i] = i;
+    function onPagerClicked(ev) {
+      for (var i = 0, pager; (pager = node.children[i]); i++) {
+        if (pager === ev.target) {
+          return doClick(i);
+        }
       }
+    }
+
+    function watchCountAction(count, oldCount) {
+      var i;
+      for (i = node.children.length; i < count; i++) {
+        addPager();
+      }
+      for (i = count; i < oldCount; i++) {
+        removePager(i);
+      }
+    }
+
+    var oldSelected;
+    function watchSelectedAction(selected) {
+      var old = node.children[oldSelected];
+      if (old) old.classList.remove('active');
+      var current = node.children[selected];
+      if (current) current.classList.add('active');
+      oldSelected = selected;
+    }
+
+    //* Extra methods *//
+
+    function doClick(index) {
+      scope.$apply(function() {
+        clickFn(scope.$parent, {
+          index: index, // DEPRECATED `index`
+          $slideIndex: index,
+        });
+      });
+    }
+    function addPager() {
+      var pager = document.createElement('div');
+      pager.className = 'slider-pager-page';
+      node.appendChild(pager);
+    }
+    function removePager(i) {
+      var pager = node.children[i];
+      pager && node.removeChild(pager);
     }
   }
 
@@ -50320,19 +50507,28 @@ function($compile, $ionicConfig, $ionicBind, $ionicViewSwitcher) {
         '></ion-tab-nav>';
 
       //Remove the contents of the element so we can compile them later, if tab is selected
-      var tabContent = document.createElement('div');
-      tabContent.innerHTML = element.html();
-      var childElementCount = tabContent.childElementCount;
+      var tabContentEle = document.createElement('div');
+      for (var x = 0; x < element[0].children.length; x++) {
+        tabContentEle.appendChild(element[0].children[x].cloneNode(true));
+      }
+      var childElementCount = tabContentEle.childElementCount;
       element.empty();
 
-      var navViewName, innerHtml;
-      if (childElementCount && tabContent.children[0].tagName === 'ION-NAV-VIEW') {
-        navViewName = tabContent.children[0].getAttribute('name');
-        innerHtml = tabContent.children[0].outerHTML;
-      } else {
-        innerHtml = tabContent.innerHTML;
+      var navViewName, isNavView;
+      if (childElementCount) {
+        if (tabContentEle.children[0].tagName === 'ION-NAV-VIEW') {
+          // get the name if it's a nav-view
+          navViewName = tabContentEle.children[0].getAttribute('name');
+          tabContentEle.children[0].classList.add('view-container');
+          isNavView = true;
+        }
+        if(childElementCount === 1) {
+          // make the 1 child element the primary tab content container
+          tabContentEle = tabContentEle.children[0];
+        }
+        if (!isNavView) tabContentEle.classList.add('pane');
+        tabContentEle.classList.add('tab-content');
       }
-      tabContent = null;
 
       return function link($scope, $element, $attr, ctrls) {
         var childScope;
@@ -50360,7 +50556,7 @@ function($compile, $ionicConfig, $ionicBind, $ionicViewSwitcher) {
           }
           tabNavElement.isolateScope().$destroy();
           tabNavElement.remove();
-          tabNavElement = childElement = null;
+          tabNavElement = tabContentEle = childElement = null;
         });
 
         //Remove title attribute so browser-tooltip does not apear
@@ -50393,7 +50589,7 @@ function($compile, $ionicConfig, $ionicBind, $ionicViewSwitcher) {
               // tab should be selected and is NOT in the DOM
               // create a new scope and append it
               childScope = $scope.$new();
-              childElement = jqLite(innerHtml);
+              childElement = jqLite(tabContentEle);
               $ionicViewSwitcher.viewEleIsActive(childElement, true);
               tabsCtrl.$element.append( childElement );
               $compile(childElement)(childScope);
@@ -50769,7 +50965,8 @@ function($ionicGesture, $timeout) {
  * either an individual view basis, or by global configuration. Please see the
  * _Caching_ section in {@link ionic.directive:ionNavView} for more info.
  *
- * @param {string=} view-title The title to display on the parent {@link ionic.directive:ionNavBar}.
+ * @param {string=} view-title A text-only title to display on the parent {@link ionic.directive:ionNavBar}.
+ * For an HTML title, such as an image, see {@link ionic.directive:ionNavTitle} instead.
  * @param {boolean=} cache-view If this view should be allowed to be cached or not.
  * Please see the _Caching_ section in {@link ionic.directive:ionNavView} for
  * more info. Default `true`

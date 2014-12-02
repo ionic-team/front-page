@@ -6,54 +6,38 @@
 
 .slider {
   overflow: hidden;
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
 }
 
 .slider-slides {
-  height: 100%;
   width: 100%;
-  position: relative;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  @include translate3d(0,0,0);
+  -webkit-transition: linear -webkit-transform;
+  transition: linear transform;
 }
 
-.slider-slide {
+ion-slide {
   display: block;
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
+}
+.slider-slide {
+  width: 100%;
+  @include translate3d(0,0,0);
 
-  &[slide-state="previous"] {
-    @include translate3d(-100%, 0, 0);
+  &:not([slide-display]) {
+    // This !important flag is here because it lets the end-developer specify display styles
+    // for slides as specifically as he wants, but still not show the slides that should be hidden.
+    display: none !important;
   }
-  &[slide-state="selected"] {
-    @include translate3d(0, 0, 0);
+  &[slide-display="previous"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    @include translate3d(-100%,0,0);
   }
-  &[slide-state="next"] {
-    @include translate3d(100%, 0, 0);
-  }
-  &[slide-state="detached"] {
-    display: none;
-  }
-
-  // Only transition elements going into or out of selection.
-  &[slide-previous-state="selected"],
-  &[slide-state="selected"] {
-    transition: transform ease-out;
-    -webkit-transition: -webkit-transform ease-out;
-    @include transition-duration(inherit);
-    z-index: 1;
-  }
-  &.no-animate {
-    @include transition-duration(0ms !important);
+  &[slide-display="next"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    @include translate3d(100%,0,0);
   }
 }
 
@@ -83,6 +67,7 @@
     border-radius: 15px;
     background-color: black;
     text-decoration: none;
+    cursor: pointer;
 
     opacity: 0.3;
 

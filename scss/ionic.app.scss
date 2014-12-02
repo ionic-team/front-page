@@ -39,17 +39,38 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 
 // because sass can't calc, we make it a mixin
 @mixin calc($property, $expression) {
-  #{$property}: -webkit-calc(#{$expression}) !important;
-  #{$property}: calc(#{$expression}) !important;
+  #{$property}: -webkit-calc(#{$expression});
+  #{$property}: calc(#{$expression});
 }
 
 // overrides can go here
 //search bar styling
+form.item-input-inset{
+  padding:0;
+  .ion-ios7-close.dark{
+    font-size: 20px;
+    color:rgba($search-input, .5);
+    position: absolute;
+    right: -3px;
+    top:-9px;
+    height: 40px;
+    padding: 10px;
+    width: 40px;
+    &:active{
+      color:rgba($search-input, 1);
+    }
+  }
+}
 .item-input-wrapper.energized-bg{
   background: darken($energized, 3%);
   padding-right: 40px;
   -webkit-transition: all .2s ease;
   transition: all .2s ease;
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
+  position:relative;
+  @include calc(padding-left, "50% - 35px");
+
   input[type="search"] {
     -moz-appearance:    textfield;
     -webkit-appearance: textfield;
@@ -57,38 +78,43 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
     color:white;
     padding-left: 0px;
     font-weight: 300;
+    height:32px;
   }
   i{
     position:relative;
     font-size:16px;
+    height:22px;
     color:rgba($search-input, .5);
     text-decoration: none;
+    bottom: 10px;
   }
-  &.centered{
-    @include calc(padding-left, "50% - 35px");
+  &.left{
+    padding-left:5px;
+
+  }
+  input::-webkit-input-placeholder,
+  textarea::-webkit-input-placeholder {
+    color:rgba(126, 50, 0, .7);
   }
 }
 
-.item.activated+.item{
-  border-top-color:rgba($light,.0)
-}
-.energized-bg input::-webkit-input-placeholder,
-.energized-bg textarea::-webkit-input-placeholder {
-  color:rgba(126, 50, 0, .7);
-}
-.ion-ios7-close.dark{
-  font-size: 20px;
-  color:rgba($search-input, .5);
-  position: absolute;
-  right: 5px;
-  top: 2px;
-  height: 40px;
-  padding: 10px;
-  width: 40px;
-  &:active{
-    color:rgba($search-input, 1);
+// some fixes for ios style headers
+.platform-ios.platform-cordova:not(.fullscreen) .bar-header:not(.bar-subheader).item-input-inset {
+  .item-input-wrapper{
+    margin-top: -23px !important;
+    height:35px;
+  }
+  input[type="search"] {
+    padding-top: 5px;
+  }
+  .ion-ios7-close.dark{
+    margin-top:-2px;
+  }
+  .item-input-wrapper.energized-bg i{
+    top:-10px;
   }
 }
+
 // list item styles
 .item{
   margin: -1px 15px;
@@ -337,9 +363,6 @@ ion-nav-view{
       top: 0;
       height: 2px;
       opacity: .45;
-//      -ms-box-shadow: $energized 2px 0 6px 2px;
-//      -webkit-box-shadow: $energized 2px 0 6px 2px;
-//      box-shadow: $energized 2px 0 6px 2px;
       -webkit-border-radius: 100%;
       border-radius: 100%;
     }

@@ -141,13 +141,11 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
       $scope.error = true;
     });
   };
-  $scope.clear = function(){
+  $scope.$on('fpSearchBar.clear', function(){
     $scope.posts = [];
     $scope.searchTerm = '';
-    $scope.focused = 'centered';
-    document.getElementById('searchInput').blur();
     delete localStorage.searchCache;
-  };
+  });
   $scope.loadComments = function(storyID){
     $state.go('tab.search-comments',{storyID:storyID});
   }
