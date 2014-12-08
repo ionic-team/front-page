@@ -34,53 +34,55 @@ angular.module('frontpage', [
       navigator.splashscreen.hide();
     }
 
-    $ionicUpdate.initialize(ionic.Config.app_id)
+    $ionicUpdate.initialize(ionic.Config.app_id);
     $ionicUpdate.check().then(function(response) {
-      console.log('got a response', response)
+      console.log('got a response', response);
       // response will be true/false
       if (response) {
          // Download the updates
-        console.log('downloading updates')
+        console.log('downloading updates');
         $ionicUpdate.download().then(function() {
-               // Extract the updates
-          console.log('extracting updates')
+          // Extract the updates
+          console.log('extracting updates');
           $ionicUpdate.extract().then(function() {
-            console.log('update extracted, loading')
-                     // Load the updated version
-                  $ionicUpdate.load();
-                }, function(error) {
-            console.log('error extracting')
-                     // Error extracting
-                }, function(progress) {
-                     // Do something with the zip extraction progress
-                  console.log('extraction progress',progress);
-                });
+            console.log('update extracted, loading');
+            // Load the updated version
+            $ionicUpdate.load();
           }, function(error) {
-          console.log('error downloading');
-                 // Error downloading the updates
+            console.log('error extracting');
+             // Error extracting
           }, function(progress) {
-                 // Do something with the download progress
-            console.log('progress downloading',progress);
+            // Do something with the zip extraction progress
+            console.log('extraction progress',progress);
           });
-        } else {
-               // No updates, load the most up to date version of the app
+        }, function(error) {
+          console.log('error downloading');
+          // Error downloading the updates
+        }, function(progress) {
+          // Do something with the download progress
+          console.log('progress downloading',progress);
+        });
+      } else {
+        // No updates, load the most up to date version of the app
         console.log('no update, loading');
-          $ionicUpdate.load();
-        }
+        $ionicUpdate.load();
+      }
      }, function(error) {
       console.log('error checking for update');
-        // Error checking for updates
+      // Error checking for updates
      })
   });
 })
   .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
     cfpLoadingBarProvider.includeSpinner = false;
   }])
-.config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider) {
+.config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider, $compileProvider) {
   $ionicAppProvider.identify({
     "app_id": ionic.Config.app_id,
     "api_write_key": ionic.Config.api_write_key
-  })
+  });
+
+  $compileProvider.debugInfoEnabled(false);
 
   // Listen to all successful requests, so we can cache some queries
   $httpProvider.interceptors.push('cacheInterceptor');
