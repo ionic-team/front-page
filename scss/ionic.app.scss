@@ -214,15 +214,12 @@ form.item-input-inset{
   display:block;
   float:right;
   height: 86px;
+
+  background:url('../img/comments-icon.png') 5px 19px no-repeat;
+
+  background-size:41px 41px;
   &::before{
-    color:$light;
-    text-decoration: none;
-    -webkit-text-stroke: 1px $stable;
-    position:absolute;
-    font-size: 48px;
-    right:13px;
-    top:16px;
-    z-index:-1;
+    display:none;
   }
 }
 ion-tabs{
@@ -311,26 +308,6 @@ ion-nav-view{
   background-color:white;
 }
 
-.platform-android{
-  .scroll-content{
-    overflow: hidden;
-  }
-  .back-button:not(.ng-hide)+div+.title{
-    margin-left: -15px;
-  }
-  .item.comment p.timestamp {
-    float: none;
-    position: absolute;
-    right: 0;
-    width: 200px;
-    text-align: right;
-  }
-  .item.comment p, .item.comment i, .item.comment .text{
-    -webkit-transition: none; /* For Safari 3.1 to 6.0 */
-    transition: none;
-  }
-}
-
 #loading-bar{
   -webkit-transition: 350ms linear all;
   transition: 350ms linear all;
@@ -367,4 +344,50 @@ ion-nav-view{
       border-radius: 100%;
     }
   }
+}
+
+.platform-android{
+  .nav-bar-block{
+    //position: relative;
+    .bar-header{
+      height:65px;
+      .button{
+        top:5px;
+      }
+      .title{
+        top:10px;
+        font-size: 22px;
+        font-weight: 400;
+      }
+    }
+  }
+  .scroll-content{
+    overflow: hidden;
+  }
+  .back-button:not(.ng-hide)+div+.title{
+    margin-left: -15px;
+  }
+  .item.comment p.timestamp {
+    float: none;
+    position: absolute;
+    right: 0;
+    width: 200px;
+    text-align: right;
+  }
+  .item.comment p, .item.comment i, .item.comment .text{
+    -webkit-transition: none; /* For Safari 3.1 to 6.0 */
+    transition: none;
+  }
+  .tab-item.tab-item-active .tab-title{
+    color:white;
+  }
+  .bar-header.item-input-inset{
+    top: -10px;
+    .icon.ion-ios7-close{
+      top:-1px;
+      color:#aaa;
+    }
+  }
+
+  *{font-family: "Roboto", sans-serif !important;}
 }

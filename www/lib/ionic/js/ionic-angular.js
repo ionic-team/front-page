@@ -2301,7 +2301,8 @@ IonicModule
     navBar: {
       alignTitle: PLATFORM,
       positionPrimaryButtons: PLATFORM,
-      positionSecondaryButtons: PLATFORM
+      positionSecondaryButtons: PLATFORM,
+      transition: PLATFORM
     },
     backButton: {
       icon: PLATFORM,
@@ -2337,7 +2338,8 @@ IonicModule
     navBar: {
       alignTitle: 'center',
       positionPrimaryButtons: 'left',
-      positionSecondaryButtons: 'right'
+      positionSecondaryButtons: 'right',
+      transition: 'view'
     },
 
     backButton: {
@@ -2384,7 +2386,7 @@ IonicModule
     },
 
     backButton: {
-      icon: 'ion-android-arrow-back',
+      icon: 'ion-arrow-left-c',
       text: false,
       previousTitleText: false
     },
@@ -2495,30 +2497,27 @@ IonicModule
   provider.transitions.views.android = function(enteringEle, leavingEle, direction, shouldAnimate) {
     shouldAnimate = shouldAnimate && (direction == 'forward' || direction == 'back');
 
-    function setStyles(ele, opacity, y) {
+    function setStyles(ele, x) {
       var css = {};
       css[ionic.CSS.TRANSITION_DURATION] = shouldAnimate ? '' : 0;
-      css.opacity = opacity;
-      css[ionic.CSS.TRANSFORM] = 'translate3d(0,' + y + 'px,0)';
+      css[ionic.CSS.TRANSFORM] = 'translate3d(' + x + '%,0,0)';
       ionic.DomUtil.cachedStyles(ele, css);
     }
-
-    var startX = Math.max(window.innerHeight, screen.height) * 0.15;
 
     return {
       run: function(step) {
         if (direction == 'forward') {
-          setStyles(enteringEle, step, (1 - step) * startX);
-          setStyles(leavingEle, 1, 0);
+          setStyles(enteringEle, (1 - step) * 99); // starting at 98% prevents a flicker
+          setStyles(leavingEle, step * -100);
 
         } else if (direction == 'back') {
-          setStyles(enteringEle, 1, 0);
-          setStyles(leavingEle, (1 - step), step * startX);
+          setStyles(enteringEle, (1 - step) * -100);
+          setStyles(leavingEle, step * 100);
 
         } else {
           // swap, enter, exit
-          setStyles(enteringEle, 1, 0);
-          setStyles(leavingEle, 0, 0);
+          setStyles(enteringEle, 0);
+          setStyles(leavingEle, 0);
         }
       },
       shouldAnimate: shouldAnimate
@@ -2526,9 +2525,27 @@ IonicModule
   };
 
   provider.transitions.navBar.android = function(enteringHeaderBar, leavingHeaderBar, direction, shouldAnimate) {
-    return provider.transitions.views.android(enteringHeaderBar.containerEle(),
-                                              leavingHeaderBar && leavingHeaderBar.containerEle(),
-                                              direction, shouldAnimate);
+    shouldAnimate = shouldAnimate && (direction == 'forward' || direction == 'back');
+
+    function setStyles(ctrl, opacity) {
+      if (!ctrl) return;
+      var css = {};
+      css.opacity = opacity === 1 ? '' : opacity;
+
+      ctrl.setCss('buttons-left', css);
+      ctrl.setCss('buttons-right', css);
+      ctrl.setCss('back-button', css);
+      ctrl.setCss('back-text', css);
+      ctrl.setCss('title', css);
+    }
+
+    return {
+      run: function(step) {
+        setStyles(enteringHeaderBar.controller(), step);
+        setStyles(leavingHeaderBar && leavingHeaderBar.controller(), 1 - step);
+      },
+      shouldAnimate: true
+    };
   };
 
 
@@ -3924,7 +3941,7 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
     options = extend({
       scope: null,
       title: '',
-      buttons: [],
+      buttons: []
     }, options || {});
 
     var popupPromise = $ionicTemplateLoader.compile({
@@ -4050,13 +4067,13 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
           previousPopup.show();
         } else {
           //Remove popup-open & backdrop if this is last popup
-          $timeout(function(){
+          $timeout(function() {
             // wait to remove this due to a 300ms delay native
             // click which would trigging whatever was underneath this
             $ionicBody.removeClass('popup-open');
           }, 400);
-          $timeout(function(){
-            if(popupStack.length === 0)$ionicBackdrop.release();
+          $timeout(function() {
+            $ionicBackdrop.release();
           }, config.stackPushDelay || 0);
           ($ionicPopup._backButtonActionDone || angular.noop)();
         }
@@ -4084,7 +4101,7 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
   }
 
   function showAlert(opts) {
-    return showPopup( extend({
+    return showPopup(extend({
       buttons: [{
         text: opts.okText || 'OK',
         type: opts.okType || 'button-positive',
@@ -4092,13 +4109,13 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
           return true;
         }
       }]
-    }, opts || {}) );
+    }, opts || {}));
   }
 
   function showConfirm(opts) {
-    return showPopup( extend({
+    return showPopup(extend({
       buttons: [{
-        text: opts.cancelText || 'Cancel' ,
+        text: opts.cancelText || 'Cancel',
         type: opts.cancelType || 'button-default',
         onTap: function(e) { return false; }
       }, {
@@ -4106,24 +4123,24 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
         type: opts.okType || 'button-positive',
         onTap: function(e) { return true; }
       }]
-    }, opts || {}) );
+    }, opts || {}));
   }
 
   function showPrompt(opts) {
     var scope = $rootScope.$new(true);
     scope.data = {};
     var text = '';
-    if(opts.template && /<[a-z][\s\S]*>/i.test(opts.template) === false){
-      text = '<span>'+opts.template+'</span>';
+    if (opts.template && /<[a-z][\s\S]*>/i.test(opts.template) === false) {
+      text = '<span>' + opts.template + '</span>';
       delete opts.template;
     }
-    return showPopup( extend({
-      template: text+'<input ng-model="data.response" type="' + (opts.inputType || 'text') +
+    return showPopup(extend({
+      template: text + '<input ng-model="data.response" type="' + (opts.inputType || 'text') +
         '" placeholder="' + (opts.inputPlaceholder || '') + '">',
       scope: scope,
       buttons: [{
         text: opts.cancelText || 'Cancel',
-        type: opts.cancelType|| 'button-default',
+        type: opts.cancelType || 'button-default',
         onTap: function(e) {}
       }, {
         text: opts.okText || 'OK',
@@ -4132,10 +4149,9 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
           return scope.data.response || '';
         }
       }]
-    }, opts || {}) );
+    }, opts || {}));
   }
 }]);
-
 
 /**
  * @ngdoc service
@@ -4528,7 +4544,7 @@ IonicModule
  * ```js
  * function MyCtrl($scope, $ionicSlideBoxDelegate) {
  *   $scope.nextSlide = function() {
- *     $ionicSlideBoxDelegate.select( $ionicSlideBoxDelegate.next() );
+ *     $ionicSlideBoxDelegate.next();
  *   }
  * }
  * ```
@@ -4537,57 +4553,68 @@ IonicModule
 .service('$ionicSlideBoxDelegate', delegateService([
   /**
    * @ngdoc method
-   * @name $ionicSlideBoxDelegate#select
-   * @param {number} slideIndex The index to select.
+   * @name $ionicSlideBoxDelegate#update
+   * @description
+   * Update the slidebox (for example if using Angular with ng-repeat,
+   * resize it for the elements inside).
    */
+  'update',
+  /**
+   * @ngdoc method
+   * @name $ionicSlideBoxDelegate#slide
+   * @param {number} to The index to slide to.
+   * @param {number=} speed The number of milliseconds for the change to take.
+   */
+  'slide',
   'select',
   /**
    * @ngdoc method
-   * @name $ionicSlideBoxDelegate#selected
-   * @returns `slideIndex` The index of the currently selected slide.
+   * @name $ionicSlideBoxDelegate#enableSlide
+   * @param {boolean=} shouldEnable Whether to enable sliding the slidebox.
+   * @returns {boolean} Whether sliding is enabled.
    */
-  'selected',
-  /**
-   * @ngdoc method
-   * @name $ionicSlideBoxDelegate#loop
-   * @description Sets/gets the looping state of the slidebox (whether going next from the last slide will go back to the first slide, and vice versa).
-   * @param {boolean=} shouldLoop Set whether the slidebox should loop.
-   * @returns `isLoop` Whether looping is currently enabled.
-   */
- 'loop',
+  'enableSlide',
   /**
    * @ngdoc method
    * @name $ionicSlideBoxDelegate#previous
-   * @returns `slideIndex` The index of the previous slide. Wraps around if loop is enabled.
+   * @description Go to the previous slide. Wraps around if at the beginning.
    */
   'previous',
   /**
    * @ngdoc method
    * @name $ionicSlideBoxDelegate#next
-   * @returns `slideIndex` The index of the next slide. Wraps around if loop is enabled.
+   * @description Go to the next slide. Wraps around if at the end.
    */
   'next',
   /**
    * @ngdoc method
-   * @name $ionicSlideBoxDelegate#autoPlay
-   * @description Set whether the slidebox should automatically play, and at what rate.
-   * @param {*} autoPlayInterval How many milliseconds delay until changing to the next slide.
-   * Set to zero or false to stop autoPlay.
+   * @name $ionicSlideBoxDelegate#stop
+   * @description Stop sliding. The slideBox will not move again until
+   * explicitly told to do so.
    */
+  'stop',
   'autoPlay',
   /**
    * @ngdoc method
-   * @name $ionicSlideBoxDelegate#enableSlide
-   * @param {boolean=} shouldEnable Whether to enable sliding the slidebox.
-   * @returns `boolean` Whether sliding is enabled.
+   * @name $ionicSlideBoxDelegate#start
+   * @description Start sliding again if the slideBox was stopped.
    */
-  'enableSlide',
+  'start',
   /**
    * @ngdoc method
-   * @name $ionicSlideBoxDelegate#count
-   * @returns `number` The number of slides there are currently.
+   * @name $ionicSlideBoxDelegate#currentIndex
+   * @returns number The index of the current slide.
    */
+  'currentIndex',
+  'selected',
+  /**
+   * @ngdoc method
+   * @name $ionicSlideBoxDelegate#slidesCount
+   * @returns number The number of slides there are currently.
+   */
+  'slidesCount',
   'count',
+  'loop',
   /**
    * @ngdoc method
    * @name $ionicSlideBoxDelegate#$getByHandle
@@ -4596,17 +4623,8 @@ IonicModule
    * {@link ionic.directive:ionSlideBox} directives with `delegate-handle` matching
    * the given handle.
    *
-   * Example: `$ionicSlideBoxDelegate.$getByHandle('my-handle').select(0);`
+   * Example: `$ionicSlideBoxDelegate.$getByHandle('my-handle').stop();`
    */
-
-   // DEPRECATED, as of v1.0.0-beta14 -------
-   'update',
-   'currentIndex',
-   'slide',
-   'slidesCount',
-   'stop',
-   'start'
-   // END DEPRECATED -------
 ]));
 
 
@@ -4923,8 +4941,6 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
   var DATA_FALLBACK_TIMER = '$fallbackTimer';
   var NAV_VIEW_ATTR = 'nav-view';
   var HISTORY_CURSOR_ATTR = 'history-cursor';
-  var HISTORY_ROOT = 'root';
-  var HISTORY_AFTER_ROOT = 'after-root';
   var VIEW_STATUS_ACTIVE = 'active';
   var VIEW_STATUS_CACHED = 'cached';
   var VIEW_STATUS_STAGED = 'stage';
@@ -4957,13 +4973,15 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
     // 6) fallback value
 
     var state = viewState(viewLocals);
-    var transition = nextTransition || cachedAttr(enteringEle, 'view-transition') || state.viewTransition || $ionicConfig.views.transition() || 'ios';
+    var viewTransition = nextTransition || cachedAttr(enteringEle, 'view-transition') || state.viewTransition || $ionicConfig.views.transition() || 'ios';
+    var navBarTransition = $ionicConfig.navBar.transition();
     direction = nextDirection || cachedAttr(enteringEle, 'view-direction') || state.viewDirection || direction || 'none';
 
     return extend(getViewData(view), {
-      transition: transition,
+      transition: viewTransition,
+      navBarTransition: navBarTransition === 'view' ? viewTransition : navBarTransition,
       direction: direction,
-      shouldAnimate: (transition !== 'none' && direction !== 'none')
+      shouldAnimate: (viewTransition !== 'none' && direction !== 'none')
     });
   }
 
@@ -4984,10 +5002,6 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
     } else {
       return cachedAttr(ele, NAV_VIEW_ATTR);
     }
-  }
-
-  function historyCursorAttr(ele, value) {
-    cachedAttr(ele, HISTORY_CURSOR_ATTR, value);
   }
 
   function destroyViewEle(ele) {
@@ -5079,14 +5093,13 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
             navViewAttr(enteringEle, VIEW_STATUS_STAGED);
 
             var enteringData = getTransitionData(viewLocals, enteringEle, registerData.direction, enteringView);
-            var transitionFn = $ionicConfig.transitions.views[enteringData.transition];
+            var transitionFn = $ionicConfig.transitions.views[enteringData.transition] || $ionicConfig.transitions.views.none;
             transitionFn(enteringEle, null, enteringData.direction, true).run(0);
-
-            historyCursorAttr(enteringEle, registerData.isHistoryRoot ? HISTORY_ROOT : HISTORY_AFTER_ROOT);
 
             // if the current state has cache:false
             // or the element has cache-view="false" attribute
-            if (viewState(viewLocals).cache === false || enteringEle.attr('cache-view') == 'false') {
+            if (viewState(viewLocals).cache === false || viewState(viewLocals).cache === 'false' ||
+                enteringEle.attr('cache-view') == 'false' || $ionicConfig.views.maxCache() === 0) {
               enteringEle.data(DATA_NO_CACHE, true);
             }
 
@@ -5123,7 +5136,7 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
           switcher.emit('before', enteringData, leavingData);
 
           // 1) get the transition ready and see if it'll animate
-          var transitionFn = $ionicConfig.transitions.views[enteringData.transition];
+          var transitionFn = $ionicConfig.transitions.views[enteringData.transition] || $ionicConfig.transitions.views.none;
           var viewTransition = transitionFn(enteringEle, leavingEle, enteringData.direction, enteringData.shouldAnimate);
 
           if (viewTransition.shouldAnimate) {
@@ -5135,10 +5148,6 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
 
           // 3) stage entering element, opacity 0, no transition duration
           navViewAttr(enteringEle, VIEW_STATUS_STAGED);
-
-          if (enteringData.direction == 'swap') {
-            historyCursorAttr(enteringEle, HISTORY_ROOT);
-          }
 
           // 4) place the elements in the correct step to begin
           viewTransition.run(0);
@@ -5307,12 +5316,7 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
       navViewAttr(viewEle, isActiveAttr ? VIEW_STATUS_ACTIVE : VIEW_STATUS_CACHED);
     },
 
-    isHistoryRoot: function(viewElement) {
-      return cachedAttr(viewElement, HISTORY_CURSOR_ATTR) === HISTORY_ROOT;
-    },
-
     getTransitionData: getTransitionData,
-    historyCursorAttr: historyCursorAttr,
     navViewAttr: navViewAttr,
     destroyViewEle: destroyViewEle
 
@@ -6085,14 +6089,14 @@ function($scope, $element, $attrs, $compile, $timeout, $ionicNavBarDelegate, $io
 
   self.transition = function(enteringHeaderBar, leavingHeaderBar, viewData) {
     var enteringHeaderBarCtrl = enteringHeaderBar.controller();
-    var transitionFn = $ionicConfig.transitions.navBar[viewData.transition];
+    var transitionFn = $ionicConfig.transitions.navBar[viewData.navBarTransition] || $ionicConfig.transitions.navBar.none;
     var transitionId = viewData.transitionId;
 
     enteringHeaderBarCtrl.beforeEnter(viewData);
 
     var navBarTransition = transitionFn(enteringHeaderBar, leavingHeaderBar, viewData.direction, viewData.shouldAnimate && self.isInitialized);
 
-    ionic.DomUtil.cachedAttr($element, 'nav-bar-transition', viewData.transition);
+    ionic.DomUtil.cachedAttr($element, 'nav-bar-transition', viewData.navBarTransition);
     ionic.DomUtil.cachedAttr($element, 'nav-bar-direction', viewData.direction);
 
     if (navBarTransition.shouldAnimate) {
@@ -6307,9 +6311,9 @@ function($scope, $element, $attrs, $compile, $controller, $ionicNavBarDelegate, 
 
   var DATA_ELE_IDENTIFIER = '$eleId';
   var DATA_DESTROY_ELE = '$destroyEle';
+  var DATA_NO_CACHE = '$noCache';
   var VIEW_STATUS_ACTIVE = 'active';
   var VIEW_STATUS_CACHED = 'cached';
-  var HISTORY_AFTER_ROOT = 'after-root';
 
   var self = this;
   var direction;
@@ -6426,30 +6430,23 @@ function($scope, $element, $attrs, $compile, $controller, $ionicNavBarDelegate, 
 
   self.transitionEnd = function() {
     var viewElements = $element.children();
-    var viewElementsLength = viewElements.length;
-    var x, viewElement;
-    var isHistoryRoot;
+    var x, l, viewElement;
 
-    for (x = 0; x < viewElementsLength; x++) {
+    for (x = 0, l = viewElements.length; x < l; x++) {
       viewElement = viewElements.eq(x);
 
       if (viewElement.data(DATA_ELE_IDENTIFIER) === activeEleId) {
         // this is the active element
         navViewAttr(viewElement, VIEW_STATUS_ACTIVE);
-        isHistoryRoot = $ionicViewSwitcher.isHistoryRoot(viewElement);
 
-      } else if (navViewAttr(viewElement) === 'leaving' || navViewAttr(viewElement) === VIEW_STATUS_ACTIVE) {
-        // this is a leaving element or was the former active element
-        navViewAttr(viewElement, VIEW_STATUS_CACHED);
-      }
-    }
-
-    if (isHistoryRoot) {
-      for (x = 0; x < viewElementsLength; x++) {
-        viewElement = viewElements.eq(x);
-
-        if ($ionicViewSwitcher.isHistoryRoot(viewElement) && navViewAttr(viewElement) !== VIEW_STATUS_ACTIVE) {
-          $ionicViewSwitcher.historyCursorAttr(viewElement, HISTORY_AFTER_ROOT);
+      } else if (navViewAttr(viewElement) === 'leaving' || navViewAttr(viewElement) === VIEW_STATUS_ACTIVE || navViewAttr(viewElement) === VIEW_STATUS_CACHED) {
+        // this is a leaving element or was the former active element, or is an cached element
+        if (viewElement.data(DATA_DESTROY_ELE) || viewElement.data(DATA_NO_CACHE)) {
+          // this element shouldn't stay cached
+          $ionicViewSwitcher.destroyViewEle(viewElement);
+        } else {
+          // keep in the DOM, mark as cached
+          navViewAttr(viewElement, VIEW_STATUS_CACHED);
         }
       }
     }
@@ -7204,408 +7201,6 @@ function($scope, $attrs, $ionicSideMenuDelegate, $ionicPlatform, $ionicBody, $io
 }]);
 
 IonicModule
-.controller('$ionSlideBox', [
-  '$scope',
-  '$element',
-  '$log',
-  '$document',
-  '$$q',
-  '$timeout',
-  '$interval',
-  '$$ionicAttachDrag',
-  '$rootScope',
-function(scope, element, $log, $document, $$q, $timeout, $interval, $$ionicAttachDrag, $rootScope) {
-  var self = this;
-  var SLIDE_TRANSITION_DURATION = 250;
-  var SLIDE_SUCCESS_VELOCITY = (1 / 4); // pixels / ms
-
-  var container = jqLite(element[0].querySelector('.slider-slides'));
-
-  // Live-updated list of slides
-  var slideNodes = container[0].getElementsByTagName('ion-slide');
-
-  // If we're already sliding and a new selection is triggered, add it to the queue,
-  // to be taken off once the current slide animation is done
-  var slideQueue = [];
-
-  // Whether we're currently sliding through the slideQueue
-  var isSliding = false;
-
-  var slideCount = 0;
-  var selectedIndex = -1;
-  var isLoop = false;
-
-  self.element = element;
-
-  self.autoPlay = autoPlay;
-  self.count = count;
-  self.enableSlide = enableSlide;
-  self.isValidIndex = isValidIndex;
-  self.loop = loop;
-  self.next = next;
-  self.onAddSlide = onAddSlide;
-  self.onRemoveSlide = onRemoveSlide;
-  self.previous = previous;
-  self.select = select;
-  self.selected = selected;
-
-  $$ionicAttachDrag(scope, container, {
-    getDistance: function () { return container.prop('offsetWidth'); },
-    onDragStart: onDragStart,
-    onDrag: onDrag,
-    onDragEnd: onDragEnd
-  });
-
-  /****** DEPRECATED, as of v1.0.0-beta14 ********/
-  self.update = deprecated.method(
-    '$ionicSlideBoxDelegate.update() has been deprecated! Slidebox updates on its own now.',
-    $log.warn,
-    angular.noop
-  );
-  self.currentIndex = deprecated.method(
-     '$ionicSlideBoxDelegate.currentIndex() has been deprecated! Use self.selected() instead.',
-     $log.warn,
-     self.selected
-  );
-  self.slide = deprecated.method(
-     '$ionicSlideBoxDelegate.slide(newIndex[, speed]) has been deprecated! Use self.select(newIndex[, speed]) instead.',
-     $log.warn,
-     self.select
-  );
-  self.slidesCount = deprecated.method(
-     '$ionicSlideBoxDelegate.slidesCount() has been deprecated! Use self.count() instead.',
-     $log.warn,
-     self.count
-  );
-  self.stop = deprecated.method(
-    '$ionicSlideBoxDelegate.stop() has been deprecated! Use $ionicSlideBoxDelegate.autoPlay(0) to stop instead.',
-    $log.warn,
-    function stopDeprecated() {
-      self._stoppedInterval = self.autoPlayInterval;
-      self.autoPlay(0);
-    }
-  );
-  self.start = deprecated.method(
-    '$ionicSlideBoxDelegate.start() has been deprecated! Use $ionicSlideBoxDelegate.autoPlay(newInterval) to start instead.',
-    $log.warn,
-    function startDeprecated() {
-      self.autoPlay(self._stoppedInterval);
-    }
-  );
-
-  /***************************
-   * Public Methods
-   ***************************/
-
-  function autoPlay(newInterval) {
-    self.autoPlayInterval = newInterval;
-    $interval.cancel(self.autoPlayTimeout);
-
-    if (angular.isNumber(newInterval) && newInterval > 0) {
-      self.autoPlayTimeout = $interval(function() {
-        if (!ionic.Utils.isScopeDisconnected(scope)) {
-          self.select(self.next());
-        }
-      }, newInterval);
-    }
-  }
-
-  function count() {
-    return slideCount;
-  }
-
-  function enableSlide(enable) {
-    if (arguments.length) self.dragDisabled = !enable;
-    return !self.dragDisabled;
-  }
-
-  function isValidIndex(index) {
-    return index > -1 && index < self.count();
-  }
-
-  function loop(loopValue) {
-    if (arguments.length) isLoop = !!loopValue;
-    return isLoop;
-  }
-
-  // gives the next index relative to the given index (default selectedIndex)
-  function next(index) {
-    index = arguments.length ? index : selectedIndex;
-    var nextIndex = index + 1;
-    if (nextIndex >= self.count()) {
-      // We can only have a next if there's more than one item
-      if (isLoop && self.count() > 1) return 0;
-      return -1;
-    }
-    return nextIndex;
-  }
-
-  // Called by ionSlide directive
-  function onAddSlide() {
-    slideCount++;
-    // If we're waiting for a certain slide to be added so we can select it,
-    // or we just have selectedIndex at -1, go ahead and select.
-    if ((!angular.isNumber(scope.selected) || scope.selected < self.count()) &&
-        !self.isValidIndex(selectedIndex)) {
-      enqueueSelect(self.isValidIndex(scope.selected) ? scope.selected : 0);
-
-    } else if (self.isValidIndex(selectedIndex)) {
-      // 'Refresh' the selection at end of digest when a new slide is added
-      enqueueSelect(selectedIndex);
-    }
-  }
-
-  // Called by ionSlide directive
-  function onRemoveSlide() {
-    slideCount--;
-    if (selectedIndex >= self.count()) {
-      enqueueSelect( Math.max(selectedIndex - 1, 0) );
-
-    } else if (self.isValidIndex(selectedIndex)) {
-      // 'Refresh' the selection at end of digest when a slide is removed
-      enqueueSelect(selectedIndex);
-    }
-  }
-
-  // gives the previous index relative to the given index (default selectedIndex)
-  function previous(index) {
-    index = arguments.length ? index : selectedIndex;
-    var previousIndex = index - 1;
-    if (previousIndex < 0) {
-      // EDGE CASE: If there are only two slides and loop is enabled, we cannot have a previous
-      // because previous === next. Only loop with previous if we have at least 3 slides
-      if (isLoop && slideCount > 2) {
-        return self.count() - 1;
-      }
-      return -1;
-    }
-    return previousIndex;
-  }
-
-  // adds data to the queue for selection.
-  // Index can be either a number or a getter (to be called when starting the slide)
-  function select(newIndex, transitionDuration, isDrag) {
-    slideQueue.unshift([
-      angular.isFunction(newIndex) ? newIndex : function() { return newIndex; },
-      transitionDuration || SLIDE_TRANSITION_DURATION,
-      !!isDrag
-    ]);
-    if (!isSliding) {
-      runSelectQueue();
-    }
-  }
-
-  function selected() {
-    return selectedIndex;
-  }
-
-  /***************************
-   * Private Methods
-   ***************************/
-
-  // If slides are added or removed, we only want to re-set the selected index
-  // once per digest.
-  function enqueueSelect(index) {
-    enqueueSelect.index = index;
-    if (!enqueueSelect.queued) {
-      enqueueSelect.queued = true;
-      scope.$$postDigest(function() {
-        enqueueSelect.queued = false;
-        select(enqueueSelect.index);
-      });
-    }
-  }
-
-  // Recursively takes an item off slideQueue array, selects it,
-  // then repeats until nothing is left in the slideQueue.
-  // Once slideQueue is empty, publishes the select data to scope.
-  function runSelectQueue() {
-    isSliding = slideQueue.length > 0;
-    if (isSliding) {
-      var data = slideQueue.pop();
-      data[0] = data[0](); //index is a getter
-      slideTo.apply(null, data).then(runSelectQueue);
-    } else {
-      // Publish the data to scope once we're all done
-      scope.$evalAsync(function() {
-        scope.selected = selectedIndex;
-        scope.onSlideChanged({
-          $index: selectedIndex, //DEPRECATED $index
-          $slideIndex: selectedIndex
-        });
-      });
-    }
-  }
-
-  function slideTo(newIndex, duration, isDrag) {
-    newIndex = parseInt(newIndex);
-    // Immediately finish invalid selection
-    if (isNaN(newIndex) || !self.isValidIndex(newIndex)) return $$q.when();
-
-    var deferred = $$q.defer();
-    var delta = getDelta(selectedIndex, newIndex);
-    var width = (slideNodes[selectedIndex] || slideNodes[newIndex] || {}).offsetWidth || 0;
-    var direction;
-    var translatePx;
-
-    element.triggerHandler('$ionSlideBox.slide', newIndex);
-
-    // We're interested in isDrag, because a failed drag is the only case
-    // where we want to run a slide animation yet have no change in selectedIndex
-    if (!isDrag && (delta === 0 || selectedIndex === -1)) {
-      // Instantly slide over if there's no change or we don't already have a selected index
-      finishSliding();
-    } else {
-      // Make sure the newIndex is one of the three displayed slides before
-      // trying to transition to it
-      if (delta < 0) {
-        direction = 'previous';
-        translatePx = width;
-        setDisplayedSlides(newIndex, selectedIndex, self.next());
-      } else if (delta > 0) {
-        direction = 'next';
-        translatePx = -width;
-        setDisplayedSlides(self.previous(), selectedIndex, newIndex);
-      } else {
-        direction = '';
-        translatePx = 0;
-        setDisplayedSlides(self.previous(), selectedIndex, self.next());
-      }
-
-      container.css(ionic.CSS.TRANSITION_DURATION, duration + 'ms');
-      // Wait for transitionDuration css to apply...
-      ionic.requestAnimationFrame(function() {
-        container.css(ionic.CSS.TRANSFORM, 'translate3d(' + translatePx + 'px,0,0)');
-        $timeout(finishSliding, duration, false);
-      });
-    }
-
-    return deferred.promise;
-
-    function finishSliding() {
-      container.css(ionic.CSS.TRANSITION_DURATION, '0ms');
-      // Wait for transitionDuration css to apply...
-      ionic.requestAnimationFrame(function() {
-        setSelectedSlide(newIndex);
-        deferred.resolve();
-      });
-    }
-  }
-
-  function setSelectedSlide(newIndex) {
-    selectedIndex = newIndex;
-    setDisplayedSlides(self.previous(newIndex), newIndex, self.next(newIndex));
-    container.css(ionic.CSS.TRANSFORM, '');
-  }
-
-  /**
-   * setDisplayedSlides: set css to show only the three given slide indexes
-   * note: prev & next could both be -1 if there's only one slide in the slidebox
-   */
-  var currentDisplayed = [];
-  function setDisplayedSlides(previous, selected, next) {
-    var newDisplayed = [
-      previous !== -1 && slideNodes[previous],
-      selected !== -1 && slideNodes[selected],
-      next !== -1 && slideNodes[next]
-    ];
-    var oldSlide;
-
-    // Hide & disconnect the currently displayed slides that aren't part of the new slides.
-    for (var i = 0; i < currentDisplayed.length; i++) {
-      oldSlide = currentDisplayed[i];
-      if (oldSlide && newDisplayed.indexOf(oldSlide) === -1) {
-        oldSlide.removeAttribute('slide-display');
-        ionic.Utils.disconnectScope( jqLite(oldSlide).data('$ionSlideScope') );
-      }
-    }
-
-    setDisplay(newDisplayed[0], 'previous');
-    setDisplay(newDisplayed[1], 'selected');
-    setDisplay(newDisplayed[2], 'next');
-
-    function setDisplay(slide, display) {
-      if (!slide) return;
-      var slideScope = jqLite(slide).data('$ionSlideScope');
-      if (slideScope && !ionic.Utils.isScopeDisconnected(scope)) {
-        ionic.Utils.reconnectScope(slideScope);
-        // Digest the slide so it updates before being shown
-        if (!$rootScope.$$phase) slideScope.$digest();
-      }
-      slide.setAttribute('slide-display', display);
-    }
-
-    // Save the now displayed slides so we can check next time
-    currentDisplayed = newDisplayed;
-  }
-
-  scope.$on('$ionic.reconnectScope', function() {
-    setDisplayedSlides(self.previous(), self.selected(), self.next());
-  });
-
-  function getDelta(fromIndex, toIndex) {
-    var difference = toIndex - fromIndex;
-    if (!isLoop) return difference;
-
-    // If looping is on, check for the looped difference.
-    // For example, going from the first item to the last item
-    // is actually a change of -1.
-    var loopedDifference = 0;
-    if (toIndex > fromIndex) {
-      loopedDifference = toIndex - fromIndex - self.count();
-    } else {
-      loopedDifference = self.count() - fromIndex + toIndex;
-    }
-    if (Math.abs(loopedDifference) < Math.abs(difference)) {
-      return loopedDifference;
-    }
-    return difference;
-  }
-
-
-  /********** DRAGGING **********/
-  var dragWidth;
-  function onDragStart() {
-    if (self.dragDisabled || !self.count()) return false;
-    if (!isSliding) {
-      // Make sure that the correct slides are to the left and right
-      // before we start dragging
-      setSelectedSlide(selectedIndex);
-    }
-    dragWidth = slideNodes[selectedIndex].offsetWidth;
-  }
-
-  // percent is negative 0-1 for backward slide
-  // positive 0-1 for forward slide
-  function onDrag(percent) {
-    // Only follow user's finger if we aren't currently sliding
-    if (!isSliding) {
-      container.css(ionic.CSS.TRANSFORM, 'translate3d(' + (-percent * dragWidth) + 'px,0,0)');
-    }
-  }
-
-  function onDragEnd(percent, velocity) {
-    var isSuccess = Math.abs(percent) > 0.5 || velocity > SLIDE_SUCCESS_VELOCITY;
-
-    if (isSuccess) {
-      var distanceRemaining = (1 - Math.abs(percent)) * dragWidth;
-      var transitionDuration = Math.min((distanceRemaining / velocity) - 34, SLIDE_TRANSITION_DURATION);
-
-      self.select(function getIndex() {
-        // This will be called once this dragend is reached in the select queue.
-        var nextIndex = percent > 0 ? self.next() : self.previous();
-        return self.isValidIndex(nextIndex) ? nextIndex : selectedIndex;
-      }, transitionDuration, true);
-
-    } else if (!isSliding) {
-      // If the drag failed, then just slide back to current slide being the center.
-      slideTo(selectedIndex, SLIDE_TRANSITION_DURATION, true);
-    }
-  }
-
-}]);
-
-IonicModule
 .controller('$ionicTab', [
   '$scope',
   '$ionicHistory',
@@ -7803,6 +7398,7 @@ function($scope, $element, $attrs, $compile, $rootScope, $ionicViewSwitcher) {
         title: viewTitle,
         direction: transData.direction,
         transition: transData.transition,
+        navBarTransition: transData.navBarTransition,
         transitionId: transData.transitionId,
         shouldAnimate: transData.shouldAnimate,
         enableBack: transData.enableBack,
@@ -8899,13 +8495,16 @@ function tapScrollToTopDirective() {
 }
 
 function headerFooterBarDirective(isHeader) {
-  return [function() {
+  return ['$document', '$timeout',function($document, $timeout) {
     return {
       restrict: 'E',
       controller: '$ionicHeaderBar',
       compile: function(tElement, $attr) {
         tElement.addClass(isHeader ? 'bar bar-header' : 'bar bar-footer');
-        if (tElement[0].parentNode.querySelector('.tabs-top')) tElement.addClass('has-tabs-top');
+        // android style tabs? if so, remove bottom border for seamless display
+        $timeout(function() {
+          if ($document[0].getElementsByClassName('tabs-top').length) tElement.addClass('has-tabs-top');
+        });
 
         return { pre: prelink };
         function prelink($scope, $element, $attr, ctrl) {
@@ -11176,63 +10775,6 @@ IonicModule
   };
 }]);
 
-/**
- * @ngdoc directive
- * @name ionSlide
- * @parent ionic.directive:ionSlideBox
- * @module ionic
- *
- * @description
- * Displays a slide inside of a slidebox.
- *
- * For more complete examples, see {@link ionic.directive:ionSlideBox}.
- *
- * @usage
- * ```html
- * <ion-slide-box>
- *   <ion-slide>1</ion-slide>
- *   <ion-slide>2</ion-slide>
- * </ion-slide-box>
- * ```
- */
-IonicModule
-.directive('ionSlide', ['$timeout', function($timeout) {
-  return {
-    restrict: 'E',
-    require: ['^ionSlideBox', '^^?ionSlide'],
-    transclude: true,
-    controller: angular.noop,
-    link: postLink
-  };
-
-  function postLink(scope, element, attr, ctrls, transclude) {
-    var slideBoxCtrl = ctrls[0];
-    var slideCtrl = ctrls[1];
-
-    if (slideCtrl) {
-      throw new Error('You cannot have an ion-slide within another ion-slide!');
-    }
-
-    element.addClass('slider-slide');
-
-    slideBoxCtrl.onAddSlide();
-
-    var childScope = scope.$new();
-    element.data('$ionSlideScope', childScope);
-
-    // Disconnect by default, will be reconnected if shown
-    // ionic.Utils.disconnectScope(childScope);
-
-    transclude(childScope, function(contents) {
-      element.append(contents);
-    });
-
-    scope.$on('$destroy', function() {
-      slideBoxCtrl.onRemoveSlide();
-      element.remove();
-    });
-  }
-}]);
 
 /**
  * @ngdoc directive
@@ -11245,250 +10787,185 @@ IonicModule
  *
  * ![SlideBox](http://ionicframework.com.s3.amazonaws.com/docs/controllers/slideBox.gif)
  *
- * Note: The slideBox will take up the whole width and height of its parent element.
- *
  * @usage
  * ```html
- * <ion-content>
- *   <ion-slide-box on-slide-changed="slideHasChanged($slideIndex)" loop="shouldLoop" auto-play="3000">
- *     <ion-slide>
- *       <div class="box blue"><h1>BLUE</h1></div>
- *     </ion-slide>
- *     <ion-slide>
- *       <div class="box yellow"><h1>YELLOW</h1></div>
- *     </ion-slide>
- *     <ion-slide>
- *       <div class="box pink"><h1>PINK</h1></div>
- *     </ion-slide>
- *   </ion-slide-box>
- * </ion-content>
+ * <ion-slide-box on-slide-changed="slideHasChanged($index)">
+ *   <ion-slide>
+ *     <div class="box blue"><h1>BLUE</h1></div>
+ *   </ion-slide>
+ *   <ion-slide>
+ *     <div class="box yellow"><h1>YELLOW</h1></div>
+ *   </ion-slide>
+ *   <ion-slide>
+ *     <div class="box pink"><h1>PINK</h1></div>
+ *   </ion-slide>
+ * </ion-slide-box>
  * ```
  *
- * @param {expression=} selected A model bound to the selected slide index.
- * @param {boolean=} loop Whether the slide box should loop. Default false.
- * @param {number=} auto-play If a positive number, then every time the given number of
- * milliseconds have passed, slideBox will go to the next slide. Set to a non-positive number
- * to disable. Default: -1.
- * @param {expression=} on-slide-changed Expression called when all currently queued slide
- * animations finish.  Is passed a '$slideIndex' variable.
- * @param {expression=} on-slide-start Expression called whenever a slide animation starts.
- * Is passed a '$slideIndex' variable.
- * @param {string=} delegate-handle The handle used to identify this slideBox with
- * {@link ionic.service:$ionicSlideBoxDelegate}.
+ * @param {string=} delegate-handle The handle used to identify this slideBox
+ * with {@link ionic.service:$ionicSlideBoxDelegate}.
+ * @param {boolean=} does-continue Whether the slide box should loop.
+ * @param {boolean=} auto-play Whether the slide box should automatically slide. Default true if does-continue is true.
+ * @param {number=} slide-interval How many milliseconds to wait to change slides (if does-continue is true). Defaults to 4000.
+ * @param {boolean=} show-pager Whether a pager should be shown for this slide box.
+ * @param {expression=} pager-click Expression to call when a pager is clicked (if show-pager is true). Is passed the 'index' variable.
+ * @param {expression=} on-slide-changed Expression called whenever the slide is changed.  Is passed an '$index' variable.
+ * @param {expression=} active-slide Model to bind the current slide to.
  */
 IonicModule
 .directive('ionSlideBox', [
+  '$timeout',
+  '$compile',
   '$ionicSlideBoxDelegate',
   '$ionicHistory',
-  '$timeout',
-function($ionicSlideBoxDelegate, $ionicHistory, $timeout) {
-
+function($timeout, $compile, $ionicSlideBoxDelegate, $ionicHistory) {
   return {
     restrict: 'E',
-    controller: '$ionSlideBox',
-    require: 'ionSlideBox',
+    replace: true,
     transclude: true,
     scope: {
-      selected: '=?',
+      autoPlay: '=',
+      doesContinue: '@',
+      slideInterval: '@',
+      showPager: '@',
+      pagerClick: '&',
+      disableScroll: '@',
       onSlideChanged: '&',
-      onSlideStart: '&'
+      activeSlide: '=?'
     },
-    template: '<div class="slider-slides" ng-transclude></div>',
-    compile: compile
-  };
+    controller: ['$scope', '$element', '$attrs', function($scope, $element, $attrs) {
+      var _this = this;
 
-  function compile(element, attr) {
-    element.addClass('slider');
-    // DEPRECATED attr.doesContinue
-    isDefined(attr.doesContinue) && attr.$set('loop', attr.doesContinue);
+      var continuous = $scope.$eval($scope.doesContinue) === true;
+      var shouldAutoPlay = isDefined($attrs.autoPlay) ? !!$scope.autoPlay : false;
+      var slideInterval = shouldAutoPlay ? $scope.$eval($scope.slideInterval) || 4000 : 0;
 
-    return postLink;
-  }
+      var slider = new ionic.views.Slider({
+        el: $element[0],
+        auto: slideInterval,
+        continuous: continuous,
+        startSlide: $scope.activeSlide,
+        slidesChanged: function() {
+          $scope.currentSlide = slider.currentIndex();
 
-  function postLink(scope, element, attr, slideBoxCtrl) {
-
-    var deregister = $ionicSlideBoxDelegate._registerInstance(
-      slideBoxCtrl, attr.delegateHandle, function() {
-        return $ionicHistory.isActiveScope(scope);
-      }
-    );
-
-    listenForSlide();
-    watchSelected();
-    isDefined(attr.loop) && watchLoop();
-    isDefined(attr.autoPlay) && watchAutoPlay();
-
-    scope.$on('$destroy', deregister);
-
-    // ***
-    // Methods
-    // ***
-
-    function listenForSlide() {
-      element.on('$ionSlideBox.slide', function(ev, index) {
-        scope.onSlideStart({
-          $slideIndex: index
-        });
-        $timeout(angular.noop);
-      });
-    }
-
-    function watchSelected() {
-      scope.$watch('selected', function(index) {
-        if (slideBoxCtrl.selected() !== index) {
-          slideBoxCtrl.select(index);
+          // Try to trigger a digest
+          $timeout(function() {});
+        },
+        callback: function(slideIndex) {
+          $scope.currentSlide = slideIndex;
+          $scope.onSlideChanged({ index: $scope.currentSlide, $index: $scope.currentSlide});
+          $scope.$parent.$broadcast('slideBox.slideChanged', slideIndex);
+          $scope.activeSlide = slideIndex;
+          // Try to trigger a digest
+          $timeout(function() {});
         }
       });
+
+      slider.enableSlide($scope.$eval($attrs.disableScroll) !== true);
+
+      $scope.$watch('activeSlide', function(nv) {
+        if(angular.isDefined(nv)){
+          slider.slide(nv);
+        }
+      });
+
+      $scope.$on('slideBox.nextSlide', function() {
+        slider.next();
+      });
+
+      $scope.$on('slideBox.prevSlide', function() {
+        slider.prev();
+      });
+
+      $scope.$on('slideBox.setSlide', function(e, index) {
+        slider.slide(index);
+      });
+
+      //Exposed for testing
+      this.__slider = slider;
+
+      var deregisterInstance = $ionicSlideBoxDelegate._registerInstance(
+        slider, $attrs.delegateHandle, function() {
+          return $ionicHistory.isActiveScope($scope);
+        }
+      );
+      $scope.$on('$destroy', deregisterInstance);
+
+      this.slidesCount = function() {
+        return slider.slidesCount();
+      };
+
+      this.onPagerClick = function(index) {
+        console.log('pagerClick', index);
+        $scope.pagerClick({index: index});
+      };
+
+      $timeout(function() {
+        slider.load();
+      });
+    }],
+    template: '<div class="slider">' +
+      '<div class="slider-slides" ng-transclude>' +
+      '</div>' +
+    '</div>',
+
+    link: function($scope, $element, $attr, slideBoxCtrl) {
+      // If the pager should show, append it to the slide box
+      if($scope.$eval($scope.showPager) !== false) {
+        var childScope = $scope.$new();
+        var pager = jqLite('<ion-pager></ion-pager>');
+        $element.append(pager);
+        $compile(pager)(childScope);
+      }
     }
-
-    function watchLoop() {
-      var unwatchParent = scope.$parent.$watch(attr.loop, slideBoxCtrl.loop);
-      scope.$on('$destroy', unwatchParent);
-    }
-
-    function watchAutoPlay() {
-      var unwatchParent = scope.$parent.$watch(attr.autoPlay, slideBoxCtrl.autoPlay);
-      scope.$on('$destroy', unwatchParent);
-    }
-  }
-
-}]);
-
-
-
-/**
- * @ngdoc directive
- * @name ionSlidePager
- * @parent ionic.directive:ionSlideBox
- * @module ionic
- * @description
- * Shows a pager for the slidebox.
- *
- * A pager is a row of small buttons at the bottom of the slidebox, each
- * representing one slide. When the user clicks a pager, that slide will
- * be selected.
- *
- * For more complete examples, see {@link ionic.directive:ionSlideBox}.
- *
- * @usage
- * This will show four pager buttons, one for each slide.
- *
- * ```html
- * <ion-slide-box>
- *   <ion-slide-pager></ion-slide-pager>
- *   <ion-slide>1</ion-slide>
- *   <ion-slide>2</ion-slide>
- *   <ion-slide>3</ion-slide>
- *   <ion-slide>4</ion-slide>
- * </ion-slide-box>
- * ```
- *
- * If you provide your own `ng-click` attribute, it overrides the default
- * click behavior.
- *
- * ```html
- * <ion-slide-box>
- *   <ion-slide-pager ng-click="doSomething($slideIndex)"></ion-slide-pager>
- *   <ion-slide>1</ion-slide>
- *   <ion-slide>2</ion-slide>
- *   <ion-slide>3</ion-slide>
- * </ion-slide-box>
- * ```
- *
- * @param {expression=} ng-click By default, clicking a pager will select the corresponding
- * slide. You can override this by providing an ng-click expression. The ng-click
- * expression will be provided a `$slideIndex` variable, signifying the slide index
- * matching the click.
- */
-IonicModule.directive('ionSlidePager', [
-  '$parse',
-function($parse) {
+  };
+}])
+.directive('ionSlide', function() {
   return {
     restrict: 'E',
     require: '^ionSlideBox',
-    scope: {},
-    link: postLink
-  };
-
-  function postLink(scope, element, attr, slideBoxCtrl) {
-    var clickFn = attr.ngClick ?
-      $parse(attr.ngClick) :
-      function(scope, locals) {
-        slideBoxCtrl.select(locals.$slideIndex);
+    compile: function(element, attr) {
+      element.addClass('slider-slide');
+      return function($scope, $element, $attr) {
       };
-    var node = element[0];
+    },
+  };
+})
 
-    // Put it outside the slides container it was transcluded into
-    slideBoxCtrl.element.prepend(element);
-
-
-    element.on('click', onPagerClicked);
-    scope.$watch(slideBoxCtrl.count, watchCountAction);
-    scope.$watch(slideBoxCtrl.selected, watchSelectedAction);
-
-    slideBoxCtrl.element.on('$ionSlideBox.slide', onSlideStart);
-    scope.$on('$destroy', function() {
-      slideBoxCtrl.element.off('$ionSlideBox.slide', onSlideStart);
-    });
-
-    element.addClass('ng-hide');
-    ionic.requestAnimationFrame(function() {
-      element.removeClass('ng-hide').addClass('slider-pager');
-    });
-
-    function onSlideStart(ev, index) {
-      watchSelectedAction(index);
-    }
-
-    function onPagerClicked(ev) {
-      for (var i = 0, pager; (pager = node.children[i]); i++) {
-        if (pager === ev.target) {
-          return doClick(i);
+.directive('ionPager', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    require: '^ionSlideBox',
+    template: '<div class="slider-pager"><span class="slider-pager-page" ng-repeat="slide in numSlides() track by $index" ng-class="{active: $index == currentSlide}" ng-click="pagerClick($index)"><i class="icon ion-record"></i></span></div>',
+    link: function($scope, $element, $attr, slideBox) {
+      var selectPage = function(index) {
+        var children = $element[0].children;
+        var length = children.length;
+        for(var i = 0; i < length; i++) {
+          if(i == index) {
+            children[i].classList.add('active');
+          } else {
+            children[i].classList.remove('active');
+          }
         }
-      }
-    }
+      };
 
-    function watchCountAction(count, oldCount) {
-      var i;
-      for (i = node.children.length; i < count; i++) {
-        addPager();
-      }
-      for (i = count; i < oldCount; i++) {
-        removePager(i);
-      }
-    }
+      $scope.pagerClick = function(index) {
+        slideBox.onPagerClick(index);
+      };
 
-    var oldSelected;
-    function watchSelectedAction(selected) {
-      var old = node.children[oldSelected];
-      if (old) old.classList.remove('active');
-      var current = node.children[selected];
-      if (current) current.classList.add('active');
-      oldSelected = selected;
-    }
+      $scope.numSlides = function() {
+        return new Array(slideBox.slidesCount());
+      };
 
-    //* Extra methods *//
-
-    function doClick(index) {
-      scope.$apply(function() {
-        clickFn(scope.$parent, {
-          index: index, // DEPRECATED `index`
-          $slideIndex: index,
-        });
+      $scope.$watch('currentSlide', function(v) {
+        selectPage(v);
       });
     }
-    function addPager() {
-      var pager = document.createElement('div');
-      pager.className = 'slider-pager-page';
-      node.appendChild(pager);
-    }
-    function removePager(i) {
-      var pager = node.children[i];
-      pager && node.removeChild(pager);
-    }
-  }
+  };
 
-}]);
+});
 
 /**
  * @ngdoc directive

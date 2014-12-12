@@ -77,10 +77,14 @@ angular.module('frontpage', [
     cfpLoadingBarProvider.includeSpinner = false;
   }])
 .config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider, $compileProvider) {
-  $ionicAppProvider.identify({
-    "app_id": ionic.Config.app_id,
-    "api_write_key": ionic.Config.api_write_key
-  });
+  try{
+    $ionicAppProvider.identify({
+      "app_id": ionic.Config.app_id,
+      "api_write_key": ionic.Config.api_write_key
+    });
+  } catch(e) {
+    console.error('ionic.Config not set. Make sure config.js is loaded', e)
+  }
 
   $compileProvider.debugInfoEnabled(false);
 

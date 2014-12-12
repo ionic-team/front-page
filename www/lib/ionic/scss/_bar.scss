@@ -39,7 +39,6 @@
     background-size: 100% 1px;
     background-repeat: no-repeat;
   }
-  pointer-events: auto;
 
   &.bar-clear {
     border: none;
@@ -211,7 +210,7 @@
       margin-right: 5px;
       padding: 0;
       white-space: nowrap;
-      @include transition-duration(0);
+      font-weight: 400;
     }
 
     &.back-button.active,
@@ -324,6 +323,7 @@
   border-bottom-width: 1px;
   &.has-tabs-top{
     border-bottom-width: 0px;
+    background-image: none;
   }
 }
 
@@ -364,7 +364,6 @@
   top: 0;
   right: 0;
   left: 0;
-  pointer-events: none;
   z-index: $z-index-bar;
 }
 

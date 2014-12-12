@@ -1,6 +1,6 @@
 angular.module('frontpage.controllers', ['ionic.services.analytics'])
 
-.controller('MainCtrl', function($scope, $ionicTrack){
+.controller('MainCtrl', function($scope, $ionicTrack, cfpLoadingBar){
   $scope.open = function(url){
     // Send event to analytics service
     $ionicTrack.track('open', {
@@ -20,22 +20,31 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
       iab = null;
     });
   };
-
+  //make sure we always clear any existing loading bars before navigation
+  $scope.$on('$ionicView.beforeLeave', function(){
+    cfpLoadingBar.complete();
+  });
 })
 
 .controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state, cfpLoadingBar, $timeout) {
-  $scope.pageName = 'Front Page';
-  $scope.posts = RequestCache.get('frontpage/1');
+  $scope.pageName = 'Frontpage';
+  $scope.posts = [];
   var currentPage = 1;
+  // refresh called on pull to refresh and page load
   $scope.refresh = function(){
     // refresh the list with a new API call
     HNAPI.frontpage(1).then(function(posts){
       if(!angular.equals($scope.posts, posts))$scope.posts = posts;
       currentPage = 1;
       $scope.$broadcast('scroll.refreshComplete');
-    }, function(){$scope.error = true;});
+      cfpLoadingBar.complete();
+    }, function(){
+      $scope.error = true;
+      cfpLoadingBar.complete();
+    });
   };
   $scope.refresh();
+  cfpLoadingBar.start();
   $scope.loadMoreData = function(){
     cfpLoadingBar.start();
     currentPage++;
@@ -43,7 +52,7 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
       $scope.error = false;
-      $timeout(cfpLoadingBar.complete,300);
+      $timeout(cfpLoadingBar.complete,100);
     }, function(){
       $scope.error = true;
       cfpLoadingBar.complete();
@@ -52,15 +61,14 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   $scope.loadComments = function(storyID){
     $state.go('tab.front-page-comments',{storyID:storyID});
   };
-  //make sure we always clear any existing loading bars
-  $scope.$on('$ionicView.beforeLeave', function(){
-    cfpLoadingBar.complete();
-  });
 })
 
-.controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state) {
+.controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state, cfpLoadingBar, $timeout) {
+  // This is nearly identical to FrontPageCtrl and should be refactored so the pages share a controller,
+  // but the purpose of this app is to be an example to people getting started with angular and ionic.
+  // Therefore we err on repeating logic and being verbose
   $scope.pageName = 'Newest';
-  $scope.posts = RequestCache.get('new/1');
+  $scope.posts = [];
   var currentPage = 1;
   $scope.refresh = function(){
     HNAPI.newest(1).then(function(posts){
@@ -71,16 +79,21 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   };
   $scope.refresh();
   $scope.loadMoreData = function(){
+    cfpLoadingBar.start();
     currentPage++;
     HNAPI.newest(currentPage).then(function(posts){
       $scope.posts = $scope.posts.concat(posts);
       $scope.$broadcast('scroll.infiniteScrollComplete');
       $scope.error = false;
-    },function(){$scope.error = true;});
+      $timeout(cfpLoadingBar.complete,100);
+    },function(){
+      $scope.error = true;
+      cfpLoadingBar.complete();
+    });
   };
   $scope.loadComments = function(storyID){
     $state.go('tab.newest-comments',{storyID:storyID});
-  }
+  };
 })
 
 .controller('CommentsCtrl', function($scope, HNAPI, $stateParams, $sce, $timeout) {
