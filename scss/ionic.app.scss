@@ -378,15 +378,32 @@ ion-nav-view{
     -webkit-transition: none; /* For Safari 3.1 to 6.0 */
     transition: none;
   }
-  .tab-item.tab-item-active .tab-title{
+  .tabs{
+    .tab-item{
+      &.tab-item-active .tab-title,
+      &.activated .tab-title{
+        color:white;
+      }
+      .tab-title{
+        font-size: 16px;
+      }
+    }
     color:white;
   }
+
   .bar-header.item-input-inset{
     top: -10px;
     .icon.ion-ios7-close{
       top:-1px;
       color:#aaa;
     }
+  }
+  [nav-bar-transition="android"] [nav-bar="active"] .bar,
+  [nav-bar-transition="android"] [nav-bar="entering"] .bar{
+    background:$energized;
+  }
+  #loading-bar .x-bar{
+    bottom: 0;
   }
 
   *{font-family: "Roboto", sans-serif !important;}

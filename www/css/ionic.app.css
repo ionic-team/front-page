@@ -7246,12 +7246,20 @@ ion-nav-view {
   -webkit-transition: none;
   /* For Safari 3.1 to 6.0 */
   transition: none; }
-.platform-android .tab-item.tab-item-active .tab-title {
+.platform-android .tabs {
   color: white; }
+  .platform-android .tabs .tab-item.tab-item-active .tab-title, .platform-android .tabs .tab-item.activated .tab-title {
+    color: white; }
+  .platform-android .tabs .tab-item .tab-title {
+    font-size: 16px; }
 .platform-android .bar-header.item-input-inset {
   top: -10px; }
   .platform-android .bar-header.item-input-inset .icon.ion-ios7-close {
     top: -1px;
     color: #aaa; }
+.platform-android [nav-bar-transition="android"] [nav-bar="active"] .bar, .platform-android [nav-bar-transition="android"] [nav-bar="entering"] .bar {
+  background: #ff6600; }
+.platform-android #loading-bar .x-bar {
+  bottom: 0; }
 .platform-android * {
   font-family: "Roboto", sans-serif !important; }
