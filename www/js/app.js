@@ -187,4 +187,15 @@ angular.module('frontpage', [
     }
   }
 })
+
+.filter('timeAgo', function (){
+  var cache = [];
+  return function(date) {
+    if(typeof cache[date] === 'string')return cache[date];
+    var prettyDate = moment(date, 'X').fromNow();
+    cache[date] = prettyDate;
+    return prettyDate;
+  }
+})
+
 ;

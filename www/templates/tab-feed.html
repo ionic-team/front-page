@@ -14,17 +14,17 @@
 
         <a class="ion-chatbubble icon light"
            ng-click="loadComments(post.id); $event.stopPropagation()"
-           ng-hide="post.comments === null">
-          {{post.comments}}
+           ng-hide="post.type != 'story'">
+          {{post.kids.length || 0}}
         </a>
         <h2>{{post.title}}</h2>
         <p>
-          <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
-          {{post.submitted_on}} &nbsp;
-          {{post.submitted_by}}
+          <span ng-if="post.score">{{post.score}} points &nbsp;</span>
+          {{post.time | timeAgo}} &nbsp;
+          {{post.by}}
         </p>
       </ion-item>
-      <ion-item class="padding text-center" ng-if="!posts && error">
+      <ion-item class="padding text-center" ng-if="!posts && timesUp">
         <h3>Request Failed</h3>
         <small>Check that you are online. If you are, the server may be offline.</small>
       </ion-item>

@@ -26,97 +26,85 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   });
 })
 
-.controller('FrontPageCtrl', function($scope, HNAPI, RequestCache, $state, cfpLoadingBar, $timeout) {
+.controller('FrontPageCtrl', function($scope, HNFirebase, RequestCache, $state, cfpLoadingBar, $timeout) {
   $scope.pageName = 'Frontpage';
-  $scope.posts = [];
-  var currentPage = 1;
-  // refresh called on pull to refresh and page load
+  $scope.posts = HNFirebase.getTopStories();
   $scope.refresh = function(){
-    // refresh the list with a new API call
-    HNAPI.frontpage(1).then(function(posts){
-      if(!angular.equals($scope.posts, posts))$scope.posts = posts;
-      currentPage = 1;
-      $scope.$broadcast('scroll.refreshComplete');
-      cfpLoadingBar.complete();
-    }, function(){
-      $scope.error = true;
-      cfpLoadingBar.complete();
-    });
+    HNFirebase.fetchTopStories();
   };
   $scope.refresh();
-  cfpLoadingBar.start();
-  $scope.loadMoreData = function(){
-    cfpLoadingBar.start();
-    currentPage++;
-    HNAPI.frontpage(currentPage).then(function(posts){
-      $scope.posts = $scope.posts.concat(posts);
-      $scope.$broadcast('scroll.infiniteScrollComplete');
-      $scope.error = false;
-      $timeout(cfpLoadingBar.complete,100);
-    }, function(){
-      $scope.error = true;
-      cfpLoadingBar.complete();
-    });
-  };
+
+  $timeout(function(){$scope.timesUp = true},5000);
+
   $scope.loadComments = function(storyID){
     $state.go('tab.front-page-comments',{storyID:storyID});
   };
 })
 
-.controller('NewestCtrl', function($scope, HNAPI, RequestCache, $state, cfpLoadingBar, $timeout) {
+.controller('NewestCtrl', function($scope, HNFirebase, RequestCache, $state, cfpLoadingBar, $timeout) {
   // This is nearly identical to FrontPageCtrl and should be refactored so the pages share a controller,
   // but the purpose of this app is to be an example to people getting started with angular and ionic.
   // Therefore we err on repeating logic and being verbose
   $scope.pageName = 'Newest';
-  $scope.posts = [];
-  var currentPage = 1;
+  $scope.posts = HNFirebase.getNewStories();
   $scope.refresh = function(){
-    HNAPI.newest(1).then(function(posts){
-      if(!angular.equals($scope.posts, posts))$scope.posts = posts;
-      currentPage = 1;
-      $scope.$broadcast('scroll.refreshComplete');
-    }, function(){$scope.error = true;});
+    HNFirebase.fetchNewStories();
   };
   $scope.refresh();
-  $scope.loadMoreData = function(){
-    cfpLoadingBar.start();
-    currentPage++;
-    HNAPI.newest(currentPage).then(function(posts){
-      $scope.posts = $scope.posts.concat(posts);
-      $scope.$broadcast('scroll.infiniteScrollComplete');
-      $scope.error = false;
-      $timeout(cfpLoadingBar.complete,100);
-    },function(){
-      $scope.error = true;
-      cfpLoadingBar.complete();
-    });
-  };
+
+  $timeout(function(){$scope.timesUp = true},5000);
+  //$scope.posts = [];
+  //var currentPage = 1;
+  //$scope.refresh = function(){
+  //  HNAPI.newest(1).then(function(posts){
+  //    if(!angular.equals($scope.posts, posts))$scope.posts = posts;
+  //    currentPage = 1;
+  //    $scope.$broadcast('scroll.refreshComplete');
+  //  }, function(){$scope.error = true;});
+  //};
+  //$scope.refresh();
+  //$scope.loadMoreData = function(){
+  //  cfpLoadingBar.start();
+  //  currentPage++;
+  //  HNAPI.newest(currentPage).then(function(posts){
+  //    $scope.posts = $scope.posts.concat(posts);
+  //    $scope.$broadcast('scroll.infiniteScrollComplete');
+  //    $scope.error = false;
+  //    $timeout(cfpLoadingBar.complete,100);
+  //  },function(){
+  //    $scope.error = true;
+  //    cfpLoadingBar.complete();
+  //  });
+  //};
   $scope.loadComments = function(storyID){
     $state.go('tab.newest-comments',{storyID:storyID});
   };
 })
 
-.controller('CommentsCtrl', function($scope, HNAPI, $stateParams, $sce, $timeout) {
+.controller('CommentsCtrl', function($scope, HNFirebase, $stateParams, $sce, $timeout) {
   // requests take time, so we do a few things to keep things smooth.
   // we don't load comments until the page animation is over.
   // if after the page animation, the comments are still not available, we show a loading screen
-  var commentsStaging = [];
-  $scope.animating = true;
-  $scope.loading = true;
-  HNAPI.comments($stateParams.storyID).then(function(comments){
-    $scope.loading = false;
-    $timeout(function() {
-      $scope.comments = comments;
-    },350);
-  },function(){
-    console.log('request failed');
+  $scope.$on('$ionicView.beforeEnter', function(){
+    HNFirebase.fetchComments($stateParams.storyID);
     $scope.comments = [];
-    $scope.problem = true;
-    $scope.loading = false;
+    $scope.delay = true;
+    $timeout(function(){$scope.timesUp = true},5000);
+  });
+  $scope.$on('$ionicView.afterEnter', function(){
+    $scope.comments = HNFirebase.getComments();
+  });
+  $scope.$on('$ionicView.afterLeave', function(){
+    $scope.timesUp = false;
+  });
+  $scope.$watch('comments', function() {
+    if($scope.comments.length){
+      $timeout(function(){$scope.delay = false},500)
+    }
   });
 
   $scope.trust = function(comment){
-    return $sce.trustAsHtml(comment);
+    return '<p>'+$sce.trustAsHtml(comment);
   };
   $scope.bubbleCheck = function(e){
     if(e.toElement.tagName == "A"){
@@ -127,7 +115,7 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   }
 })
 
-.controller('SearchCtrl', function($scope, HNAPI, $ionicLoading, $state) {
+.controller('SearchCtrl', function($scope, Algolia, $ionicLoading, $state) {
   $scope.focused= 'centered';
   $scope.searchTerm = '';
   $scope.posts = [];
@@ -143,9 +131,9 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
       template: 'Searching...'
     });
     document.getElementById('searchInput').blur();
-    HNAPI.search(searchTerm).then(function(searchResults){
-      $scope.posts = searchResults;
-      localStorage.searchCache = JSON.stringify({term:searchTerm,results:searchResults});
+    Algolia.search(searchTerm).then(function(searchResults){
+      $scope.posts = searchResults.hits;
+      localStorage.searchCache = JSON.stringify({term:searchTerm,results:searchResults.hits});
       $ionicLoading.hide();
       $scope.error = false;
     },function(){

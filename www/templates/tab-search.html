@@ -13,14 +13,14 @@
                 ng-show="post.title.length"
                 fp-share style="">
 
-        <a ng-if="post.comments != null" class="icon ion-chatbubble light" ng-click="loadComments(post.id)">
-          {{post.comments}}
+        <a ng-if="post.num_comments" class="icon ion-chatbubble light" ng-click="loadComments(post.objectID)">
+          {{post.num_comments}}
         </a>
         <h2 ng-click="open(post.url)">{{post.title}}</h2>
         <p>
           <span ng-if="post.points > 0">{{post.points}} points &nbsp;</span>
-          {{post.submitted_on}} &nbsp;
-          {{post.submitted_by}}
+          {{post.created_at_i | timeAgo}} &nbsp;
+          {{post.author}}
         </p>
       </ion-item>
       <ion-item class="padding text-center" ng-if="error">

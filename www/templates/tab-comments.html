@@ -4,21 +4,18 @@
       <!-- not using collection repeat since we have a rather finite amount of results and variable height items -->
       <ion-item class="item comment"
                 ng-repeat="comment in comments"
-                ng-show="comment.text.length"
+                ng-show="comment.text.length && !delay"
                 ng-class="comment.hide?'hidden':''"
                 ng-click="comment.hide = !comment.hide"
                 ng-style="{'padding-left':comment.indent*15+'px'}">
-        <p class="timestamp">{{comment.timestamp}}</p>
-        <p class="author">{{comment.author}} <i class="icon ion-arrow-down-b"></i></p>
-        <div class="text" ng-bind-html="trust(comment.html)" ng-click="bubbleCheck($event)"></div>
+        <p class="timestamp">{{comment.time}}</p>
+        <p class="author">{{comment.by}} <i class="icon ion-arrow-down-b"></i></p>
+        <div class="text" ng-bind-html="trust(comment.text)" ng-click="bubbleCheck($event)"></div>
       </ion-item>
-      <ion-item class="padding text-center" ng-if="problem">
-        <h3>Unable to load comments</h3>
-      </ion-item>
-      <div class="spinner" ng-show="loading">
+      <div class="spinner" ng-show="comments.length < 1 && !timesUp">
         <i class="icon ion-loading-d energized"></i>
       </div>
-      <ion-item class="padding text-center" ng-if="!problem && !loading && comments.length < 1">
+      <ion-item class="padding text-center" ng-if="timesUp && comments.length < 1">
         <h3>No Comments Yet</h3>
       </ion-item>
     </ion-list>
