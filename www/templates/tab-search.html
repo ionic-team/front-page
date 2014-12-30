@@ -1,4 +1,4 @@
-<ion-view title="">
+<ion-view>
   <ion-nav-title>
     <!-- this view supplied its own ion-header-bar to be used instead of the app's default ion-nav-bar -->
     <fp-search-bar search-model="searchTerm" focused="focused" submit="search(searchTerm)"></fp-search-bar>
@@ -13,7 +13,7 @@
                 ng-show="post.title.length"
                 fp-share style="">
 
-        <a ng-if="post.num_comments" class="icon ion-chatbubble light" ng-click="loadComments(post.objectID)">
+        <a ng-if="post.num_comments != null" class="icon ion-chatbubble light" ng-click="loadComments(post.objectID)">
           {{post.num_comments}}
         </a>
         <h2 ng-click="open(post.url)">{{post.title}}</h2>

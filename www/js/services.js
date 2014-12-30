@@ -1,32 +1,28 @@
 angular.module('frontpage.services', ['firebase'])
 
 .factory('HNFirebase', function($q, $firebase) {
-  var APIUrl = "https://hacker-news.firebaseio.com/v0";
-  var topStories  = [];
-  var newStories = [];
-  var comments = [];
+  var APIUrl = "https://hacker-news.firebaseio.com/v0",
+      topStories  = [],
+      newStories = [],
+      comments = [],
+      currentMaxID = null,
+      newStoriesCount = null;
 
   var getItem = function(itemID) {
     var refItem = new Firebase(APIUrl).child("item").child(itemID);
     var item = $firebase(refItem).$asObject();
-    //console.log(item)
     return item;
   };
 
-  var getNewStoriesUntil = function(count, currentID, recursive){
-    var concurrentRequests = 10;
-    var item = getItem(currentID);
+  var getNewStoriesUntil = function(count){
+    if (currentMaxID === null) return;
+    var item = getItem(currentMaxID);
+    currentMaxID--;
     item.$loaded().then(function(data) {
-      if(item.type === 'story' && !item.deleted) newStories.splice(currentID,0,data);
-      if(newStories.length < count && recursive){
-        // how many requests should we make?
-        var requestsToMake = newStories.length - count > concurrentRequests ? newStories.length - count : concurrentRequests;
-        // make several non-recursive requests. note we count from 1
-        for(var x = 1; x < requestsToMake; x++) {
-          getNewStoriesUntil(count,currentID - x)
-        }
+      if(data.type === 'story' && !data.deleted) newStories.splice(data.id,0,data);
+      if(newStories.length < count){
         // make one final recursive request
-        getNewStoriesUntil(count,currentID - x - 1, true);
+        getNewStoriesUntil(count);
 
       }
     });
@@ -45,6 +41,14 @@ angular.module('frontpage.services', ['firebase'])
     },
     getTopStories: function() {
       return topStories;
+    },
+    getTopStoriesPercentLoaded: function(){
+      var numberOfTopStories = 100;
+      var numberCompleted = 0;
+      angular.forEach(topStories, function (story) {
+        if(story.$loaded().$$state.status === 1) numberCompleted++
+      });
+      return numberCompleted / numberOfTopStories;
     },
     fetchComments: function(storyID) {
       comments = [];
@@ -66,12 +70,25 @@ angular.module('frontpage.services', ['firebase'])
       var story = $firebase(refStory).$asObject();
       story.$loaded()
       .then(function(data) {
-        console.log('maxItem is ', data, getItem(data.$value));
-        getNewStoriesUntil(100, data.$value, true)
+        currentMaxID  = data.$value;
+        // http://stackoverflow.com/questions/985431/max-parallel-http-connections-in-a-browser
+        var concurrentRequests = 6;
+        // make several non-recursive requests
+        for(var x = 0; x < concurrentRequests; x++) {
+          // get 100 stories
+          getNewStoriesUntil(newStoriesCount)
+        }
       });
     },
     getNewStories: function() {
       return newStories;
+    },
+    getNewStoriesCount: function() {
+      return newStoriesCount;
+    },
+    setNewStoriesCount: function(count) {
+      newStoriesCount = count;
+      return newStoriesCount;
     }
   }
 })
@@ -100,32 +117,6 @@ angular.module('frontpage.services', ['firebase'])
         q.reject(err);
       });
       return q.promise;
-    }
-  }
-})
-
-/**
- * A service that caches some API responses
- */
-
-.factory('RequestCache', function() {
-  // what pages should we cache?
-  var requestsToCache = ['frontpage/1','new/1'];
-  // create the cache if it doesn't exist yet
-  var cache = typeof localStorage.cache == 'undefined'?{}:JSON.parse(localStorage.cache);
-  return{
-    // enter a request's reponse in to the cache
-    entry: function(request){
-      for(var i = 0;i<requestsToCache.length;i++){
-        if(request.config.url.indexOf(requestsToCache[i]) != -1){
-          cache[requestsToCache[i]] = request.data;
-          localStorage.cache = JSON.stringify(cache);
-        }
-      }
-    },
-    // request a cache item's data based on the requested URL
-    get:function(url){
-      return typeof cache[url] === 'undefined' ? false:cache[url];
     }
   }
 })

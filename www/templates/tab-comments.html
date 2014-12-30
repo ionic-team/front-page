@@ -8,7 +8,7 @@
                 ng-class="comment.hide?'hidden':''"
                 ng-click="comment.hide = !comment.hide"
                 ng-style="{'padding-left':comment.indent*15+'px'}">
-        <p class="timestamp">{{comment.time}}</p>
+        <p class="timestamp">{{comment.time | timeAgo}}</p>
         <p class="author">{{comment.by}} <i class="icon ion-arrow-down-b"></i></p>
         <div class="text" ng-bind-html="trust(comment.text)" ng-click="bubbleCheck($event)"></div>
       </ion-item>

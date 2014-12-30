@@ -178,7 +178,7 @@ form.item-input-inset{
   }
 }
 // hide comment animation
-.item.comment p, .item.comment i, .item.comment .text{
+.item.comment p, .item.comment i::before, .item.comment .text{
   -webkit-transition: all .2s ease; /* For Safari 3.1 to 6.0 */
   transition: all .2s ease;
 }
@@ -195,7 +195,7 @@ form.item-input-inset{
   p.author {
     color:$stable;
   }
-  i{
+  i::before{
     color:$stable;
     -webkit-transform:rotate(-90deg);
   }

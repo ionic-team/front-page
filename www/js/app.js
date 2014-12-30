@@ -16,7 +16,7 @@ angular.module('frontpage', [
   'cfp.loadingBar'
 ])
 
-.run(function($ionicPlatform, $templateCache, $http, $ionicTrack, $ionicUpdate) {
+.run(function($ionicPlatform, $http, $ionicTrack, $ionicUpdate) {
 //.run(function($ionicPlatform, $templateCache, $http) {
   $ionicPlatform.ready(function() {
     // for ios7 style header bars
@@ -76,7 +76,7 @@ angular.module('frontpage', [
   .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
     cfpLoadingBarProvider.includeSpinner = false;
   }])
-.config(function($stateProvider, $urlRouterProvider, $httpProvider, $ionicAppProvider, $compileProvider) {
+.config(function($stateProvider, $urlRouterProvider, $ionicAppProvider, $compileProvider) {
   try{
     $ionicAppProvider.identify({
       "app_id": ionic.Config.app_id,
@@ -87,9 +87,6 @@ angular.module('frontpage', [
   }
 
   $compileProvider.debugInfoEnabled(false);
-
-  // Listen to all successful requests, so we can cache some queries
-  $httpProvider.interceptors.push('cacheInterceptor');
 
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
@@ -175,17 +172,6 @@ angular.module('frontpage', [
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/tab/front-page');
 
-})
-// a basic HTTP interceptor that passes each successful response through the 'response' method
-.factory('cacheInterceptor', function($q, RequestCache) {
-  // keep this light, it runs before any request is returned, avoid async here
-  return {
-    // catch successful requests and send them to the RequestCache service
-    'response': function(response) {
-      RequestCache.entry(response);
-      return response || $q.when(response);
-    }
-  }
 })
 
 .filter('timeAgo', function (){

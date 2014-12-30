@@ -26,13 +26,24 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   });
 })
 
-.controller('FrontPageCtrl', function($scope, HNFirebase, RequestCache, $state, cfpLoadingBar, $timeout) {
+.controller('FrontPageCtrl', function($scope, HNFirebase, $state, cfpLoadingBar, $timeout) {
   $scope.pageName = 'Frontpage';
   $scope.posts = HNFirebase.getTopStories();
   $scope.refresh = function(){
+    cfpLoadingBar.start();
     HNFirebase.fetchTopStories();
   };
   $scope.refresh();
+
+  $scope.$watch(function($scope) {
+    return HNFirebase.getTopStoriesPercentLoaded() ;
+  }, function(percentComplete){
+    if(percentComplete >= 1){
+      cfpLoadingBar.complete();
+    }else{
+      cfpLoadingBar.set(percentComplete);
+    }
+  });
 
   $timeout(function(){$scope.timesUp = true},5000);
 
@@ -41,41 +52,42 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   };
 })
 
-.controller('NewestCtrl', function($scope, HNFirebase, RequestCache, $state, cfpLoadingBar, $timeout) {
+.controller('NewestCtrl', function($scope, HNFirebase, $state, cfpLoadingBar, $timeout) {
   // This is nearly identical to FrontPageCtrl and should be refactored so the pages share a controller,
   // but the purpose of this app is to be an example to people getting started with angular and ionic.
   // Therefore we err on repeating logic and being verbose
   $scope.pageName = 'Newest';
   $scope.posts = HNFirebase.getNewStories();
+  HNFirebase.setNewStoriesCount(15);
+
   $scope.refresh = function(){
+    cfpLoadingBar.start();
     HNFirebase.fetchNewStories();
   };
-  $scope.refresh();
+
+  $scope.loadMore = function(){
+    HNFirebase.setNewStoriesCount(HNFirebase.getNewStoriesCount()+15);
+    $scope.refresh();
+  }
+
+  $scope.$on('$ionicView.beforeEnter', function() {
+    $scope.refresh();
+  });
+
+  // update the loading bar
+  $scope.$watch(function($scope) {
+    return $scope.posts.length ;
+  }, function(posts){
+    if(posts >= HNFirebase.getNewStoriesCount()){
+      $scope.$broadcast('scroll.infiniteScrollComplete');
+      cfpLoadingBar.complete();
+    }else{
+      cfpLoadingBar.set(posts/HNFirebase.getNewStoriesCount());
+    }
+  });
 
   $timeout(function(){$scope.timesUp = true},5000);
-  //$scope.posts = [];
-  //var currentPage = 1;
-  //$scope.refresh = function(){
-  //  HNAPI.newest(1).then(function(posts){
-  //    if(!angular.equals($scope.posts, posts))$scope.posts = posts;
-  //    currentPage = 1;
-  //    $scope.$broadcast('scroll.refreshComplete');
-  //  }, function(){$scope.error = true;});
-  //};
-  //$scope.refresh();
-  //$scope.loadMoreData = function(){
-  //  cfpLoadingBar.start();
-  //  currentPage++;
-  //  HNAPI.newest(currentPage).then(function(posts){
-  //    $scope.posts = $scope.posts.concat(posts);
-  //    $scope.$broadcast('scroll.infiniteScrollComplete');
-  //    $scope.error = false;
-  //    $timeout(cfpLoadingBar.complete,100);
-  //  },function(){
-  //    $scope.error = true;
-  //    cfpLoadingBar.complete();
-  //  });
-  //};
+
   $scope.loadComments = function(storyID){
     $state.go('tab.newest-comments',{storyID:storyID});
   };
