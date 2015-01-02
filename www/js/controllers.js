@@ -28,24 +28,30 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
 
 .controller('FrontPageCtrl', function($scope, HNFirebase, $state, cfpLoadingBar, $timeout) {
   $scope.pageName = 'Frontpage';
-  $scope.posts = HNFirebase.getTopStories();
-  $scope.refresh = function(){
-    cfpLoadingBar.start();
-    HNFirebase.fetchTopStories();
-  };
-  $scope.refresh();
+  cfpLoadingBar.start();
+  HNFirebase.fetchTopStories();
 
-  $scope.$watch(function($scope) {
+  $scope.$on('HNFirebase.topStoriesUpdated',function(){
+    $scope.posts = HNFirebase.getTopStories();
+  });
+
+  $scope.$watch(function() {
     return HNFirebase.getTopStoriesPercentLoaded() ;
   }, function(percentComplete){
     if(percentComplete >= 1){
+      $scope.$broadcast('scroll.refreshComplete');
       cfpLoadingBar.complete();
     }else{
       cfpLoadingBar.set(percentComplete);
     }
   });
 
-  $timeout(function(){$scope.timesUp = true},5000);
+  $timeout(function(){
+    if($scope.posts.length < 1){
+      cfpLoadingBar.complete();
+      $scope.timesUp = true;
+    }
+  },5000);
 
   $scope.loadComments = function(storyID){
     $state.go('tab.front-page-comments',{storyID:storyID});
@@ -57,36 +63,37 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   // but the purpose of this app is to be an example to people getting started with angular and ionic.
   // Therefore we err on repeating logic and being verbose
   $scope.pageName = 'Newest';
-  $scope.posts = HNFirebase.getNewStories();
-  HNFirebase.setNewStoriesCount(15);
+  cfpLoadingBar.start();
+  HNFirebase.fetchNewStories();
 
-  $scope.refresh = function(){
-    cfpLoadingBar.start();
-    HNFirebase.fetchNewStories();
-  };
+  $scope.$on('HNFirebase.newStoriesUpdated',function(){
+    $scope.posts = HNFirebase.getNewStories();
+  });
 
   $scope.loadMore = function(){
-    HNFirebase.setNewStoriesCount(HNFirebase.getNewStoriesCount()+15);
-    $scope.refresh();
-  }
-
-  $scope.$on('$ionicView.beforeEnter', function() {
-    $scope.refresh();
-  });
+    cfpLoadingBar.start();
+    HNFirebase.increaseNewStoriesCount(15);
+  };
 
   // update the loading bar
   $scope.$watch(function($scope) {
-    return $scope.posts.length ;
-  }, function(posts){
-    if(posts >= HNFirebase.getNewStoriesCount()){
+    return HNFirebase.getNewStoriesPercentLoaded();
+  }, function(percentComplete){
+    if(percentComplete >= 1) {
       $scope.$broadcast('scroll.infiniteScrollComplete');
+      $scope.$broadcast('scroll.refreshComplete');
       cfpLoadingBar.complete();
     }else{
-      cfpLoadingBar.set(posts/HNFirebase.getNewStoriesCount());
+      //cfpLoadingBar.set(HNFirebase.getNewStoriesPercentLoaded());
     }
   });
 
-  $timeout(function(){$scope.timesUp = true},5000);
+  $timeout(function(){
+    if($scope.posts.length < 1){
+      cfpLoadingBar.complete();
+      $scope.timesUp = true;
+    }
+  },5000);
 
   $scope.loadComments = function(storyID){
     $state.go('tab.newest-comments',{storyID:storyID});

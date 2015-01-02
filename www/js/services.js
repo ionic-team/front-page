@@ -1,12 +1,14 @@
 angular.module('frontpage.services', ['firebase'])
 
-.factory('HNFirebase', function($q, $firebase) {
+.factory('HNFirebase', function($q, $firebase, $rootScope) {
   var APIUrl = "https://hacker-news.firebaseio.com/v0",
       topStories  = [],
-      newStories = [],
+      newStories = {},
       comments = [],
       currentMaxID = null,
-      newStoriesCount = null;
+      newStoriesCount = 15,
+      topStoryCache ={},
+      checkedForNewStories = {};
 
   var getItem = function(itemID) {
     var refItem = new Firebase(APIUrl).child("item").child(itemID);
@@ -14,28 +16,47 @@ angular.module('frontpage.services', ['firebase'])
     return item;
   };
 
-  var getNewStoriesUntil = function(count){
+  var getNewStoriesUntil = function(){
     if (currentMaxID === null) return;
+    var alreadyAtMax = Object.keys(newStories).length >= newStoriesCount;
+    // if the item is already found, skip it. used in infinite scroll
+    if(!alreadyAtMax && checkedForNewStories[currentMaxID]){
+      currentMaxID--;
+      getNewStoriesUntil();
+      return;
+    }
     var item = getItem(currentMaxID);
     currentMaxID--;
     item.$loaded().then(function(data) {
-      if(data.type === 'story' && !data.deleted) newStories.splice(data.id,0,data);
-      if(newStories.length < count){
+      checkedForNewStories[data.id] = true;
+      if(data.type === 'story' && !data.deleted && !data.dead && data.title){
+        newStories[data.$id] = data;
+        $rootScope.$broadcast('HNFirebase.newStoriesUpdated', newStories);
+      }
+      if(
+      (!alreadyAtMax && Object.keys(newStories).length < newStoriesCount) ||
+      (alreadyAtMax && typeof newStories[currentMaxID] == 'object')){
         // make one final recursive request
-        getNewStoriesUntil(count);
-
+        getNewStoriesUntil();
       }
     });
   };
 
   return {
     fetchTopStories: function(){
+      topStories = [];
       var ref = new Firebase(APIUrl).child("topstories");
-      var refTS = $firebase(ref).$asArray();
-      refTS.$loaded()
-      .then(function(data) {
-        angular.forEach(data, function (story) {
-          topStories.splice(story.$id,0,getItem(story.$value));
+      ref.on('value', function(update){
+        update.val().forEach(function (storyID, index) {
+          // Since most updates are just position changes, we cache stories so
+          // we don't have to re-grab them with every minor update
+          if(typeof topStoryCache[storyID] == 'object'){
+            topStories[index] = topStoryCache[storyID]
+          }else{
+            topStories[index] = getItem(storyID);
+            topStoryCache[storyID] = topStories[index];
+          }
+          $rootScope.$broadcast('HNFirebase.topStoriesUpdated', topStories);
         });
       });
     },
@@ -65,12 +86,9 @@ angular.module('frontpage.services', ['firebase'])
       return comments;
     },
     fetchNewStories: function() {
-      comments = [];
-      var refStory = new Firebase(APIUrl).child("maxitem");
-      var story = $firebase(refStory).$asObject();
-      story.$loaded()
-      .then(function(data) {
-        currentMaxID  = data.$value;
+      var ref = new Firebase(APIUrl).child("maxitem");
+      ref.on('value', function(update){
+        currentMaxID  = update.val();
         // http://stackoverflow.com/questions/985431/max-parallel-http-connections-in-a-browser
         var concurrentRequests = 6;
         // make several non-recursive requests
@@ -81,14 +99,16 @@ angular.module('frontpage.services', ['firebase'])
       });
     },
     getNewStories: function() {
-      return newStories;
+      return Object.keys(newStories).map(function(k) { return newStories[k] }).reverse();
     },
-    getNewStoriesCount: function() {
+    increaseNewStoriesCount: function(increase) {
+      newStoriesCount = newStoriesCount + increase;
+      currentMaxID = Object.keys(newStories)[Object.keys(newStories).length - 1];
+      this.fetchNewStories();
       return newStoriesCount;
     },
-    setNewStoriesCount: function(count) {
-      newStoriesCount = count;
-      return newStoriesCount;
+    getNewStoriesPercentLoaded: function() {
+      return Object.keys(newStories).length/newStoriesCount;
     }
   }
 })
