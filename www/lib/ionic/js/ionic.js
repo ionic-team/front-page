@@ -2,7 +2,7 @@
  * Copyright 2014 Drifty Co.
  * http://drifty.com/
  *
- * Ionic, v1.0.0-beta.13
+ * Ionic, v1.0.0-beta.14
  * A powerful HTML5 mobile app framework.
  * http://ionicframework.com/
  *
@@ -18,7 +18,110 @@
 // build processes may have already created an ionic obj
 window.ionic = window.ionic || {};
 window.ionic.views = {};
-window.ionic.version = '1.0.0-beta.13';
+window.ionic.version = '1.0.0-beta.14';
+
+(function (ionic) {
+
+  ionic.DelegateService = function(methodNames) {
+
+    if (methodNames.indexOf('$getByHandle') > -1) {
+      throw new Error("Method '$getByHandle' is implicitly added to each delegate service. Do not list it as a method.");
+    }
+
+    function trueFn() { return true; }
+
+    return ['$log', function($log) {
+
+      /*
+       * Creates a new object that will have all the methodNames given,
+       * and call them on the given the controller instance matching given
+       * handle.
+       * The reason we don't just let $getByHandle return the controller instance
+       * itself is that the controller instance might not exist yet.
+       *
+       * We want people to be able to do
+       * `var instance = $ionicScrollDelegate.$getByHandle('foo')` on controller
+       * instantiation, but on controller instantiation a child directive
+       * may not have been compiled yet!
+       *
+       * So this is our way of solving this problem: we create an object
+       * that will only try to fetch the controller with given handle
+       * once the methods are actually called.
+       */
+      function DelegateInstance(instances, handle) {
+        this._instances = instances;
+        this.handle = handle;
+      }
+      methodNames.forEach(function(methodName) {
+        DelegateInstance.prototype[methodName] = instanceMethodCaller(methodName);
+      });
+
+
+      /**
+       * The delegate service (eg $ionicNavBarDelegate) is just an instance
+       * with a non-defined handle, a couple extra methods for registering
+       * and narrowing down to a specific handle.
+       */
+      function DelegateService() {
+        this._instances = [];
+      }
+      DelegateService.prototype = DelegateInstance.prototype;
+      DelegateService.prototype._registerInstance = function(instance, handle, filterFn) {
+        var instances = this._instances;
+        instance.$$delegateHandle = handle;
+        instance.$$filterFn = filterFn || trueFn;
+        instances.push(instance);
+
+        return function deregister() {
+          var index = instances.indexOf(instance);
+          if (index !== -1) {
+            instances.splice(index, 1);
+          }
+        };
+      };
+      DelegateService.prototype.$getByHandle = function(handle) {
+        return new DelegateInstance(this._instances, handle);
+      };
+
+      return new DelegateService();
+
+      function instanceMethodCaller(methodName) {
+        return function caller() {
+          var handle = this.handle;
+          var args = arguments;
+          var foundInstancesCount = 0;
+          var returnValue;
+
+          this._instances.forEach(function(instance) {
+            if ((!handle || handle == instance.$$delegateHandle) && instance.$$filterFn(instance)) {
+              foundInstancesCount++;
+              var ret = instance[methodName].apply(instance, args);
+              //Only return the value from the first call
+              if (foundInstancesCount === 1) {
+                returnValue = ret;
+              }
+            }
+          });
+
+          if (!foundInstancesCount && handle) {
+            return $log.warn(
+              'Delegate for handle "' + handle + '" could not find a ' +
+              'corresponding element with delegate-handle="' + handle + '"! ' +
+              methodName + '() was not called!\n' +
+              'Possible cause: If you are calling ' + methodName + '() immediately, and ' +
+              'your element with delegate-handle="' + handle + '" is a child of your ' +
+              'controller, then your element may not be compiled yet. Put a $timeout ' +
+              'around your call to ' + methodName + '() and try again.'
+            );
+          }
+          return returnValue;
+        };
+      }
+
+    }];
+  };
+
+})(window.ionic);
 
 (function(window, document, ionic) {
 
@@ -600,7 +703,7 @@ window.ionic.version = '1.0.0-beta.13';
     // whatever lookup was done to find this element failed to find it
     // so we can't listen for events on it.
     if(element === null) {
-      console.error('Null element passed to gesture (element does not exist). Not listening for gesture');
+      void 0;
       return;
     }
 
@@ -2460,7 +2563,7 @@ var tapLastTouchTarget;
 var tapTouchMoveListener = 'touchmove';
 
 // how much the coordinates can be off between start/end, but still a click
-var TAP_RELEASE_TOLERANCE = 6; // default tolerance
+var TAP_RELEASE_TOLERANCE = 12; // default tolerance
 var TAP_RELEASE_BUTTON_TOLERANCE = 50; // button elements should have a larger tolerance
 
 var tapEventListeners = {
@@ -2726,7 +2829,7 @@ function tapMouseDown(e) {
   if (e.isIonicTap || tapIgnoreEvent(e)) return;
 
   if (tapEnabledTouchEvents) {
-    console.log('mousedown', 'stop event');
+    void 0;
     e.stopPropagation();
 
     if ((!ionic.tap.isTextInput(e.target) || tapLastTouchTarget !== e.target) && !(/^(select|option)$/i).test(e.target.tagName)) {
@@ -2887,7 +2990,7 @@ function tapHandleFocus(ele) {
 function tapFocusOutActive() {
   var ele = tapActiveElement();
   if (ele && ((/^(input|textarea|select)$/i).test(ele.tagName) || ele.isContentEditable)) {
-    console.log('tapFocusOutActive', ele.tagName);
+    void 0;
     ele.blur();
   }
   tapActiveElement(null);
@@ -2907,7 +3010,7 @@ function tapFocusIn(e) {
     // 2) There is an active element which is a text input
     // 3) A text input was just set to be focused on by a touch event
     // 4) A new focus has been set, however the target isn't the one the touch event wanted
-    console.log('focusin', 'tapTouchFocusedInput');
+    void 0;
     tapTouchFocusedInput.focus();
     tapTouchFocusedInput = null;
   }
@@ -3473,7 +3576,7 @@ function keyboardSetShow(e) {
 
   keyboardFocusInTimer = setTimeout(function(){
     if ( keyboardLastShow + 350 > Date.now() ) return;
-    console.log('keyboardSetShow');
+    void 0;
     keyboardLastShow = Date.now();
     var keyboardHeight;
     var elementBounds = keyboardActiveElement.getBoundingClientRect();
@@ -3510,7 +3613,7 @@ function keyboardShow(element, elementTop, elementBottom, viewportHeight, keyboa
 
   details.contentHeight = viewportHeight - keyboardHeight;
 
-  console.log('keyboardShow', keyboardHeight, details.contentHeight);
+  void 0;
 
   // figure out if the element is under the keyboard
   details.isElementUnderKeyboard = (details.elementBottom > details.contentHeight);
@@ -4173,6 +4276,9 @@ ionic.views.Scroll = ionic.views.View.inherit({
 
       deceleration: 0.97,
 
+      /** Whether to prevent default on a scroll operation to capture drag events **/
+      preventDefault: false,
+
       /** Callback that is fired on the later of touch end or deceleration end,
         provided that another scrolling action has not begun. Used to know
         when to fade out a scrollbar. */
@@ -4553,7 +4659,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
 
     self.touchMove = function(e) {
       if (!self.__isDown ||
-        e.defaultPrevented ||
+        (!self.__isDown && e.defaultPrevented) ||
         (e.target.tagName === 'TEXTAREA' && e.target.parentElement.querySelector(':focus')) ) {
         return;
       }
@@ -4592,6 +4698,12 @@ ionic.views.Scroll = ionic.views.View.inherit({
       self.__isDown = true;
     };
 
+    self.touchMoveBubble = function(e) {
+      if(self.__isDown && self.options.preventDefault) {
+        e.preventDefault();
+      }
+    };
+
     self.touchEnd = function(e) {
       if (!self.__isDown) return;
 
@@ -4609,6 +4721,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
     if ('ontouchstart' in window) {
       // Touch Events
       container.addEventListener("touchstart", self.touchStart, false);
+      if(self.options.preventDefault) container.addEventListener("touchmove", self.touchMoveBubble, false);
       document.addEventListener("touchmove", self.touchMove, false);
       document.addEventListener("touchend", self.touchEnd, false);
       document.addEventListener("touchcancel", self.touchEnd, false);
@@ -4616,6 +4729,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
     } else if (window.navigator.pointerEnabled) {
       // Pointer Events
       container.addEventListener("pointerdown", self.touchStart, false);
+      if(self.options.preventDefault) container.addEventListener("pointermove", self.touchMoveBubble, false);
       document.addEventListener("pointermove", self.touchMove, false);
       document.addEventListener("pointerup", self.touchEnd, false);
       document.addEventListener("pointercancel", self.touchEnd, false);
@@ -4623,6 +4737,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
     } else if (window.navigator.msPointerEnabled) {
       // IE10, WP8 (Pointer Events)
       container.addEventListener("MSPointerDown", self.touchStart, false);
+      if(self.options.preventDefault) container.addEventListener("MSPointerMove", self.touchMoveBubble, false);
       document.addEventListener("MSPointerMove", self.touchMove, false);
       document.addEventListener("MSPointerUp", self.touchEnd, false);
       document.addEventListener("MSPointerCancel", self.touchEnd, false);
@@ -4644,13 +4759,19 @@ ionic.views.Scroll = ionic.views.View.inherit({
       };
 
       self.mouseMove = function(e) {
-        if (!mousedown || e.defaultPrevented) {
+        if (!mousedown || (!mousedown && e.defaultPrevented)) {
           return;
         }
 
         self.doTouchMove(getEventTouches(e), e.timeStamp);
 
         mousedown = true;
+      };
+
+      self.mouseMoveBubble = function(e) {
+        if (mousedown && self.options.preventDefault) {
+          e.preventDefault();
+        }
       };
 
       self.mouseUp = function(e) {
@@ -4682,6 +4803,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
       });
 
       container.addEventListener("mousedown", self.mouseDown, false);
+      if(self.options.preventDefault) container.addEventListener("mousemove", self.mouseMoveBubble, false);
       document.addEventListener("mousemove", self.mouseMove, false);
       document.addEventListener("mouseup", self.mouseUp, false);
       document.addEventListener('mousewheel', self.mouseWheel, false);
@@ -4694,21 +4816,25 @@ ionic.views.Scroll = ionic.views.View.inherit({
     var container = self.__container;
 
     container.removeEventListener('touchstart', self.touchStart);
+    container.removeEventListener('touchmove', self.touchMoveBubble);
     document.removeEventListener('touchmove', self.touchMove);
     document.removeEventListener('touchend', self.touchEnd);
     document.removeEventListener('touchcancel', self.touchCancel);
 
     container.removeEventListener("pointerdown", self.touchStart);
+    container.removeEventListener("pointermove", self.touchMoveBubble);
     document.removeEventListener("pointermove", self.touchMove);
     document.removeEventListener("pointerup", self.touchEnd);
     document.removeEventListener("pointercancel", self.touchEnd);
 
     container.removeEventListener("MSPointerDown", self.touchStart);
+    container.removeEventListener("MSPointerMove", self.touchMoveBubble);
     document.removeEventListener("MSPointerMove", self.touchMove);
     document.removeEventListener("MSPointerUp", self.touchEnd);
     document.removeEventListener("MSPointerCancel", self.touchEnd);
 
     container.removeEventListener("mousedown", self.mouseDown);
+    container.removeEventListener("mousemove", self.mouseMoveBubble);
     document.removeEventListener("mousemove", self.mouseMove);
     document.removeEventListener("mouseup", self.mouseUp);
     document.removeEventListener('mousewheel', self.mouseWheel);

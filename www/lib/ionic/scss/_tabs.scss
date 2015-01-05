@@ -94,10 +94,10 @@
       background-color: $background;
     }
     .tab-item {
-      color: rgba($color, $tabs-off-opacity);
+      color: rgba($color, $tabs-striped-off-opacity);
       opacity: 1;
       .badge{
-        opacity:$tabs-off-opacity;
+        opacity:$tabs-striped-off-opacity;
       }
       &.tab-item-active,
       &.active,
@@ -124,11 +124,12 @@
 }
 
 @mixin tabs-background($style, $color, $border-color) {
-  &.#{$style} {
+  .#{$style} {
     .tabs,
     &> .tabs{
       background-color: $color;
       background-image: linear-gradient(0deg, $border-color, $border-color 50%, transparent 50%);
+      border-color: $border-color;
     }
   }
 }
@@ -143,7 +144,7 @@
 }
 
 @mixin tabs-color($style, $color) {
-  &.#{$style} {
+  .#{$style} {
     .tab-item {
       color: rgba($color, $tabs-off-opacity);
       opacity: 1;
@@ -166,10 +167,10 @@
 @mixin tabs-striped-color($style, $color) {
   &.#{$style} {
     .tab-item {
-      color: rgba($color, $tabs-off-opacity);
+      color: rgba($color, $tabs-striped-off-opacity);
       opacity: 1;
       .badge{
-        opacity:$tabs-off-opacity;
+        opacity:$tabs-striped-off-opacity;
       }
       &.tab-item-active,
       &.active,
@@ -200,7 +201,6 @@
     &.tab-item-active,
     &.active,
     &.activated {
-      color: inherit !important;
       margin-top: -$tabs-striped-border-width;
       border-style: solid;
       border-width: $tabs-striped-border-width 0 0 0;
@@ -326,6 +326,8 @@ ion-tabs {
   top: $bar-height;
   padding-top: 0;
   background-position: bottom;
+  border-top-width: 0;
+  border-bottom-width: 1px;
   .tab-item {
     &.tab-item-active,
     &.active,

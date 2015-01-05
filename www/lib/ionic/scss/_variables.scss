@@ -279,7 +279,8 @@ $tabs-default-text:               $tabs-stable-text !default;
 
 $tab-item-max-width:              150px !default;
 
-$tabs-off-opacity: 0.4;
+$tabs-off-opacity:                0.4 !default;
+$tabs-striped-off-opacity:        $tabs-off-opacity !default;
 $tabs-striped-off-color: #000;
 $tabs-striped-border-width: 2px;
 
@@ -377,6 +378,10 @@ $item-default-active-border:      $item-light-active-border !default;
 
 $item-edit-transition-duration:   250ms !default;
 $item-edit-transition-function:   ease-in-out !default;
+
+$item-remove-transition-duration:   300ms !default;
+$item-remove-transition-function:   ease-in !default;
+$item-remove-descendents-transition-function:  cubic-bezier(.25,.81,.24,1) !default;
 
 $item-left-edit-left:             8px !default;  // item's left side edit's "left" property
 

@@ -3,7 +3,7 @@
  */
 
 angular.module('frontpage.directives', [])
-.directive('fpSearchBar', function($rootScope) {
+.directive('fpSearchBar', function($rootScope, $timeout) {
   return {
     restrict: 'E',
     replace: true,
@@ -17,7 +17,7 @@ angular.module('frontpage.directives', [])
       if(ionic.Platform.isAndroid()){
         return '<form class="bar bar-header bar-energized item-input-inset" ng-submit="submit()">' +
           '<div class="item-input-wrapper light-bg" ng-class="alignment" ng-click="focus()">' +
-          '<i class="icon ion-ios7-search-strong placeholder-icon"></i>' +
+          '<i class="icon ion-android-search placeholder-icon"></i>' +
           '<input type="search"' +
           'id="searchInput"' +
           'placeholder="Search HN"' +
@@ -38,13 +38,15 @@ angular.module('frontpage.directives', [])
         'ng-focus="alignment = \'left\'"' +
         'ng-blur="alignment = searchModel.length?\'left\':\'centered\'">' +
         '</div>' +
-        '<i class="icon ion-ios7-close dark" ng-show="searchModel.length" ng-click="clear()"></i>' +
+        '<i class="icon ion-ios7-close dark ng-hide" ng-show="searchModel.length" ng-click="clear()"></i>' +
         '</form>'
     },
     link: function(scope, elem){
       var input = elem[0].querySelector('#searchInput');
       scope.focus = function(){
         input.focus()
+        $timeout(function(){input.focus()},200);
+
       };
       scope.alignment = scope.searchModel.length? 'left':'centered';
       // grab the cached search term when the user re-enters the page

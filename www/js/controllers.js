@@ -1,6 +1,6 @@
 angular.module('frontpage.controllers', ['ionic.services.analytics'])
 
-.controller('MainCtrl', function($scope, $ionicTrack, cfpLoadingBar){
+.controller('MainCtrl', function($scope, $ionicTrack, cfpLoadingBar, $window){
   $scope.open = function(url){
     // Send event to analytics service
     $ionicTrack.track('open', {
@@ -24,12 +24,27 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   $scope.$on('$ionicView.beforeLeave', function(){
     cfpLoadingBar.complete();
   });
+
+  var halfHeight = null
+  $scope.getHalfHeight = function(){
+    if(!halfHeight){
+      halfHeight = (document.documentElement.clientHeight/2) - 200;
+    }
+    return halfHeight;
+  }
 })
 
-.controller('FrontPageCtrl', function($scope, HNFirebase, $state, cfpLoadingBar, $timeout) {
+.controller('FrontPageCtrl', function($scope, HNFirebase, $state, cfpLoadingBar, $timeout, $ionicScrollDelegate) {
   $scope.pageName = 'Frontpage';
   cfpLoadingBar.start();
   HNFirebase.fetchTopStories();
+  // just kicking the tires
+  $scope.$on('$ionicView.afterEnter', function(){
+    $timeout(function(){
+      $scope.posts = HNFirebase.getTopStories();
+      $ionicScrollDelegate.resize();
+    },100);
+  });
 
   $scope.$on('HNFirebase.topStoriesUpdated',function(){
     $scope.posts = HNFirebase.getTopStories();
@@ -58,13 +73,20 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   };
 })
 
-.controller('NewestCtrl', function($scope, HNFirebase, $state, cfpLoadingBar, $timeout) {
+.controller('NewestCtrl', function($scope, HNFirebase, $state, cfpLoadingBar, $timeout, $ionicScrollDelegate) {
   // This is nearly identical to FrontPageCtrl and should be refactored so the pages share a controller,
   // but the purpose of this app is to be an example to people getting started with angular and ionic.
   // Therefore we err on repeating logic and being verbose
   $scope.pageName = 'Newest';
   cfpLoadingBar.start();
   HNFirebase.fetchNewStories();
+  // just kicking the tires
+  $scope.$on('$ionicView.afterEnter', function(){
+    $timeout(function(){
+      $scope.posts = HNFirebase.getNewStories();
+      $ionicScrollDelegate.resize();
+    },100);
+  });
 
   $scope.$on('HNFirebase.newStoriesUpdated',function(){
     $scope.posts = HNFirebase.getNewStories();
@@ -134,10 +156,15 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   }
 })
 
-.controller('SearchCtrl', function($scope, Algolia, $ionicLoading, $state) {
+.controller('SearchCtrl', function($scope, Algolia, $state, $timeout) {
   $scope.focused= 'centered';
   $scope.searchTerm = '';
   $scope.posts = [];
+  $scope.searching = false;
+  $scope.$on('$ionicView.beforeEnter', function(){
+    $scope.starting = true;
+    $timeout(function(){$scope.starting = false},500)
+  });
   if(typeof localStorage.searchCache != 'undefined'){
     var sc = JSON.parse(localStorage.searchCache);
     $scope.searchTerm = sc.term;
@@ -146,18 +173,17 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   }
   $scope.search = function(searchTerm){
     if(searchTerm === '')return;
-    $ionicLoading.show({
-      template: 'Searching...'
-    });
+    $scope.posts = [];
+    $scope.searching = true;
     document.getElementById('searchInput').blur();
     Algolia.search(searchTerm).then(function(searchResults){
-      $scope.posts = searchResults.hits;
+      $timeout(function(){$scope.posts = searchResults.hits;},500);
       localStorage.searchCache = JSON.stringify({term:searchTerm,results:searchResults.hits});
-      $ionicLoading.hide();
+      $scope.searching = false;
       $scope.error = false;
     },function(){
       $scope.posts = [];
-      $ionicLoading.hide();
+      $scope.searching = false;
       $scope.error = true;
     });
   };
@@ -169,5 +195,4 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   $scope.loadComments = function(storyID){
     $state.go('tab.search-comments',{storyID:storyID});
   }
-})
-;
+});

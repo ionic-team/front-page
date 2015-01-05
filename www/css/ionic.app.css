@@ -3283,7 +3283,6 @@ a.subdued {
   border-bottom: 1px solid #ddd;
   padding-top: 2px; }
 .tabs-striped .tab-item.tab-item-active, .tabs-striped .tab-item.active, .tabs-striped .tab-item.activated {
-  color: inherit !important;
   margin-top: -2px;
   border-style: solid;
   border-width: 2px 0 0 0;
@@ -3573,39 +3572,48 @@ a.subdued {
 
 .tabs-background-light .tabs, .tabs-background-light > .tabs {
   background-color: #fff;
-  background-image: linear-gradient(0deg, #ddd, #ddd 50%, transparent 50%); }
+  background-image: linear-gradient(0deg, #ddd, #ddd 50%, transparent 50%);
+  border-color: #ddd; }
 
 .tabs-background-stable .tabs, .tabs-background-stable > .tabs {
   background-color: #aaa;
-  background-image: linear-gradient(0deg, #b2b2b2, #b2b2b2 50%, transparent 50%); }
+  background-image: linear-gradient(0deg, #b2b2b2, #b2b2b2 50%, transparent 50%);
+  border-color: #b2b2b2; }
 
 .tabs-background-positive .tabs, .tabs-background-positive > .tabs {
   background-color: #387ef5;
-  background-image: linear-gradient(0deg, #0c63ee, #0c63ee 50%, transparent 50%); }
+  background-image: linear-gradient(0deg, #0c63ee, #0c63ee 50%, transparent 50%);
+  border-color: #0c63ee; }
 
 .tabs-background-calm .tabs, .tabs-background-calm > .tabs {
   background-color: #11c1f3;
-  background-image: linear-gradient(0deg, #0a9ec7, #0a9ec7 50%, transparent 50%); }
+  background-image: linear-gradient(0deg, #0a9ec7, #0a9ec7 50%, transparent 50%);
+  border-color: #0a9ec7; }
 
 .tabs-background-assertive .tabs, .tabs-background-assertive > .tabs {
   background-color: #ef473a;
-  background-image: linear-gradient(0deg, #e42012, #e42012 50%, transparent 50%); }
+  background-image: linear-gradient(0deg, #e42012, #e42012 50%, transparent 50%);
+  border-color: #e42012; }
 
 .tabs-background-balanced .tabs, .tabs-background-balanced > .tabs {
   background-color: #33cd5f;
-  background-image: linear-gradient(0deg, #28a54c, #28a54c 50%, transparent 50%); }
+  background-image: linear-gradient(0deg, #28a54c, #28a54c 50%, transparent 50%);
+  border-color: #28a54c; }
 
 .tabs-background-energized .tabs, .tabs-background-energized > .tabs {
   background-color: #ff6600;
-  background-image: linear-gradient(0deg, #ff6600, #ff6600 50%, transparent 50%); }
+  background-image: linear-gradient(0deg, #ff6600, #ff6600 50%, transparent 50%);
+  border-color: #ff6600; }
 
 .tabs-background-royal .tabs, .tabs-background-royal > .tabs {
   background-color: #886aea;
-  background-image: linear-gradient(0deg, #6b46e5, #6b46e5 50%, transparent 50%); }
+  background-image: linear-gradient(0deg, #6b46e5, #6b46e5 50%, transparent 50%);
+  border-color: #6b46e5; }
 
 .tabs-background-dark .tabs, .tabs-background-dark > .tabs {
   background-color: #444;
-  background-image: linear-gradient(0deg, #111, #111 50%, transparent 50%); }
+  background-image: linear-gradient(0deg, #111, #111 50%, transparent 50%);
+  border-color: #111; }
 
 .tabs-color-light .tab-item {
   color: rgba(255, 255, 255, 0.4);
@@ -3769,7 +3777,9 @@ ion-tabs.tabs-color-active-dark .tab-item {
 .tabs-top > .tabs, .tabs.tabs-top {
   top: 44px;
   padding-top: 0;
-  background-position: bottom; }
+  background-position: bottom;
+  border-top-width: 0;
+  border-bottom-width: 1px; }
   .tabs-top > .tabs .tab-item.tab-item-active .badge, .tabs-top > .tabs .tab-item.active .badge, .tabs-top > .tabs .tab-item.activated .badge, .tabs.tabs-top .tab-item.tab-item-active .badge, .tabs.tabs-top .tab-item.active .badge, .tabs.tabs-top .tab-item.activated .badge {
     top: 4%; }
 
@@ -4763,6 +4773,32 @@ a.item-content {
 .list-right-editing .item-right-editable .item-content, .item-right-editing.item-right-editable .item-content {
   -webkit-transform: translate3d(-50px, 0, 0);
   transform: translate3d(-50px, 0, 0); }
+
+.item-remove-animate.ng-leave {
+  -webkit-transition-duration: 300ms;
+  transition-duration: 300ms; }
+.item-remove-animate.ng-leave .item-content, .item-remove-animate.ng-leave:last-of-type {
+  -webkit-transition-duration: 300ms;
+  transition-duration: 300ms;
+  -webkit-transition-timing-function: ease-in;
+  transition-timing-function: ease-in;
+  -webkit-transition-property: all;
+  transition-property: all; }
+.item-remove-animate.ng-leave.ng-leave-active .item-content {
+  opacity: 0;
+  -webkit-transform: translate3d(-100%, 0, 0) !important;
+  transform: translate3d(-100%, 0, 0) !important; }
+.item-remove-animate.ng-leave.ng-leave-active:last-of-type {
+  opacity: 0; }
+.item-remove-animate.ng-leave.ng-leave-active ~ ion-item:not(.ng-leave) {
+  -webkit-transform: translate3d(0, -webkit-calc(-100% + 1px), 0);
+  transform: translate3d(0, calc(-100% + 1px), 0);
+  -webkit-transition-duration: 300ms;
+  transition-duration: 300ms;
+  -webkit-transition-timing-function: cubic-bezier(0.25, 0.81, 0.24, 1);
+  transition-timing-function: cubic-bezier(0.25, 0.81, 0.24, 1);
+  -webkit-transition-property: all;
+  transition-property: all; }
 
 .item-left-edit {
   -webkit-transition: all ease-in-out 125ms;
@@ -6936,9 +6972,6 @@ a.button {
   display: block; }
   [nav-bar-transition="ios"] [nav-bar="cached"] .header-item {
     display: none; }
-[nav-bar-transition="ios"] .back-button {
-  -webkit-transition-duration: 0;
-  transition-duration: 0; }
 
 [nav-view-transition="android"] [nav-view="entering"], [nav-view-transition="android"] [nav-view="leaving"] {
   -webkit-transition-duration: 200ms;
@@ -7252,11 +7285,24 @@ ion-nav-view {
     color: white; }
   .platform-android .tabs .tab-item .tab-title {
     font-size: 16px; }
+.platform-android .title {
+  overflow: visible; }
 .platform-android .bar-header.item-input-inset {
   top: -10px; }
+  .platform-android .bar-header.item-input-inset .item-input-wrapper.light-bg {
+    border-radius: 2px;
+    padding-top: 0;
+    padding-bottom: 0;
+    height: 42px;
+    position: relative; }
+  .platform-android .bar-header.item-input-inset .ion-android-search {
+    font-size: 18px; }
   .platform-android .bar-header.item-input-inset .icon.ion-ios7-close {
     top: -1px;
     color: #aaa; }
+.platform-android .tabs-background-energized .tabs {
+  border-bottom-color: #eee !important;
+  background-image: none !important; }
 .platform-android [nav-bar-transition="android"] [nav-bar="active"] .bar, .platform-android [nav-bar-transition="android"] [nav-bar="entering"] .bar {
   background: #ff6600; }
 .platform-android #loading-bar .x-bar {

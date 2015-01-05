@@ -390,13 +390,30 @@ ion-nav-view{
     }
     color:white;
   }
-
+  .title{
+    overflow: visible;
+  }
   .bar-header.item-input-inset{
     top: -10px;
+    .item-input-wrapper.light-bg{
+      border-radius: 2px;
+      padding-top: 0;
+      padding-bottom: 0;
+      height:42px;
+      position: relative;
+    }
+    .ion-android-search{
+      font-size:18px;
+    }
     .icon.ion-ios7-close{
       top:-1px;
       color:#aaa;
     }
+  }
+
+  .tabs-background-energized .tabs{
+    border-bottom-color: #eee !important;
+    background-image:none !important;
   }
   [nav-bar-transition="android"] [nav-bar="active"] .bar,
   [nav-bar-transition="android"] [nav-bar="entering"] .bar{
@@ -405,6 +422,7 @@ ion-nav-view{
   #loading-bar .x-bar{
     bottom: 0;
   }
+
 
   *{font-family: "Roboto", sans-serif !important;}
 }

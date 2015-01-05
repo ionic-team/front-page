@@ -2,7 +2,7 @@
  * Copyright 2014 Drifty Co.
  * http://drifty.com/
  *
- * Ionic, v1.0.0-beta.13
+ * Ionic, v1.0.0-beta.14
  * A powerful HTML5 mobile app framework.
  * http://ionicframework.com/
  *
@@ -156,6 +156,7 @@ function($rootScope, $compile, $animate, $timeout, $ionicTemplateLoader, $ionicP
    *     Return true to close the action sheet, or false to keep it opened.
    *  -  `{boolean=}` `cancelOnStateChange` Whether to cancel the actionSheet when navigating
    *     to a new state.  Default true.
+   *  - `{string}` `cssClass` The custom CSS class name.
    *
    * @returns {function} `hideSheet` A function which, when called, hides & cancels the action sheet.
    */
@@ -173,7 +174,7 @@ function($rootScope, $compile, $animate, $timeout, $ionicTemplateLoader, $ionicP
 
 
     // Compile the template
-    var element = scope.element = $compile('<ion-action-sheet buttons="buttons"></ion-action-sheet>')(scope);
+    var element = scope.element = $compile('<ion-action-sheet ng-class="cssClass" buttons="buttons"></ion-action-sheet>')(scope);
 
     // Grab the sheet element for animation
     var sheetEl = jqLite(element[0].querySelector('.action-sheet-wrapper'));
@@ -1163,105 +1164,6 @@ function($rootScope, $timeout) {
 }]);
 
 
-function delegateService(methodNames) {
-
-  if (methodNames.indexOf('$getByHandle') > -1) {
-    throw new Error("Method '$getByHandle' is implicitly added to each delegate service. Do not list it as a method.");
-  }
-
-  function trueFn() { return true; }
-
-  return ['$log', function($log) {
-
-    /*
-     * Creates a new object that will have all the methodNames given,
-     * and call them on the given the controller instance matching given
-     * handle.
-     * The reason we don't just let $getByHandle return the controller instance
-     * itself is that the controller instance might not exist yet.
-     *
-     * We want people to be able to do
-     * `var instance = $ionicScrollDelegate.$getByHandle('foo')` on controller
-     * instantiation, but on controller instantiation a child directive
-     * may not have been compiled yet!
-     *
-     * So this is our way of solving this problem: we create an object
-     * that will only try to fetch the controller with given handle
-     * once the methods are actually called.
-     */
-    function DelegateInstance(instances, handle) {
-      this._instances = instances;
-      this.handle = handle;
-    }
-    methodNames.forEach(function(methodName) {
-      DelegateInstance.prototype[methodName] = instanceMethodCaller(methodName);
-    });
-
-
-    /**
-     * The delegate service (eg $ionicNavBarDelegate) is just an instance
-     * with a non-defined handle, a couple extra methods for registering
-     * and narrowing down to a specific handle.
-     */
-    function DelegateService() {
-      this._instances = [];
-    }
-    DelegateService.prototype = DelegateInstance.prototype;
-    DelegateService.prototype._registerInstance = function(instance, handle, filterFn) {
-      var instances = this._instances;
-      instance.$$delegateHandle = handle;
-      instance.$$filterFn = filterFn || trueFn;
-      instances.push(instance);
-
-      return function deregister() {
-        var index = instances.indexOf(instance);
-        if (index !== -1) {
-          instances.splice(index, 1);
-        }
-      };
-    };
-    DelegateService.prototype.$getByHandle = function(handle) {
-      return new DelegateInstance(this._instances, handle);
-    };
-
-    return new DelegateService();
-
-    function instanceMethodCaller(methodName) {
-      return function caller() {
-        var handle = this.handle;
-        var args = arguments;
-        var foundInstancesCount = 0;
-        var returnValue;
-
-        this._instances.forEach(function(instance) {
-          if ((!handle || handle == instance.$$delegateHandle) && instance.$$filterFn(instance)) {
-            foundInstancesCount++;
-            var ret = instance[methodName].apply(instance, args);
-            //Only return the value from the first call
-            if (foundInstancesCount === 1) {
-              returnValue = ret;
-            }
-          }
-        });
-
-        if (!foundInstancesCount && handle) {
-          return $log.warn(
-            'Delegate for handle "' + handle + '" could not find a ' +
-            'corresponding element with delegate-handle="' + handle + '"! ' +
-            methodName + '() was not called!\n' +
-            'Possible cause: If you are calling ' + methodName + '() immediately, and ' +
-            'your element with delegate-handle="' + handle + '" is a child of your ' +
-            'controller, then your element may not be compiled yet. Put a $timeout ' +
-            'around your call to ' + methodName + '() and try again.'
-          );
-        }
-        return returnValue;
-      };
-    }
-
-  }];
-}
-
 /**
  * @ngdoc service
  * @name $ionicGesture
@@ -1588,7 +1490,7 @@ function($rootScope, $state, $location, $window, $timeout, $ionicViewSwitcher, $
         // create an element from the viewLocals template
         ele = $ionicViewSwitcher.createViewEle(viewLocals);
         if (this.isAbstractEle(ele, viewLocals)) {
-          console.log('VIEW', 'abstractView', DIRECTION_NONE, viewHistory.currentView);
+          void 0;
           return {
             action: 'abstractView',
             direction: DIRECTION_NONE,
@@ -1703,7 +1605,7 @@ function($rootScope, $state, $location, $window, $timeout, $ionicViewSwitcher, $
         }
       }
 
-      console.log('VIEW', action, direction, viewHistory.currentView);
+      void 0;
 
       hist.cursor = viewHistory.currentView.index;
 
@@ -3229,7 +3131,7 @@ function($rootScope, $ionicBody, $compile, $timeout, $ionicPlatform, $ionicTempl
  * ```
  */
 IonicModule
-.service('$ionicNavBarDelegate', delegateService([
+.service('$ionicNavBarDelegate', ionic.DelegateService([
   /**
    * @ngdoc method
    * @name $ionicNavBarDelegate#align
@@ -3277,7 +3179,7 @@ IonicModule
 
 
 IonicModule
-.service('$ionicNavViewDelegate', delegateService([
+.service('$ionicNavViewDelegate', ionic.DelegateService([
   'clearCache'
 ]));
 
@@ -3484,22 +3386,22 @@ IonicModule
  * ```js
  * angular.module('testApp', ['ionic'])
  * .controller('MyController', function($scope, $ionicPopover) {
- * 
+ *
  *   // .fromTemplate() method
  *   var template = '<ion-popover-view><ion-header-bar> <h1 class="title">My Popover Title</h1> </ion-header-bar> <ion-content> Hello! </ion-content></ion-popover-view>';
- * 
+ *
  *   $scope.popover = $ionicPopover.fromTemplate(template, {
  *     scope: $scope,
  *   });
- * 
+ *
  *   // .fromTemplateUrl() method
  *   $ionicPopover.fromTemplateUrl('my-popover.html', {
  *     scope: $scope,
  *   }).then(function(popover) {
  *     $scope.popover = popover;
  *   });
- * 
- * 
+ *
+ *
  *   $scope.openPopover = function($event) {
  *     $scope.popover.show($event);
  *   };
@@ -3538,7 +3440,7 @@ function($ionicModal, $ionicPosition, $document, $window) {
 
   function positionView(target, popoverEle) {
     var targetEle = angular.element(target.target || target);
-    var buttonOffset = $ionicPosition.offset( targetEle );
+    var buttonOffset = $ionicPosition.offset(targetEle);
     var popoverWidth = popoverEle.prop('offsetWidth');
     var popoverHeight = popoverEle.prop('offsetHeight');
     var bodyWidth = $document[0].body.clientWidth;
@@ -3552,7 +3454,7 @@ function($ionicModal, $ionicPosition, $document, $window) {
 
     if (popoverCSS.left < POPOVER_BODY_PADDING) {
       popoverCSS.left = POPOVER_BODY_PADDING;
-    } else if(popoverCSS.left + popoverWidth + POPOVER_BODY_PADDING > bodyWidth) {
+    } else if (popoverCSS.left + popoverWidth + POPOVER_BODY_PADDING > bodyWidth) {
       popoverCSS.left = bodyWidth - popoverWidth - POPOVER_BODY_PADDING;
     }
 
@@ -3650,7 +3552,7 @@ function($ionicModal, $ionicPosition, $document, $window) {
      * controller (ionicPopover is built on top of $ionicPopover).
      */
     fromTemplate: function(templateString, options) {
-      return $ionicModal.fromTemplate(templateString, ionic.Utils.extend(options || {}, POPOVER_OPTIONS) );
+      return $ionicModal.fromTemplate(templateString, ionic.Utils.extend(POPOVER_OPTIONS, options || {}));
     },
     /**
      * @ngdoc method
@@ -3660,8 +3562,8 @@ function($ionicModal, $ionicPosition, $document, $window) {
      * @returns {promise} A promise that will be resolved with an instance of
      * an {@link ionic.controller:ionicPopover} controller (ionicPopover is built on top of $ionicPopover).
      */
-    fromTemplateUrl: function(url, options, _) {
-      return $ionicModal.fromTemplateUrl(url, options, ionic.Utils.extend(options || {}, POPOVER_OPTIONS) );
+    fromTemplateUrl: function(url, options) {
+      return $ionicModal.fromTemplateUrl(url, ionic.Utils.extend(POPOVER_OPTIONS, options || {}));
     }
   };
 
@@ -3669,7 +3571,7 @@ function($ionicModal, $ionicPosition, $document, $window) {
 
 
 var POPUP_TPL =
-  '<div class="popup-container">' +
+  '<div class="popup-container" ng-class="cssClass">' +
     '<div class="popup">' +
       '<div class="popup-head">' +
         '<h3 class="popup-title" ng-bind-html="title"></h3>' +
@@ -3807,6 +3709,7 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
      * ```
      * {
      *   title: '', // String. The title of the popup.
+     *   cssClass: '', // String, The custom CSS class name
      *   subTitle: '', // String (optional). The sub-title of the popup.
      *   template: '', // String (optional). The html template to place in the popup body.
      *   templateUrl: '', // String (optional). The URL of an html template to place in the popup   body.
@@ -3845,6 +3748,7 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
      * ```
      * {
      *   title: '', // String. The title of the popup.
+     *   cssClass: '', // String, The custom CSS class name
      *   subTitle: '', // String (optional). The sub-title of the popup.
      *   template: '', // String (optional). The html template to place in the popup body.
      *   templateUrl: '', // String (optional). The URL of an html template to place in the popup   body.
@@ -3873,6 +3777,7 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
      * ```
      * {
      *   title: '', // String. The title of the popup.
+     *   cssClass: '', // String, The custom CSS class name
      *   subTitle: '', // String (optional). The sub-title of the popup.
      *   template: '', // String (optional). The html template to place in the popup body.
      *   templateUrl: '', // String (optional). The URL of an html template to place in the popup   body.
@@ -3911,6 +3816,7 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
      * ```
      * {
      *   title: '', // String. The title of the popup.
+     *   cssClass: '', // String, The custom CSS class name
      *   subTitle: '', // String (optional). The sub-title of the popup.
      *   template: '', // String (optional). The html template to place in the popup body.
      *   templateUrl: '', // String (optional). The URL of an html template to place in the popup   body.
@@ -3975,6 +3881,7 @@ function($ionicTemplateLoader, $ionicBackdrop, $q, $timeout, $rootScope, $ionicB
         title: options.title,
         buttons: options.buttons,
         subTitle: options.subTitle,
+        cssClass: options.cssClass,
         $buttonTapped: function(button, event) {
           var result = (button.onTap || angular.noop)(event);
           event = event.originalEvent || event; //jquery events
@@ -4308,7 +4215,7 @@ IonicModule
  * ```
  */
 IonicModule
-.service('$ionicScrollDelegate', delegateService([
+.service('$ionicScrollDelegate', ionic.DelegateService([
   /**
    * @ngdoc method
    * @name $ionicScrollDelegate#resize
@@ -4436,7 +4343,7 @@ IonicModule
  * ```
  */
 IonicModule
-.service('$ionicSideMenuDelegate', delegateService([
+.service('$ionicSideMenuDelegate', ionic.DelegateService([
   /**
    * @ngdoc method
    * @name $ionicSideMenuDelegate#toggleLeft
@@ -4550,7 +4457,7 @@ IonicModule
  * ```
  */
 IonicModule
-.service('$ionicSlideBoxDelegate', delegateService([
+.service('$ionicSlideBoxDelegate', ionic.DelegateService([
   /**
    * @ngdoc method
    * @name $ionicSlideBoxDelegate#update
@@ -4664,7 +4571,7 @@ IonicModule
  * ```
  */
 IonicModule
-.service('$ionicTabsDelegate', delegateService([
+.service('$ionicTabsDelegate', ionic.DelegateService([
   /**
    * @ngdoc method
    * @name $ionicTabsDelegate#select
@@ -4939,6 +4846,7 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
   var DATA_ELE_IDENTIFIER = '$eleId';
   var DATA_VIEW_ACCESSED = '$accessed';
   var DATA_FALLBACK_TIMER = '$fallbackTimer';
+  var DATA_VIEW = '$viewData';
   var NAV_VIEW_ATTR = 'nav-view';
   var HISTORY_CURSOR_ATTR = 'history-cursor';
   var VIEW_STATUS_ACTIVE = 'active';
@@ -4952,68 +4860,6 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
   var isActiveTimer;
   var cachedAttr = ionic.DomUtil.cachedAttr;
   var transitionPromises = [];
-
-  function getViewElementIdentifier(locals, view) {
-    if (viewState(locals).abstract) return viewState(locals).name;
-    if (view) return view.stateId || view.viewId;
-    return ionic.Utils.nextUid();
-  }
-
-  function viewState(locals) {
-    return locals && locals.$$state && locals.$$state.self || {};
-  }
-
-  function getTransitionData(viewLocals, enteringEle, direction, view) {
-    // Priority
-    // 1) attribute directive on the button/link to this view
-    // 2) entering element's attribute
-    // 3) entering view's $state config property
-    // 4) view registration data
-    // 5) global config
-    // 6) fallback value
-
-    var state = viewState(viewLocals);
-    var viewTransition = nextTransition || cachedAttr(enteringEle, 'view-transition') || state.viewTransition || $ionicConfig.views.transition() || 'ios';
-    var navBarTransition = $ionicConfig.navBar.transition();
-    direction = nextDirection || cachedAttr(enteringEle, 'view-direction') || state.viewDirection || direction || 'none';
-
-    return extend(getViewData(view), {
-      transition: viewTransition,
-      navBarTransition: navBarTransition === 'view' ? viewTransition : navBarTransition,
-      direction: direction,
-      shouldAnimate: (viewTransition !== 'none' && direction !== 'none')
-    });
-  }
-
-  function getViewData(view) {
-    view = view || {};
-    return {
-      viewId: view.viewId,
-      historyId: view.historyId,
-      stateId: view.stateId,
-      stateName: view.stateName,
-      stateParams: view.stateParams
-    };
-  }
-
-  function navViewAttr(ele, value) {
-    if (arguments.length > 1) {
-      cachedAttr(ele, NAV_VIEW_ATTR, value);
-    } else {
-      return cachedAttr(ele, NAV_VIEW_ATTR);
-    }
-  }
-
-  function destroyViewEle(ele) {
-    // we found an element that should be removed
-    // destroy its scope, then remove the element
-    if (ele && ele.length) {
-      var viewScope = ele.scope();
-      viewScope && viewScope.$destroy();
-      ele.remove();
-    }
-  }
-
 
   var ionicViewSwitcher = {
 
@@ -5095,6 +4941,13 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
             var enteringData = getTransitionData(viewLocals, enteringEle, registerData.direction, enteringView);
             var transitionFn = $ionicConfig.transitions.views[enteringData.transition] || $ionicConfig.transitions.views.none;
             transitionFn(enteringEle, null, enteringData.direction, true).run(0);
+
+            enteringEle.data(DATA_VIEW, {
+              viewId: enteringData.viewId,
+              historyId: enteringData.historyId,
+              stateName: enteringData.stateName,
+              stateParams: enteringData.stateParams
+            });
 
             // if the current state has cache:false
             // or the element has cache-view="false" attribute
@@ -5323,6 +5176,71 @@ function($timeout, $document, $q, $ionicClickBlock, $ionicConfig, $ionicNavBarDe
   };
 
   return ionicViewSwitcher;
+
+
+  function getViewElementIdentifier(locals, view) {
+    if (viewState(locals).abstract) return viewState(locals).name;
+    if (view) return view.stateId || view.viewId;
+    return ionic.Utils.nextUid();
+  }
+
+  function viewState(locals) {
+    return locals && locals.$$state && locals.$$state.self || {};
+  }
+
+  function getTransitionData(viewLocals, enteringEle, direction, view) {
+    // Priority
+    // 1) attribute directive on the button/link to this view
+    // 2) entering element's attribute
+    // 3) entering view's $state config property
+    // 4) view registration data
+    // 5) global config
+    // 6) fallback value
+
+    var state = viewState(viewLocals);
+    var viewTransition = nextTransition || cachedAttr(enteringEle, 'view-transition') || state.viewTransition || $ionicConfig.views.transition() || 'ios';
+    var navBarTransition = $ionicConfig.navBar.transition();
+    direction = nextDirection || cachedAttr(enteringEle, 'view-direction') || state.viewDirection || direction || 'none';
+
+    return extend(getViewData(view), {
+      transition: viewTransition,
+      navBarTransition: navBarTransition === 'view' ? viewTransition : navBarTransition,
+      direction: direction,
+      shouldAnimate: (viewTransition !== 'none' && direction !== 'none')
+    });
+  }
+
+  function getViewData(view) {
+    view = view || {};
+    return {
+      viewId: view.viewId,
+      historyId: view.historyId,
+      stateId: view.stateId,
+      stateName: view.stateName,
+      stateParams: view.stateParams
+    };
+  }
+
+  function navViewAttr(ele, value) {
+    if (arguments.length > 1) {
+      cachedAttr(ele, NAV_VIEW_ATTR, value);
+    } else {
+      return cachedAttr(ele, NAV_VIEW_ATTR);
+    }
+  }
+
+  function destroyViewEle(ele) {
+    // we found an element that should be removed
+    // destroy its scope, then remove the element
+    if (ele && ele.length) {
+      var viewScope = ele.scope();
+      if (viewScope) {
+        viewScope.$emit('$ionicView.unloaded', ele.data(DATA_VIEW));
+        viewScope.$destroy();
+      }
+      ele.remove();
+    }
+  }
 
 }]);
 
@@ -5758,7 +5676,7 @@ function($scope, $element, $attrs, $q, $ionicConfig, $ionicHistory) {
  * ```
  */
 IonicModule
-.service('$ionicListDelegate', delegateService([
+.service('$ionicListDelegate', ionic.DelegateService([
   /**
    * @ngdoc method
    * @name $ionicListDelegate#showReorder
@@ -8501,9 +8419,9 @@ function headerFooterBarDirective(isHeader) {
       controller: '$ionicHeaderBar',
       compile: function(tElement, $attr) {
         tElement.addClass(isHeader ? 'bar bar-header' : 'bar bar-footer');
-        // android style tabs? if so, remove bottom border for seamless display
+        // top style tabs? if so, remove bottom border for seamless display
         $timeout(function() {
-          if ($document[0].getElementsByClassName('tabs-top').length) tElement.addClass('has-tabs-top');
+          if (isHeader && $document[0].getElementsByClassName('tabs-top').length) tElement.addClass('has-tabs-top');
         });
 
         return { pre: prelink };
@@ -8619,7 +8537,9 @@ IonicModule
     restrict: 'E',
     require: ['^$ionicScroll', 'ionInfiniteScroll'],
     template: '<i class="icon {{icon()}} icon-refreshing"></i>',
-    scope: true,
+    scope: {
+      load: '&onInfinite'
+    },
     controller: ['$scope', '$attrs', function($scope, $attrs) {
       this.isLoading = false;
       this.scrollView = null; //given by link function
@@ -8649,7 +8569,7 @@ IonicModule
       var onInfinite = function() {
         $element[0].classList.add('active');
         infiniteScrollCtrl.isLoading = true;
-        $scope.$parent && $scope.$parent.$apply($attrs.onInfinite || '');
+        $scope.load();
       };
 
       var finishInfiniteScroll = function() {
@@ -8672,7 +8592,7 @@ IonicModule
       var checkBounds = ionic.animationFrameThrottle(checkInfiniteBounds);
 
       //Check bounds on start, after scrollView is fully rendered
-      setTimeout(checkBounds);
+      $timeout(checkBounds, 0, false);
       scrollCtrl.$element.on('scroll', checkBounds);
 
       function checkInfiniteBounds() {
@@ -8899,6 +8819,8 @@ IonicModule
           itemCtrl.$element.append(itemCtrl.optionsContainer);
         }
         itemCtrl.optionsContainer.append($element);
+
+        itemCtrl.$element.addClass('item-right-editable');
 
         //Don't bubble click up to main .item
         $element.on('click', stopPropagation);
@@ -10384,7 +10306,8 @@ function($timeout, $controller, $ionicBind) {
           scrollingY: $scope.direction.indexOf('y') >= 0,
           zooming: $scope.$eval($scope.zooming) === true,
           maxZoom: $scope.$eval($scope.maxZoom) || 3,
-          minZoom: $scope.$eval($scope.minZoom) || 0.5
+          minZoom: $scope.$eval($scope.minZoom) || 0.5,
+          preventDefault: true
         };
         if (isPaging) {
           scrollViewOptions.speedMultiplier = 0.8;
@@ -10896,7 +10819,7 @@ function($timeout, $compile, $ionicSlideBoxDelegate, $ionicHistory) {
       };
 
       this.onPagerClick = function(index) {
-        console.log('pagerClick', index);
+        void 0;
         $scope.pagerClick({index: index});
       };
 
@@ -11473,28 +11396,56 @@ function($ionicGesture, $timeout) {
  * </ion-nav-view>
  * ```
  *
- ## View LifeCycle and Events
-
- Views can be cached, which means *controllers normally only load once*, which may
- affect your controller logic. To know when a view has entered or left, events
- have been added that are emitted from the view's scope. These events also
- contain data about the view, such as the title and whether the back button should
- show. Also contained is transition data, such as the transition type and
- direction that will be or was used.
-
- * `$ionicView.loaded`: The view has loaded. This event only happens once per
- view being created and added to the DOM. If a view leaves but is cached,
- then this event will not fire again on a subsequent viewing. The loaded event
- is good place to put your setup code for the view; however, it is not the
- recommended event to listen to when a view becomes active.
- * `$ionicView.enter`: The view has fully entered and is now the active view.
- This event will fire, whether it was the first load or a cached view.
- * `$ionicView.leave`: The view has finished leaving and is no longer the
- active view. This event will fire, whether it is cached or destroyed.
- * `$ionicView.beforeEnter`: The view is about to enter and become the active view.
- * `$ionicView.beforeLeave`: The view is about to leave and no longer be the active view.
- * `$ionicView.afterEnter`: The view has fully entered and is now the active view.
- * `$ionicView.afterLeave`: The view has finished leaving and is no longer the active view.
+ * ## View LifeCycle and Events
+ *
+ * Views can be cached, which means *controllers normally only load once*, which may
+ * affect your controller logic. To know when a view has entered or left, events
+ * have been added that are emitted from the view's scope. These events also
+ * contain data about the view, such as the title and whether the back button should
+ * show. Also contained is transition data, such as the transition type and
+ * direction that will be or was used.
+ *
+ * <table class="table">
+ *  <tr>
+ *   <td><code>$ionicView.loaded</code></td>
+ *   <td>The view has loaded. This event only happens once per
+ * view being created and added to the DOM. If a view leaves but is cached,
+ * then this event will not fire again on a subsequent viewing. The loaded event
+ * is good place to put your setup code for the view; however, it is not the
+ * recommended event to listen to when a view becomes active.</td>
+ *  </tr>
+ *  <tr>
+ *   <td><code>$ionicView.enter</code></td>
+ *   <td>The view has fully entered and is now the active view.
+ * This event will fire, whether it was the first load or a cached view.</td>
+ *  </tr>
+ *  <tr>
+ *   <td><code>$ionicView.leave</code></td>
+ *   <td>The view has finished leaving and is no longer the
+ * active view. This event will fire, whether it is cached or destroyed.</td>
+ *  </tr>
+ *  <tr>
+ *   <td><code>$ionicView.beforeEnter</code></td>
+ *   <td>The view is about to enter and become the active view.</td>
+ *  </tr>
+ *  <tr>
+ *   <td><code>$ionicView.beforeLeave</code></td>
+ *   <td>The view is about to leave and no longer be the active view.</td>
+ *  </tr>
+ *  <tr>
+ *   <td><code>$ionicView.afterEnter</code></td>
+ *   <td>The view has fully entered and is now the active view.</td>
+ *  </tr>
+ *  <tr>
+ *   <td><code>$ionicView.afterLeave</code></td>
+ *   <td>The view has finished leaving and is no longer the active view.</td>
+ *  </tr>
+ *  <tr>
+ *   <td><code>$ionicView.unloaded</code></td>
+ *   <td>The view's controller has been destroyed and its element has been
+ * removed from the DOM.</td>
+ *  </tr>
+ * </table>
  *
  * ## Caching
  *

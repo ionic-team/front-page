@@ -27,6 +27,10 @@
         <h3>Request Failed</h3>
         <small>Check that you are online. If you are, the server may be offline.</small>
       </ion-item>
+
+      <div class="spinner ng-hide" ng-show="searching" ng-style="{'top':getHalfHeight()+'px'}" >
+        <i class="icon ion-loading-d energized"></i>
+      </div>
     </ion-list>
   </ion-content>
 </ion-view>
