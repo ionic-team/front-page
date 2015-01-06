@@ -15,7 +15,7 @@
       <div class="spinner" ng-show="comments.length < 1 && !timesUp">
         <i class="icon ion-loading-d energized"></i>
       </div>
-      <ion-item class="padding text-center" ng-if="timesUp && comments.length < 1">
+      <ion-item class="padding text-center" ng-if="timesUp && comments.length < 1" ng-style="{'top':getHalfHeight()+'px'}">
         <h3>No Comments Yet</h3>
       </ion-item>
     </ion-list>
