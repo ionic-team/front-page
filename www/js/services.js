@@ -8,7 +8,8 @@ angular.module('frontpage.services', ['firebase'])
       currentMaxID = null,
       newStoriesCount = 15,
       topStoryCache ={},
-      checkedForNewStories = {};
+      checkedForNewStories = {},
+      numberOfComments = null;
 
   var getItem = function(itemID) {
     var refItem = new Firebase(APIUrl).child("item").child(itemID);
@@ -73,17 +74,31 @@ angular.module('frontpage.services', ['firebase'])
     },
     fetchComments: function(storyID) {
       comments = [];
+      numberOfComments = null;
       var refStory = new Firebase(APIUrl).child("item").child(storyID);
       var story = $firebase(refStory).$asObject();
       story.$loaded()
       .then(function(data) {
-        angular.forEach(data.kids, function (comment) {
-          comments.splice(comment.$id,0,getItem(comment));
+        numberOfComments = data.kids.length;
+        angular.forEach(data.kids, function (commentID) {
+          commentRef = getItem(commentID)
+          commentRef.$loaded().then(function(comment){
+            comments.splice(comment.$id,0,comment);
+            $rootScope.$broadcast('HNFirebase.commentsUpdated', comments);
+          })
         });
       });
     },
     getComments: function() {
       return comments;
+    },
+    getCommentsPercentLoaded: function(){
+      var numberCompleted = 0;
+      angular.forEach(comments, function (story) {
+        if(story.$loaded().$$state.status === 1) numberCompleted++
+        //console.log(numberCompleted / numberOfComments)
+      });
+      return numberCompleted / numberOfComments;
     },
     fetchNewStories: function() {
       var ref = new Firebase(APIUrl).child("maxitem");

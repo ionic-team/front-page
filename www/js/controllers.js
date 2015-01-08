@@ -27,6 +27,7 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
 
   var halfHeight = null
   $scope.getHalfHeight = function(){
+    if(ionic.Platform.isAndroid()) return 0;
     if(!halfHeight){
       halfHeight = (document.documentElement.clientHeight/2) - 200;
     }
@@ -128,20 +129,23 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   // if after the page animation, the comments are still not available, we show a loading screen
   $scope.$on('$ionicView.beforeEnter', function(){
     HNFirebase.fetchComments($stateParams.storyID);
+    $timeout(function(){$scope.timesUp = true},10000);
+  });
+  $scope.$on('$ionicView.afterLeave', function(){
+    //cleanup so simplify returning
     $scope.comments = [];
     $scope.delay = true;
-    $timeout(function(){$scope.timesUp = true},5000);
-  });
-  $scope.$on('$ionicView.afterEnter', function(){
+  })
+  $scope.$on('HNFirebase.commentsUpdated', function(){
+    $scope.percentLoaded = HNFirebase.getCommentsPercentLoaded();
     $scope.comments = HNFirebase.getComments();
+    $timeout(function(){
+      if($scope.comments.length && $scope.delay)$scope.delay = false
+    },1000)
+
   });
   $scope.$on('$ionicView.afterLeave', function(){
     $scope.timesUp = false;
-  });
-  $scope.$watch('comments', function() {
-    if($scope.comments.length){
-      $timeout(function(){$scope.delay = false},500)
-    }
   });
 
   $scope.trust = function(comment){
@@ -160,9 +164,9 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   $scope.focused= 'centered';
   $scope.searchTerm = '';
   $scope.posts = [];
-  $scope.searching = false;
   $scope.$on('$ionicView.beforeEnter', function(){
     $scope.starting = true;
+    $scope.searching = false;
     $timeout(function(){$scope.starting = false},500)
   });
   if(typeof localStorage.searchCache != 'undefined'){
