@@ -2625,7 +2625,7 @@ a.subdued {
   height: 100%;
   background-color: rgba(0, 0, 0, 0); }
   .action-sheet-backdrop.active {
-    background-color: rgba(0, 0, 0, 0.5); }
+    background-color: rgba(0, 0, 0, 0.4); }
 
 .action-sheet-wrapper {
   -webkit-transform: translate3d(0, 100%, 0);
@@ -2641,8 +2641,8 @@ a.subdued {
   transform: translate3d(0, 0, 0); }
 
 .action-sheet {
-  margin-left: 15px;
-  margin-right: 15px;
+  margin-left: 8px;
+  margin-right: 8px;
   width: auto;
   z-index: 11;
   overflow: hidden; }
@@ -2651,30 +2651,47 @@ a.subdued {
     padding: 1px;
     width: 100%;
     border-radius: 0;
+    border-color: #d1d3d6;
     background-color: transparent;
-    color: #387ef5;
-    font-size: 18px; }
+    color: #007aff;
+    font-size: 21px; }
+    .action-sheet .button:hover {
+      color: #007aff; }
     .action-sheet .button.destructive {
-      color: #ef473a; }
+      color: #ff3b30; }
+      .action-sheet .button.destructive:hover {
+        color: #ff3b30; }
+  .action-sheet .button.active, .action-sheet .button.activated {
+    box-shadow: none;
+    border-color: #d1d3d6;
+    color: #007aff;
+    background: #e4e5e7; }
+
+.action-sheet-has-icons .icon {
+  position: absolute;
+  left: 16px; }
 
 .action-sheet-title {
-  padding: 10px;
-  color: #666666;
+  padding: 16px;
+  color: #8f8f8f;
   text-align: center;
-  font-size: 12px; }
+  font-size: 13px; }
 
 .action-sheet-group {
-  margin-bottom: 5px;
-  border-radius: 3px 3px 3px 3px;
-  background-color: #fff; }
+  margin-bottom: 8px;
+  border-radius: 4px;
+  background-color: #fff;
+  overflow: hidden; }
   .action-sheet-group .button {
-    border-width: 1px 0px 0px 0px;
-    border-radius: 0; }
-    .action-sheet-group .button.active {
-      background-color: transparent;
-      color: inherit; }
+    border-width: 1px 0px 0px 0px; }
   .action-sheet-group .button:first-child:last-child {
     border-width: 0; }
+
+.action-sheet-options {
+  background: #f1f2f3; }
+
+.action-sheet-cancel .button {
+  font-weight: 500; }
 
 .action-sheet-open {
   pointer-events: none; }
@@ -2682,6 +2699,30 @@ a.subdued {
     pointer-events: none; }
   .action-sheet-open .action-sheet-backdrop {
     pointer-events: auto; }
+
+.platform-android .action-sheet-backdrop.active {
+  background-color: rgba(0, 0, 0, 0.2); }
+.platform-android .action-sheet {
+  margin: 0; }
+  .platform-android .action-sheet .action-sheet-title, .platform-android .action-sheet .button {
+    text-align: left;
+    border-color: transparent;
+    font-size: 16px;
+    color: inherit; }
+  .platform-android .action-sheet .action-sheet-title {
+    font-size: 14px;
+    padding: 16px;
+    color: #666; }
+  .platform-android .action-sheet .button.active, .platform-android .action-sheet .button.activated {
+    background: #e8e8e8; }
+.platform-android .action-sheet-group {
+  margin: 0;
+  border-radius: 0;
+  background-color: #fafafa; }
+.platform-android .action-sheet-cancel {
+  display: none; }
+.platform-android .action-sheet-has-icons .button {
+  padding-left: 56px; }
 
 .backdrop {
   position: fixed;
@@ -3949,17 +3990,12 @@ ion-tabs.tabs-color-active-dark .tab-item {
  * Modals are independent windows that slide in from off-screen.
  */
 .modal-backdrop {
-  -webkit-transition: background-color 300ms ease-in-out;
-  transition: background-color 300ms ease-in-out;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 10;
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0); }
-  .modal-backdrop.active {
-    background-color: rgba(0, 0, 0, 0.5); }
+  height: 100%; }
 
 .modal {
   display: block;
@@ -3995,7 +4031,13 @@ ion-tabs.tabs-color-active-dark .tab-item {
   .platform-ios.platform-cordova .modal-wrapper .modal .has-tabs-top {
     top: 93px; }
   .platform-ios.platform-cordova .modal-wrapper .modal .has-header.has-subheader.has-tabs-top {
-    top: 137px; } }
+    top: 137px; }
+  .modal-backdrop {
+    -webkit-transition: background-color 300ms ease-in-out;
+    transition: background-color 300ms ease-in-out;
+    background-color: rgba(0, 0, 0, 0); }
+    .modal-backdrop.active {
+      background-color: rgba(0, 0, 0, 0.5); } }
 
 .modal-open {
   pointer-events: none; }

@@ -225,10 +225,6 @@ form.item-input-inset{
 ion-tabs{
   overflow-x: hidden;
 }
-.scroll-content{
-  overflow: visible;
-  position: fixed;
-}
 .bar .button.ion-ios7-arrow-back{
   font-size: 16px;
   padding: 0 16px 0 0;
@@ -360,9 +356,6 @@ ion-nav-view{
         font-weight: 400;
       }
     }
-  }
-  .scroll-content{
-    overflow: hidden;
   }
   .back-button:not(.ng-hide)+div+.title{
     margin-left: -15px;

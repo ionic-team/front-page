@@ -172,6 +172,17 @@ function($rootScope, $compile, $animate, $timeout, $ionicTemplateLoader, $ionicP
       cancelOnStateChange: true
     }, opts || {});
 
+    function textForIcon(text) {
+      if (text && /icon/.test(text)) {
+        scope.$actionSheetHasIcon = true;
+      }
+    }
+
+    for (var x = 0; x < scope.buttons.length; x++) {
+      textForIcon(scope.buttons[x].text);
+    }
+    textForIcon(scope.cancelText);
+    textForIcon(scope.destructiveText);
 
     // Compile the template
     var element = scope.element = $compile('<ion-action-sheet ng-class="cssClass" buttons="buttons"></ion-action-sheet>')(scope);
@@ -1490,7 +1501,7 @@ function($rootScope, $state, $location, $window, $timeout, $ionicViewSwitcher, $
         // create an element from the viewLocals template
         ele = $ionicViewSwitcher.createViewEle(viewLocals);
         if (this.isAbstractEle(ele, viewLocals)) {
-          void 0;
+          console.log('VIEW', 'abstractView', DIRECTION_NONE, viewHistory.currentView);
           return {
             action: 'abstractView',
             direction: DIRECTION_NONE,
@@ -1605,7 +1616,7 @@ function($rootScope, $state, $location, $window, $timeout, $ionicViewSwitcher, $
         }
       }
 
-      void 0;
+      console.log('VIEW', action, direction, viewHistory.currentView);
 
       hist.cursor = viewHistory.currentView.index;
 
@@ -2945,8 +2956,6 @@ function($rootScope, $ionicBody, $compile, $timeout, $ionicPlatform, $ionicTempl
         self.hardwareBackButtonClose ? angular.bind(self, self.hide) : angular.noop,
         PLATFORM_BACK_BUTTON_PRIORITY_MODAL
       );
-
-      self._isOpenPromise = $q.defer();
 
       ionic.views.Modal.prototype.show.call(self);
 
@@ -6667,10 +6676,12 @@ function($scope, scrollViewOptions, $timeout, $window, $location, $document, $io
       // activateCallback
       refresher.classList.add('active');
       refresherScope.$onPulling();
+      onPullProgress(1);
     }, function() {
-        refresher.classList.remove('active');
-        refresher.classList.remove('refreshing');
-        refresher.classList.remove('refreshing-tail');
+      // deactivateCallback
+      refresher.classList.remove('active');
+      refresher.classList.remove('refreshing');
+      refresher.classList.remove('refreshing-tail');
     }, function() {
       // startCallback
       refresher.classList.add('refreshing');
@@ -6684,7 +6695,12 @@ function($scope, scrollViewOptions, $timeout, $window, $location, $document, $io
     }, function() {
       // tailCallback
       refresher.classList.add('refreshing-tail');
-    });
+    }, onPullProgress);
+
+    function onPullProgress(progress) {
+      $scope.$broadcast('$ionicRefresher.pullProgress', progress);
+      (refresherScope.$onPullProgress || angular.noop)(progress);
+    }
   };
 }]);
 
@@ -7402,16 +7418,17 @@ IonicModule
     restrict: 'E',
     scope: true,
     replace: true,
-    link: function($scope, $element){
+    link: function($scope, $element) {
+
       var keyUp = function(e) {
-        if(e.which == 27) {
+        if (e.which == 27) {
           $scope.cancel();
           $scope.$apply();
         }
       };
 
       var backdropClick = function(e) {
-        if(e.target == $element[0]) {
+        if (e.target == $element[0]) {
           $scope.cancel();
           $scope.$apply();
         }
@@ -7426,15 +7443,13 @@ IonicModule
     },
     template: '<div class="action-sheet-backdrop">' +
                 '<div class="action-sheet-wrapper">' +
-                  '<div class="action-sheet">' +
-                    '<div class="action-sheet-group">' +
+                  '<div class="action-sheet" ng-class="{\'action-sheet-has-icons\': $actionSheetHasIcon}">' +
+                    '<div class="action-sheet-group action-sheet-options">' +
                       '<div class="action-sheet-title" ng-if="titleText" ng-bind-html="titleText"></div>' +
-                      '<button class="button" ng-click="buttonClicked($index)" ng-repeat="button in buttons" ng-bind-html="button.text"></button>' +
+                      '<button class="button action-sheet-option" ng-click="buttonClicked($index)" ng-repeat="b in buttons" ng-bind-html="b.text"></button>' +
+                      '<button class="button destructive action-sheet-destructive" ng-if="destructiveText" ng-click="destructiveButtonClicked()" ng-bind-html="destructiveText"></button>' +
                     '</div>' +
-                    '<div class="action-sheet-group" ng-if="destructiveText">' +
-                      '<button class="button destructive" ng-click="destructiveButtonClicked()" ng-bind-html="destructiveText"></button>' +
-                    '</div>' +
-                    '<div class="action-sheet-group" ng-if="cancelText">' +
+                    '<div class="action-sheet-group action-sheet-cancel" ng-if="cancelText">' +
                       '<button class="button" ng-click="cancel()" ng-bind-html="cancelText"></button>' +
                     '</div>' +
                   '</div>' +
@@ -8439,7 +8454,9 @@ function headerFooterBarDirective(isHeader) {
             });
             ctrl.align();
             $scope.$on('$ionicHeader.align', function() {
-              ionic.requestAnimationFrame(ctrl.align);
+              ionic.requestAnimationFrame(function() {
+                ctrl.align();
+              });
             });
 
           } else {
@@ -9247,6 +9264,17 @@ IonicModule
  *   </ion-nav-buttons>
  * </ion-nav-bar>
  * ```
+ *
+ * ### Button Hidden On Child Views
+ * By default, the menu toggle button will only appear on a root
+ * level side-menu page. Navigating in to child views will hide the menu-
+ * toggle button. They can be made visible on child pages by setting the
+ * enable-menu-with-back-views attribute of the {@link ionic.directive:ionSideMenus}
+ * directive to true.
+ *
+ * ```html
+ * <ion-side-menus enable-menu-with-back-views="true">
+ * ```
  */
 IonicModule
 .directive('menuToggle', function() {
@@ -9479,30 +9507,6 @@ IonicModule
  * to the top when tapped.  Set no-tap-scroll to true to disable this behavior.
  *
  * </table><br/>
- *
- * ### Alternative Usage
- *
- * Alternatively, you may put ion-nav-bar inside of each individual view's ion-view element.
- * This will allow you to have the whole navbar, not just its contents, transition every view change.
- *
- * This is similar to using a header bar inside your ion-view, except it will have all the power of a navbar.
- *
- * If you do this, simply put nav buttons inside the navbar itself; do not use `<ion-nav-buttons>`.
- *
- *
- * ```html
- * <ion-view view-title="myTitle">
- *   <ion-nav-bar class="bar-positive">
- *     <ion-nav-back-button>
- *     </ion-nav-back-button>
- *     <div class="buttons primary-buttons">
- *       <button class="button">
-            Button
- *       </button>
- *     </div>
- *   </ion-nav-bar>
- * </ion-view>
- * ```
  */
 IonicModule
 .directive('ionNavBar', function() {
@@ -9544,7 +9548,7 @@ IonicModule
  * example, a toggle button for a left side menu should be on the left side; in this case,
  * we'd recommend using `side="left"`, so it's always on the left, no matter the platform.
  *
- * Note that `ion-nav-buttons` must be immediate descendants of the `ion-view` or
+ * ***Note*** that `ion-nav-buttons` must be immediate descendants of the `ion-view` or
  * `ion-nav-bar` element (basically, don't wrap it in another div).
  *
  * @usage
@@ -9813,7 +9817,7 @@ IonicModule
  * This is good to do because the template will be cached for very fast loading, instead of
  * having to fetch them from the network.
  *
- ## Caching
+ * ## Caching
  *
  * By default, views are cached to improve performance. When a view is navigated away from, its
  * element is left in the DOM, and its scope is disconnected from the `$watch` cycle. When
@@ -10148,6 +10152,10 @@ IonicModule
  * of the refresher.
  * @param {expression=} on-pulling Called when the user starts to pull down
  * on the refresher.
+ * @param {expression=} on-pull-progress Repeatedly called as the user is pulling down
+ * the refresher. The callback should have a `progress` argument which will be a number
+ * from `0` and `1`. For example, if the user has pulled the refresher halfway
+ * down, its progress would be `0.5`.
  * @param {string=} pulling-icon The icon to display while the user is pulling down.
  * Default: 'ion-arrow-down-c'.
  * @param {string=} pulling-text The text to display while the user is pulling down.
@@ -10160,7 +10168,7 @@ IonicModule
  *
  */
 IonicModule
-.directive('ionRefresher', ['$ionicBind', function($ionicBind) {
+.directive('ionRefresher', ['$ionicBind', '$parse', function($ionicBind, $parse) {
   return {
     restrict: 'E',
     replace: true,
@@ -10194,6 +10202,15 @@ IonicModule
           $onRefresh: '&onRefresh',
           $onPulling: '&onPulling'
         });
+
+        if (isDefined($attrs.onPullProgress)) {
+          var onPullProgressFn = $parse($attrs.onPullProgress);
+          $scope.$onPullProgress = function(progress) {
+            onPullProgressFn($scope, {
+              progress: progress
+            });
+          };
+        }
 
         scrollCtrl._setRefresher($scope, $element[0]);
         $scope.$on('scroll.refreshComplete', function() {
@@ -10612,6 +10629,11 @@ IonicModule
  * `ion-side-menu-content`, so that when the element is clicked, the opened side menu will
  * automatically close.
  *
+ * "Burger Icon" toggles can be added to the header with the {@link ionic.directive:menuToggle}
+ * attribute directive. Clicking the toggle will open and close the side menu like the `menu-close`
+ * directive. The side menu will automatically hide on child pages, but can be overridden with the
+ * enable-menu-with-back-views attribute mentioned below.
+ *
  * By default, side menus are hidden underneath their side menu content and can be opened by swiping
  * the content left or right or by toggling a button to show the side menu. Additionally, by adding the
  * {@link ionic.directive:exposeAsideWhen} attribute directive to an
@@ -10819,7 +10841,7 @@ function($timeout, $compile, $ionicSlideBoxDelegate, $ionicHistory) {
       };
 
       this.onPagerClick = function(index) {
-        void 0;
+        console.log('pagerClick', index);
         $scope.pagerClick({index: index});
       };
 
@@ -11398,7 +11420,7 @@ function($ionicGesture, $timeout) {
  *
  * ## View LifeCycle and Events
  *
- * Views can be cached, which means *controllers normally only load once*, which may
+ * Views can be cached, which means ***controllers normally only load once***, which may
  * affect your controller logic. To know when a view has entered or left, events
  * have been added that are emitted from the view's scope. These events also
  * contain data about the view, such as the title and whether the back button should

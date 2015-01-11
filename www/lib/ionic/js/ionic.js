@@ -703,7 +703,7 @@ window.ionic.version = '1.0.0-beta.14';
     // whatever lookup was done to find this element failed to find it
     // so we can't listen for events on it.
     if(element === null) {
-      void 0;
+      console.error('Null element passed to gesture (element does not exist). Not listening for gesture');
       return;
     }
 
@@ -2003,13 +2003,41 @@ window.ionic.version = '1.0.0-beta.14';
   var IOS = 'ios';
   var ANDROID = 'android';
   var WINDOWS_PHONE = 'windowsphone';
+  var requestAnimationFrame = ionic.requestAnimationFrame;
 
   /**
    * @ngdoc utility
    * @name ionic.Platform
    * @module ionic
+   * @description
+   * A set of utility methods that can be used to retrieve the device ready state and
+   * various other information such as what kind of platform the app is currently installed on.
+   *
+   * @usage
+   * ```js
+   * angular.module('PlatformApp', ['ionic'])
+   * .controller('PlatformCtrl', function($scope) {
+   *
+   *   ionic.Platform.ready(function(){
+   *     // will execute when device is ready, or immediately if the device is already ready.
+   *   });
+   *
+   *   var deviceInformation = ionic.Platform.device();
+   *
+   *   var isWebView = ionic.Platform.isWebView();
+   *   var isIPad = ionic.Platform.isIPad();
+   *   var isIOS = ionic.Platform.isIOS();
+   *   var isAndroid = ionic.Platform.isAndroid();
+   *   var isWindowsPhone = ionic.Platform.isWindowsPhone();
+   *
+   *   var currentPlatform = ionic.Platform.platform();
+   *   var currentPlatformVersion = ionic.Platform.version();
+   *
+   *   ionic.Platform.exit(); // stops the app
+   * });
+   * ```
    */
-  ionic.Platform = {
+  var self = ionic.Platform = {
 
     // Put navigator on platform so it can be mocked and set
     // the browser does not allow window.navigator to be set
@@ -2057,7 +2085,7 @@ window.ionic.version = '1.0.0-beta.14';
      */
     ready: function(cb) {
       // run through tasks to complete now that the device is ready
-      if (this.isReady) {
+      if (self.isReady) {
         cb();
       } else {
         // the platform isn't ready yet, add it to this array
@@ -2070,12 +2098,12 @@ window.ionic.version = '1.0.0-beta.14';
      * @private
      */
     detect: function() {
-      ionic.Platform._checkPlatforms();
+      self._checkPlatforms();
 
-      ionic.requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
         // only add to the body class if we got platform info
-        for (var i = 0; i < ionic.Platform.platforms.length; i++) {
-          document.body.classList.add('platform-' + ionic.Platform.platforms[i]);
+        for (var i = 0; i < self.platforms.length; i++) {
+          document.body.classList.add('platform-' + self.platforms[i]);
         }
       });
     },
@@ -2089,9 +2117,9 @@ window.ionic.version = '1.0.0-beta.14';
      * @param {string} grade The new grade to set.
      */
     setGrade: function(grade) {
-      var oldGrade = this.grade;
-      this.grade = grade;
-      ionic.requestAnimationFrame(function() {
+      var oldGrade = self.grade;
+      self.grade = grade;
+      requestAnimationFrame(function() {
         if (oldGrade) {
           document.body.classList.remove('grade-' + oldGrade);
         }
@@ -2109,23 +2137,23 @@ window.ionic.version = '1.0.0-beta.14';
       return window.device || {};
     },
 
-    _checkPlatforms: function(platforms) {
-      this.platforms = [];
+    _checkPlatforms: function() {
+      self.platforms = [];
       var grade = 'a';
 
-      if (this.isWebView()) {
-        this.platforms.push('webview');
-        this.platforms.push('cordova');
+      if (self.isWebView()) {
+        self.platforms.push('webview');
+        self.platforms.push('cordova');
       } else {
-        this.platforms.push('browser');
+        self.platforms.push('browser');
       }
-      if (this.isIPad()) this.platforms.push('ipad');
+      if (self.isIPad()) self.platforms.push('ipad');
 
-      var platform = this.platform();
+      var platform = self.platform();
       if (platform) {
-        this.platforms.push(platform);
+        self.platforms.push(platform);
 
-        var version = this.version();
+        var version = self.version();
         if (version) {
           var v = version.toString();
           if (v.indexOf('.') > 0) {
@@ -2133,18 +2161,18 @@ window.ionic.version = '1.0.0-beta.14';
           } else {
             v += '_0';
           }
-          this.platforms.push(platform + v.split('_')[0]);
-          this.platforms.push(platform + v);
+          self.platforms.push(platform + v.split('_')[0]);
+          self.platforms.push(platform + v);
 
-          if (this.isAndroid() && version < 4.4) {
+          if (self.isAndroid() && version < 4.4) {
             grade = (version < 4 ? 'c' : 'b');
-          } else if (this.isWindowsPhone()) {
+          } else if (self.isWindowsPhone()) {
             grade = 'b';
           }
         }
       }
 
-      this.setGrade(grade);
+      self.setGrade(grade);
     },
 
     /**
@@ -2161,10 +2189,10 @@ window.ionic.version = '1.0.0-beta.14';
      * @returns {boolean} Whether we are running on iPad.
      */
     isIPad: function() {
-      if (/iPad/i.test(ionic.Platform.navigator.platform)) {
+      if (/iPad/i.test(self.navigator.platform)) {
         return true;
       }
-      return /iPad/i.test(this.ua);
+      return /iPad/i.test(self.ua);
     },
     /**
      * @ngdoc method
@@ -2172,7 +2200,7 @@ window.ionic.version = '1.0.0-beta.14';
      * @returns {boolean} Whether we are running on iOS.
      */
     isIOS: function() {
-      return this.is(IOS);
+      return self.is(IOS);
     },
     /**
      * @ngdoc method
@@ -2180,7 +2208,7 @@ window.ionic.version = '1.0.0-beta.14';
      * @returns {boolean} Whether we are running on Android.
      */
     isAndroid: function() {
-      return this.is(ANDROID);
+      return self.is(ANDROID);
     },
     /**
      * @ngdoc method
@@ -2188,7 +2216,7 @@ window.ionic.version = '1.0.0-beta.14';
      * @returns {boolean} Whether we are running on Windows Phone.
      */
     isWindowsPhone: function() {
-      return this.is(WINDOWS_PHONE);
+      return self.is(WINDOWS_PHONE);
     },
 
     /**
@@ -2198,7 +2226,7 @@ window.ionic.version = '1.0.0-beta.14';
      */
     platform: function() {
       // singleton to get the platform name
-      if (platformName === null) this.setPlatform(this.device().platform);
+      if (platformName === null) self.setPlatform(self.device().platform);
       return platformName;
     },
 
@@ -2208,16 +2236,16 @@ window.ionic.version = '1.0.0-beta.14';
     setPlatform: function(n) {
       if (typeof n != 'undefined' && n !== null && n.length) {
         platformName = n.toLowerCase();
-      } else if(getParameterByName('ionicplatform')) {
+      } else if (getParameterByName('ionicplatform')) {
         platformName = getParameterByName('ionicplatform');
-      } else if (this.ua.indexOf('Android') > 0) {
+      } else if (self.ua.indexOf('Android') > 0) {
         platformName = ANDROID;
-      } else if (this.ua.indexOf('iPhone') > -1 || this.ua.indexOf('iPad') > -1 || this.ua.indexOf('iPod') > -1) {
+      } else if (/iPhone|iPad|iPod/.test(self.ua)) {
         platformName = IOS;
-      } else if (this.ua.indexOf('Windows Phone') > -1) {
+      } else if (self.ua.indexOf('Windows Phone') > -1) {
         platformName = WINDOWS_PHONE;
       } else {
-        platformName = ionic.Platform.navigator.platform && navigator.platform.toLowerCase().split(' ')[0] || '';
+        platformName = self.navigator.platform && navigator.platform.toLowerCase().split(' ')[0] || '';
       }
     },
 
@@ -2228,7 +2256,7 @@ window.ionic.version = '1.0.0-beta.14';
      */
     version: function() {
       // singleton to get the platform version
-      if (platformVersion === null) this.setVersion(this.device().version);
+      if (platformVersion === null) self.setVersion(self.device().version);
       return platformVersion;
     },
 
@@ -2248,14 +2276,14 @@ window.ionic.version = '1.0.0-beta.14';
       platformVersion = 0;
 
       // fallback to user-agent checking
-      var pName = this.platform();
+      var pName = self.platform();
       var versionMatch = {
         'android': /Android (\d+).(\d+)?/,
         'ios': /OS (\d+)_(\d+)?/,
         'windowsphone': /Windows Phone (\d+).(\d+)?/
       };
       if (versionMatch[pName]) {
-        v = this.ua.match(versionMatch[pName]);
+        v = self.ua.match(versionMatch[pName]);
         if (v &&  v.length > 2) {
           platformVersion = parseFloat(v[1] + '.' + v[2]);
         }
@@ -2266,19 +2294,19 @@ window.ionic.version = '1.0.0-beta.14';
     is: function(type) {
       type = type.toLowerCase();
       // check if it has an array of platforms
-      if (this.platforms) {
-        for (var x = 0; x < this.platforms.length; x++) {
-          if (this.platforms[x] === type) return true;
+      if (self.platforms) {
+        for (var x = 0; x < self.platforms.length; x++) {
+          if (self.platforms[x] === type) return true;
         }
       }
       // exact match
-      var pName = this.platform();
+      var pName = self.platform();
       if (pName) {
         return pName === type.toLowerCase();
       }
 
       // A quick hack for to check userAgent
-      return this.ua.toLowerCase().indexOf(type) >= 0;
+      return self.ua.toLowerCase().indexOf(type) >= 0;
     },
 
     /**
@@ -2287,7 +2315,7 @@ window.ionic.version = '1.0.0-beta.14';
      * @description Exit the app.
      */
     exitApp: function() {
-      this.ready(function() {
+      self.ready(function() {
         navigator.app && navigator.app.exitApp && navigator.app.exitApp();
       });
     },
@@ -2300,11 +2328,11 @@ window.ionic.version = '1.0.0-beta.14';
      */
     showStatusBar: function(val) {
       // Only useful when run within cordova
-      this._showStatusBar = val;
-      this.ready(function() {
+      self._showStatusBar = val;
+      self.ready(function() {
         // run this only when or if the platform (cordova) is ready
-        ionic.requestAnimationFrame(function() {
-          if (ionic.Platform._showStatusBar) {
+        requestAnimationFrame(function() {
+          if (self._showStatusBar) {
             // they do not want it to be full screen
             window.StatusBar && window.StatusBar.show();
             document.body.classList.remove('status-bar-hide');
@@ -2327,25 +2355,25 @@ window.ionic.version = '1.0.0-beta.14';
      */
     fullScreen: function(showFullScreen, showStatusBar) {
       // showFullScreen: default is true if no param provided
-      this.isFullScreen = (showFullScreen !== false);
+      self.isFullScreen = (showFullScreen !== false);
 
       // add/remove the fullscreen classname to the body
       ionic.DomUtil.ready(function() {
         // run this only when or if the DOM is ready
-        ionic.requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
           // fixing pane height before we adjust this
-          panes = document.getElementsByClassName('pane');
+          var panes = document.getElementsByClassName('pane');
           for (var i = 0; i < panes.length; i++) {
             panes[i].style.height = panes[i].offsetHeight + "px";
           }
-          if (ionic.Platform.isFullScreen) {
+          if (self.isFullScreen) {
             document.body.classList.add('fullscreen');
           } else {
             document.body.classList.remove('fullscreen');
           }
         });
         // showStatusBar: default is false if no param provided
-        ionic.Platform.showStatusBar((showStatusBar === true));
+        self.showStatusBar((showStatusBar === true));
       });
     }
 
@@ -2358,7 +2386,7 @@ window.ionic.version = '1.0.0-beta.14';
 
   // setup listeners to know when the device is ready to go
   function onWindowLoad() {
-    if (ionic.Platform.isWebView()) {
+    if (self.isWebView()) {
       // the window and scripts are fully loaded, and a cordova/phonegap
       // object exists then let's listen for the deviceready
       document.addEventListener("deviceready", onPlatformReady, false);
@@ -2382,8 +2410,8 @@ window.ionic.version = '1.0.0-beta.14';
 
   function onPlatformReady() {
     // the device is all set to go, init our own stuff then fire off our event
-    ionic.Platform.isReady = true;
-    ionic.Platform.detect();
+    self.isReady = true;
+    self.detect();
     for (var x = 0; x < readyCallbacks.length; x++) {
       // fire off all the callbacks that were added before the platform was ready
       readyCallbacks[x]();
@@ -2391,7 +2419,7 @@ window.ionic.version = '1.0.0-beta.14';
     readyCallbacks = [];
     ionic.trigger('platformready', { target: document });
 
-    ionic.requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
       document.body.classList.add('platform-ready');
     });
   }
@@ -2829,7 +2857,7 @@ function tapMouseDown(e) {
   if (e.isIonicTap || tapIgnoreEvent(e)) return;
 
   if (tapEnabledTouchEvents) {
-    void 0;
+    console.log('mousedown', 'stop event');
     e.stopPropagation();
 
     if ((!ionic.tap.isTextInput(e.target) || tapLastTouchTarget !== e.target) && !(/^(select|option)$/i).test(e.target.tagName)) {
@@ -2990,7 +3018,7 @@ function tapHandleFocus(ele) {
 function tapFocusOutActive() {
   var ele = tapActiveElement();
   if (ele && ((/^(input|textarea|select)$/i).test(ele.tagName) || ele.isContentEditable)) {
-    void 0;
+    console.log('tapFocusOutActive', ele.tagName);
     ele.blur();
   }
   tapActiveElement(null);
@@ -3010,7 +3038,7 @@ function tapFocusIn(e) {
     // 2) There is an active element which is a text input
     // 3) A text input was just set to be focused on by a touch event
     // 4) A new focus has been set, however the target isn't the one the touch event wanted
-    void 0;
+    console.log('focusin', 'tapTouchFocusedInput');
     tapTouchFocusedInput.focus();
     tapTouchFocusedInput = null;
   }
@@ -3576,7 +3604,7 @@ function keyboardSetShow(e) {
 
   keyboardFocusInTimer = setTimeout(function(){
     if ( keyboardLastShow + 350 > Date.now() ) return;
-    void 0;
+    console.log('keyboardSetShow');
     keyboardLastShow = Date.now();
     var keyboardHeight;
     var elementBounds = keyboardActiveElement.getBoundingClientRect();
@@ -3613,7 +3641,7 @@ function keyboardShow(element, elementTop, elementBottom, viewportHeight, keyboa
 
   details.contentHeight = viewportHeight - keyboardHeight;
 
-  void 0;
+  console.log('keyboardShow', keyboardHeight, details.contentHeight);
 
   // figure out if the element is under the keyboard
   details.isElementUnderKeyboard = (details.elementBottom > details.contentHeight);
@@ -4454,6 +4482,9 @@ ionic.views.Scroll = ionic.views.View.inherit({
   /** Callback to execute to start the actual refresh. Call {@link #refreshFinish} when done */
   __refreshStart: null,
 
+  /** Callback to state the progress while pulling to refresh */
+  __refreshPullProgress: null,
+
   /** Zoom level */
   __zoomLevel: 1,
 
@@ -5258,17 +5289,19 @@ ionic.views.Scroll = ionic.views.View.inherit({
    * @param showCallback {Function} Callback to execute when the refresher should be shown. This is for showing the refresher during a negative scrollTop.
    * @param hideCallback {Function} Callback to execute when the refresher should be hidden. This is for hiding the refresher when it's behind the nav bar.
    * @param tailCallback {Function} Callback to execute just before the refresher returns to it's original state. This is for zooming out the refresher.
+   * @param pullProgressCallback Callback to state the progress while pulling to refresh
    */
-  activatePullToRefresh: function(height, activateCallback, deactivateCallback, startCallback, showCallback, hideCallback, tailCallback) {
+  activatePullToRefresh: function(height, activateCallback, deactivateCallback, startCallback, showCallback, hideCallback, tailCallback, pullProgressCallback) {
     var self = this;
 
     self.__refreshHeight = height;
-    self.__refreshActivate = function(){ionic.requestAnimationFrame(activateCallback);};
-    self.__refreshDeactivate = function(){ionic.requestAnimationFrame(deactivateCallback);};
-    self.__refreshStart = function(){ionic.requestAnimationFrame(startCallback);};
-    self.__refreshShow = function(){ionic.requestAnimationFrame(showCallback);};
-    self.__refreshHide = function(){ionic.requestAnimationFrame(hideCallback);};
-    self.__refreshTail = function(){ionic.requestAnimationFrame(tailCallback);};
+    self.__refreshActivate = function() {ionic.requestAnimationFrame(activateCallback);};
+    self.__refreshDeactivate = function() {ionic.requestAnimationFrame(deactivateCallback);};
+    self.__refreshStart = function() {ionic.requestAnimationFrame(startCallback);};
+    self.__refreshShow = function() {ionic.requestAnimationFrame(showCallback);};
+    self.__refreshHide = function() {ionic.requestAnimationFrame(hideCallback);};
+    self.__refreshTail = function() {ionic.requestAnimationFrame(tailCallback);};
+    self.__refreshPullProgress = pullProgressCallback;
     self.__refreshTailTime = 100;
     self.__minSpinTime = 600;
   },
@@ -5299,19 +5332,19 @@ ionic.views.Scroll = ionic.views.View.inherit({
     // delay to make sure the spinner has a chance to spin for a split second before it's dismissed
     var d = new Date();
     var delay = 0;
-    if (self.refreshStartTime + self.__minSpinTime > d.getTime()){
+    if (self.refreshStartTime + self.__minSpinTime > d.getTime()) {
       delay = self.refreshStartTime + self.__minSpinTime - d.getTime();
     }
-    setTimeout(function(){
-      if (self.__refreshTail){
+    setTimeout(function() {
+      if (self.__refreshTail) {
         self.__refreshTail();
       }
-      setTimeout(function(){
+      setTimeout(function() {
         self.__refreshActive = false;
         if (self.__refreshDeactivate) {
           self.__refreshDeactivate();
         }
-        if (self.__refreshHide){
+        if (self.__refreshHide) {
           self.__refreshHide();
         }
 
@@ -5739,7 +5772,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
             if (!self.__enableScrollX && self.__refreshHeight != null) {
 
               // hide the refresher when it's behind the header bar in case of header transparency
-              if (scrollTop < 0){
+              if (scrollTop < 0) {
                 self.__refreshHidden = false;
                 self.__refreshShow();
               } else {
@@ -5761,6 +5794,9 @@ ionic.views.Scroll = ionic.views.View.inherit({
                   self.__refreshDeactivate();
                 }
 
+              } else if (!self.__refreshActive && self.__refreshPullProgress) {
+                self.__refreshPullProgress(scrollTop / -self.__refreshHeight);
+
               }
             }
 
@@ -5773,7 +5809,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
             scrollTop = 0;
 
           }
-        } else if (self.__refreshHeight && !self.__refreshHidden){
+        } else if (self.__refreshHeight && !self.__refreshHidden) {
           // if a positive scroll value and the refresher is still not hidden, hide it
           self.__refreshHide();
           self.__refreshHidden = true;
@@ -6111,7 +6147,7 @@ ionic.views.Scroll = ionic.views.View.inherit({
       self.__minDecelerationScrollTop = 0;
       self.__maxDecelerationScrollLeft = self.__maxScrollLeft;
       self.__maxDecelerationScrollTop = self.__maxScrollTop;
-      if (self.__refreshActive) self.__minDecelerationScrollTop = self.__refreshHeight *-1;
+      if (self.__refreshActive) self.__minDecelerationScrollTop = self.__refreshHeight * -1;
     }
 
     // Wrap class method

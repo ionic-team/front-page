@@ -4,7 +4,7 @@ angular.module('frontpage.services', ['firebase'])
   var APIUrl = "https://hacker-news.firebaseio.com/v0",
       topStories  = [],
       newStories = {},
-      comments = [],
+      comments = {},
       currentMaxID = null,
       newStoriesCount = 15,
       topStoryCache ={},
@@ -43,6 +43,26 @@ angular.module('frontpage.services', ['firebase'])
     });
   };
 
+  var getComment = function(commentID, level){
+    commentRef = getItem(commentID)
+    commentRef.$loaded().then(function(comment){
+      if(comment.deleted){
+        numberOfComments--;
+        return;
+      }
+      if(comment.kids){
+        // get children
+        numberOfComments = numberOfComments + comment.kids.length;
+        angular.forEach(comment.kids, function (childID) {
+          getComment(childID, level + 1 );
+        });
+      }
+      comment.level = level;
+      comments[comment.$id] = comment;
+      $rootScope.$broadcast('HNFirebase.commentsUpdated', comments);
+    })
+  }
+
   return {
     fetchTopStories: function(){
       topStories = [];
@@ -73,7 +93,7 @@ angular.module('frontpage.services', ['firebase'])
       return numberCompleted / numberOfTopStories;
     },
     fetchComments: function(storyID) {
-      comments = [];
+      comments = {};
       numberOfComments = null;
       var refStory = new Firebase(APIUrl).child("item").child(storyID);
       var story = $firebase(refStory).$asObject();
@@ -81,16 +101,13 @@ angular.module('frontpage.services', ['firebase'])
       .then(function(data) {
         numberOfComments = data.kids.length;
         angular.forEach(data.kids, function (commentID) {
-          commentRef = getItem(commentID)
-          commentRef.$loaded().then(function(comment){
-            comments.splice(comment.$id,0,comment);
-            $rootScope.$broadcast('HNFirebase.commentsUpdated', comments);
-          })
+          getComment(commentID, 0);
         });
       });
     },
     getComments: function() {
-      return comments;
+      console.log(comments)
+      return Object.keys(comments).map(function(k) { return comments[k] }).reverse();;
     },
     getCommentsPercentLoaded: function(){
       var numberCompleted = 0;

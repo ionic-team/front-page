@@ -130,6 +130,7 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
   $scope.$on('$ionicView.beforeEnter', function(){
     HNFirebase.fetchComments($stateParams.storyID);
     $timeout(function(){$scope.timesUp = true},10000);
+    $scope.delay = true;
   });
   $scope.$on('$ionicView.afterLeave', function(){
     //cleanup so simplify returning
@@ -141,7 +142,7 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
     $scope.comments = HNFirebase.getComments();
     $timeout(function(){
       if($scope.comments.length && $scope.delay)$scope.delay = false
-    },1000)
+    },500)
 
   });
   $scope.$on('$ionicView.afterLeave', function(){
