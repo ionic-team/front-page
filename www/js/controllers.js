@@ -69,8 +69,9 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
     }
   },5000);
 
-  $scope.loadComments = function(storyID){
-    $state.go('tab.front-page-comments',{storyID:storyID});
+  $scope.loadComments = function(storyID, commentNum, $event){
+    $event.stopPropagation();
+    if(commentNum) $state.go('tab.front-page-comments',{storyID:storyID});
   };
 })
 
@@ -131,22 +132,26 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
     HNFirebase.fetchComments($stateParams.storyID);
     $timeout(function(){$scope.timesUp = true},10000);
     $scope.delay = true;
+    $scope.starting = true;
+
   });
-  $scope.$on('$ionicView.afterLeave', function(){
-    //cleanup so simplify returning
-    $scope.comments = [];
-    $scope.delay = true;
+  $scope.$on('$ionicView.afterEnter', function(){
+    $timeout(function(){$scope.starting = false},0);
   })
   $scope.$on('HNFirebase.commentsUpdated', function(){
+  //$timeout(function(){
     $scope.percentLoaded = HNFirebase.getCommentsPercentLoaded();
     $scope.comments = HNFirebase.getComments();
     $timeout(function(){
       if($scope.comments.length && $scope.delay)$scope.delay = false
-    },500)
+    },1500)
 
   });
   $scope.$on('$ionicView.afterLeave', function(){
     $scope.timesUp = false;
+    //cleanup so simplify returning
+    $scope.comments = [];
+    $scope.delay = true;
   });
 
   $scope.trust = function(comment){

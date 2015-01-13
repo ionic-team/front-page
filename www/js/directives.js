@@ -81,10 +81,12 @@ angular.module('frontpage.directives', [])
         }
         window.plugins
           .socialsharing
-          .share(null,
-          null,
-          null,
-          scope.$parent.post.url)
+          .share(
+            scope.$parent.post.title,
+            null,
+            null,
+            scope.$parent.post.url
+          )
       }
     }
   }

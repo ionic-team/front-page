@@ -9,12 +9,17 @@ angular.module('frontpage.services', ['firebase'])
       newStoriesCount = 15,
       topStoryCache ={},
       checkedForNewStories = {},
-      numberOfComments = null;
+      numberOfComments = null,
+      lowestCommentLevel = 0;
 
   var getItem = function(itemID) {
     var refItem = new Firebase(APIUrl).child("item").child(itemID);
     var item = $firebase(refItem).$asObject();
     return item;
+  };
+
+  var getRef = function(itemID) {
+    return new Firebase(APIUrl).child("item").child(itemID);
   };
 
   var getNewStoriesUntil = function(){
@@ -57,11 +62,16 @@ angular.module('frontpage.services', ['firebase'])
           getComment(childID, level + 1 );
         });
       }
+      if(level > lowestCommentLevel) lowestCommentLevel = level;
       comment.level = level;
-      comments[comment.$id] = comment;
+      comments[comment.id] = comment;
       $rootScope.$broadcast('HNFirebase.commentsUpdated', comments);
     })
-  }
+    .catch(function(error){
+      console.error('Unable to get comment', error);
+      numberOfComments--
+    })
+  };
 
   return {
     fetchTopStories: function(){
@@ -74,8 +84,14 @@ angular.module('frontpage.services', ['firebase'])
           if(typeof topStoryCache[storyID] == 'object'){
             topStories[index] = topStoryCache[storyID]
           }else{
-            topStories[index] = getItem(storyID);
-            topStoryCache[storyID] = topStories[index];
+            var storyRef = getRef(storyID);
+            storyRef.on('value', function(storyVal){
+              // note the value of kids will be wrong since it only has the top level children
+              // getting subsequent children and having that live update creates a crazy amount of traffic
+              // the HN API should update this
+              topStories[index] = storyVal.val();
+              topStoryCache[storyID] = storyVal.val();
+            });
           }
           $rootScope.$broadcast('HNFirebase.topStoriesUpdated', topStories);
         });
@@ -86,15 +102,17 @@ angular.module('frontpage.services', ['firebase'])
     },
     getTopStoriesPercentLoaded: function(){
       var numberOfTopStories = 100;
-      var numberCompleted = 0;
-      angular.forEach(topStories, function (story) {
-        if(story.$loaded().$$state.status === 1) numberCompleted++
-      });
+      var numberCompleted = topStories.length;
+      //angular.forEach(topStories, function (story) {
+      //  console.log(story)
+      //  if(story.$loaded().$$state.status === 1) numberCompleted++
+      //});
       return numberCompleted / numberOfTopStories;
     },
     fetchComments: function(storyID) {
       comments = {};
       numberOfComments = null;
+      lowestCommentLevel = 0;
       var refStory = new Firebase(APIUrl).child("item").child(storyID);
       var story = $firebase(refStory).$asObject();
       story.$loaded()
@@ -106,8 +124,36 @@ angular.module('frontpage.services', ['firebase'])
       });
     },
     getComments: function() {
-      console.log(comments)
-      return Object.keys(comments).map(function(k) { return comments[k] }).reverse();;
+      commentArray = [];
+      // convert the object of comment objects to an array of IDs so we're not juggling large objects
+      var commentPool = Object.keys(comments).sort().reverse().map(function(strID){return parseInt(strID)});
+      // get a list of the top level comments
+      angular.forEach(commentPool, function(commentID) {
+        if (comments[commentID].level == 0) {
+          commentArray.push(commentID);
+          commentPool.splice(commentPool.indexOf(commentID), 1);
+        }
+      });
+
+      // reverse the order so subcomments show up newest first (last to be added)
+      commentPool.reverse();
+      // cycle through, looking for parent IDs in the array of comment IDs
+      // if it's found, add it and remove it from the pool
+      // continue this until the pool is empty or we've reached the max number of loops
+      var lastPoolLength = commentPool.length;
+      for(var i = 1; i < 20; i++){
+        angular.forEach(commentPool, function(commentID){
+          if(commentArray.indexOf(comments[commentID].parent) != -1){
+            commentArray.splice(commentArray.indexOf(comments[commentID].parent)+1, 0, commentID);
+            commentPool.splice(commentPool.indexOf(commentID), 1);
+          }
+        });
+        // sometimes a comment can become an orphan if we are not applying new comments, then move on
+        if(lastPoolLength === commentPool.length)break;
+      }
+      return commentArray.map(function(commentID){
+        return comments[commentID]
+      });
     },
     getCommentsPercentLoaded: function(){
       var numberCompleted = 0;

@@ -11,7 +11,7 @@
                 ng-click="open(post.url)">
 
         <a class="ion-chatbubble icon light"
-           ng-click="loadComments(post.id); $event.stopPropagation()"
+           ng-click="loadComments(post.id, post.kids.length, $event)"
            ng-hide="post.type != 'story'">
           {{post.kids.length || 0}}
         </a>
