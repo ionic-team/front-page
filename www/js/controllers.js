@@ -119,8 +119,9 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
     }
   },5000);
 
-  $scope.loadComments = function(storyID){
-    $state.go('tab.newest-comments',{storyID:storyID});
+  $scope.loadComments = function(storyID, commentNum, $event){
+    $event.stopPropagation();
+    if(commentNum) $state.go('tab.front-page-comments',{storyID:storyID});
   };
 })
 
