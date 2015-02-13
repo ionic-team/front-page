@@ -15,7 +15,7 @@ angular.module('frontpage.controllers', ['ionic.services.analytics'])
     var iab = window.open(url,'_blank',params);
     // cordova tends to keep these in memory after they're gone so we'll help it forget
     iab.addEventListener('exit', function() {
-      iab.removeEventListener('exit', argument.callee);
+      iab.removeEventListener('exit', arguments.callee);
       iab.close();
       iab = null;
     });
